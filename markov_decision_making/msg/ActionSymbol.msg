@@ -1,0 +1,2 @@
+uint32 action_symbol
+uint32 decision_episode

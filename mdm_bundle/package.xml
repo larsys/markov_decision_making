@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package>
+  <name>mdm_bundle</name>
+  <version>0.1.1</version>
+  <description>The MDM Bundle: Contains the Markov Decision Making Library, 
+               Predicate Manager, and Topological Tools</description>
+
+  <maintainer email="jmessias@isr.ist.utl.pt">João Messias</maintainer>
+
+  <license>LGPLv3</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>markov_decision_making</run_depend>
+  <run_depend>predicate_manager</run_depend>
+  <run_depend>topological_tools</run_depend>
+  <export>
+    <metapackage/> 
+  </export>
+</package>

@@ -1,0 +1,42 @@
+<TopologicalMap>
+    <Node name="IsInElevatorHallway">
+        <Goal>3.0 -2.0 -3.1416</Goal>
+        <Connections>
+            <Connection label="Up">IsInWestCorridor</Connection>
+        </Connections>
+    </Node>
+    <Node name="IsInWestCorridor">
+        <Goal>6.0 3.88 -1.5708</Goal>
+        <Connections>
+            <Connection label="Down">IsInElevatorHallway</Connection>
+            <Connection label="Left">IsInSouthCorridor</Connection>
+        </Connections>
+    </Node>
+    <Node name="IsInCoffeeRoom">
+        <Goal>-5.0 12.0 1.5708</Goal>
+        <Connections>
+            <Connection label="Down">IsInSouthCorridor</Connection>
+        </Connections>
+    </Node>
+    <Node name="IsInSouthCorridor">
+        <Goal>0.0 8.0 -3.1416</Goal>
+        <Connections>
+            <Connection label="Down">IsInLRM</Connection>
+            <Connection label="Right">IsInWestCorridor</Connection>
+            <Connection label="Up">IsInCoffeeRoom</Connection>
+        </Connections>
+    </Node>
+    <Node name="IsInLRM">
+        <Goal>-10.0 -2.5 1.5708</Goal>
+        <Connections>
+            <Connection label="Down">IsInSoccerField</Connection>
+            <Connection label="Up">IsInSouthCorridor</Connection>
+        </Connections>
+    </Node>
+    <Node name="IsInSoccerField">
+        <Goal>-10.0 -7.0 0</Goal>
+        <Connections>
+            <Connection label="Up">IsInLRM</Connection>
+        </Connections>
+    </Node>
+</TopologicalMap>

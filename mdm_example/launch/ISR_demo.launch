@@ -1,0 +1,47 @@
+<launch>
+    <node pkg="stage_ros" type="stageros" name="stageros" args=" $(find mdm_example)/config/ISR.world">
+        <remap from="odom" to="agent/100/odom" />
+        <remap from="base_scan" to="agent/100/scan" />
+        <remap from="base_pose_ground_truth" to="agent/100/base_pose_ground_truth" />
+        <remap from="cmd_vel" to="agent/100/cmd_vel" />
+    </node>
+    
+    <param name="use_sim_time" type="bool" value="true" />
+    
+    <!-- Run the map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find mdm_example)/config/ISR_navigation_map.yaml">
+        <param name="frame_id" value="/map" />
+    </node>
+    <!-- A second map server just for Rviz (that way we can show a nicer version of the map) -->
+    <node name="rviz_map_server" pkg="map_server" type="map_server" args="$(find mdm_example)/config/ISR_rviz_map.yaml">
+        <param name="frame_id" value="/map" />
+        <remap from="/map" to="/rviz_map" />
+           <remap from="/map_metadata" to="/rviz_map_metadata"/>
+    </node>
+
+    <group ns="agent/100">
+        <param name="pm_id" value="0" />
+
+        <include file="$(find mdm_example)/launch/navigation.launch"/>
+        
+        <node pkg="rviz" type="rviz" name="rviz"
+              args="-d $(find mdm_example)/config/ISR_demo.rviz"/>
+        
+        <rosparam file="$(find mdm_example)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
+        <node pkg="topological_tools" name="pose_labeler" type="pose_labeler_node" 
+              args="$(find mdm_example)/maps/ISR_label_map.png amcl_pose" respawn="true"/>
+        <node pkg="mdm_example" name="predicates" type="demo_predicates" respawn="true"/>
+
+        <node pkg="mdm_example" name="state_layer" type="demo_state_layer" respawn="true"/>
+
+        <node pkg="mdm_example" name="control_layer" type="demo_control_layer" 
+              args="$(find mdm_example)/config/MDP_policy" respawn="true"/>
+        
+        <node pkg="mdm_example" name="action_layer" type="demo_action_layer" 
+              args="$(find mdm_example)/config/topological_map.xml" respawn="true"/>
+        
+        <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
+              args="pub -1 /agent/100/initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: -10, y: -7.5, z: 0}, orientation: { w: 0.7071, z: 0.7071, x: 0, y: 0 } } } }'"/>
+              
+    </group>
+</launch>

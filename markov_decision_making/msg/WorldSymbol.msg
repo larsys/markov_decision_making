@@ -1,0 +1,1 @@
+uint32 world_symbol

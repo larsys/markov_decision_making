@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>mdm_example</name>
+  <version>0.1.1</version>
+  <description>An example application of the MDM bundle</description>
+
+  <maintainer email="jmessias@isr.ist.utl.pt">Joao Messias</maintainer>
+
+  <license>LGPLv3</license>
+
+  <author email="jmessias@isr.ist.utl.pt">Joao Messias</author>
+
+  <build_depend>markov_decision_making</build_depend>
+  <build_depend>predicate_manager</build_depend>
+  <build_depend>topological_tools</build_depend>
+
+  <run_depend>markov_decision_making</run_depend>
+  <run_depend>predicate_manager</run_depend>
+  <run_depend>topological_tools</run_depend>
+    
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
