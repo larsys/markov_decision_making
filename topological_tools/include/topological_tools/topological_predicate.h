@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -32,30 +32,30 @@
 
 namespace topological_tools
 {
-  class TopologicalPredicate : public predicate_manager::Predicate
-  {
-    public:
-      TopologicalPredicate (const std::string& label_topic,
-                        const std::string& name);
-      
-      TopologicalPredicate (const std::string& label_topic,
-                        const std::string& name,
-                        const uint32_t target_label);
+class TopologicalPredicate : public predicate_manager::Predicate
+{
+public:
+    TopologicalPredicate ( const std::string& label_topic,
+                           const std::string& name );
 
-      
-      void labelCallback (const topological_tools::PoseLabelConstPtr& msg);
-      
-      void update();
-      
-    protected:
-      ros::NodeHandle nh_;
-      
-    private:
-      ros::Subscriber label_subs_;
+    TopologicalPredicate ( const std::string& label_topic,
+                           const std::string& name,
+                           const uint32_t target_label );
 
-      uint32_t target_label_;
-      uint32_t received_label_;
-  };
+
+    void labelCallback ( const topological_tools::PoseLabelConstPtr& msg );
+
+    void update();
+
+protected:
+    ros::NodeHandle nh_;
+
+private:
+    ros::Subscriber label_subs_;
+
+    uint32_t target_label_;
+    uint32_t received_label_;
+};
 }
 
 #endif

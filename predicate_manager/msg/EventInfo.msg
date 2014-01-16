@@ -1,2 +1,2 @@
 string name
-uint32 id
+uint32 nr

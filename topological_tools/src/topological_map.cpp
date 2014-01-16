@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -39,70 +39,77 @@ using namespace geometry_msgs;
 
 
 
-TopologicalMap::TopologicalMap (const string& map_file)
+TopologicalMap::TopologicalMap ( const string& map_file )
 {
-  using boost::property_tree::ptree;
-  
-  ptree p;
-  try {
-    read_xml (map_file, p);
+    using boost::property_tree::ptree;
 
-    foreach (ptree::value_type & n, p.get_child ("TopologicalMap")) {
-      string name = n.second.get<string> ("<xmlattr>.name");
-      string data = n.second.get<string> ("Goal");
-      Pose goal;
-      
-      float x, y, th;
-      sscanf (data.c_str(), "%f %f %f", &x, &y, &th);
-      goal.position.x = x;
-      goal.position.y = y;
-      goal.orientation.z = sin (th / 2.0);
-      goal.orientation.w = cos (th / 2.0);
-      addNode (goal, name);
+    ptree p;
+    try
+    {
+        read_xml ( map_file, p );
+
+        foreach ( ptree::value_type & n, p.get_child ( "TopologicalMap" ) )
+        {
+            string name = n.second.get<string> ( "<xmlattr>.name" );
+            string data = n.second.get<string> ( "Goal" );
+            Pose goal;
+
+            float x, y, th;
+            sscanf ( data.c_str(), "%f %f %f", &x, &y, &th );
+            goal.position.x = x;
+            goal.position.y = y;
+            goal.orientation.z = sin ( th / 2.0 );
+            goal.orientation.w = cos ( th / 2.0 );
+            addNode ( goal, name );
+        }
+        //connections
+        foreach ( ptree::value_type & n, p.get_child ( "TopologicalMap" ) )
+        {
+            string name = n.second.get<string> ( "<xmlattr>.name" );
+
+            foreach ( ptree::value_type & c, n.second.get_child ( "Connections" ) )
+            {
+                string connection_label = c.second.get<string> ( "<xmlattr>.label" );
+                string connection_name = c.second.data();
+                node_map_[name]->connect ( getNodeByName ( connection_name ), connection_label );
+            }
+        }
     }
-    //connections
-    foreach (ptree::value_type & n, p.get_child ("TopologicalMap")) {
-      string name = n.second.get<string> ("<xmlattr>.name");
-      
-      foreach (ptree::value_type & c, n.second.get_child ("Connections")) {
-        string connection_label = c.second.get<string> ("<xmlattr>.label");
-        string connection_name = c.second.data();
-        node_map_[name]->connect (getNodeByName (connection_name), connection_label);
-      }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( "TopologicalMap:: Exception Thrown: " << e.what() );
     }
-  }
-  catch (exception& e) {
-    ROS_ERROR_STREAM ("TopologicalMap:: Exception Thrown: " << e.what());
-  }
 }
 
 
 
-bool TopologicalMap::hasNode (const string& node_name)
+bool TopologicalMap::hasNode ( const string& node_name )
 {
-  return node_map_.count (node_name);
+    return node_map_.count ( node_name );
 }
 
 
 
-boost::shared_ptr<TopologicalNode> TopologicalMap::getNodeByName (const string& node_name)
+boost::shared_ptr<TopologicalNode> TopologicalMap::getNodeByName ( const string& node_name )
 {
-  if (!node_map_.count (node_name)) {
-    ROS_ERROR_STREAM ("TopologicalMap:: Node " << node_name << " not present in map.");
-    return boost::shared_ptr<TopologicalNode>();
-  }
-  
-  return node_map_[node_name];
+    if ( !node_map_.count ( node_name ) )
+    {
+        ROS_ERROR_STREAM ( "TopologicalMap:: Node " << node_name << " not present in map." );
+        return boost::shared_ptr<TopologicalNode>();
+    }
+
+    return node_map_[node_name];
 }
 
 
 
-void TopologicalMap::addNode (Pose goal, const string& node_name)
+void TopologicalMap::addNode ( Pose goal, const string& node_name )
 {
-  if (node_map_.count (node_name)) {
-    ROS_WARN_STREAM ("TopologicalMap:: Node " << node_name << " already present in map. It is being replaced.");
-  }
-  
-  
-  node_map_[node_name] = boost::shared_ptr<TopologicalNode> (new TopologicalNode (goal, node_name));
+    if ( node_map_.count ( node_name ) )
+    {
+        ROS_WARN_STREAM ( "TopologicalMap:: Node " << node_name << " already present in map. It is being replaced." );
+    }
+
+
+    node_map_[node_name] = boost::shared_ptr<TopologicalNode> ( new TopologicalNode ( goal, node_name ) );
 }

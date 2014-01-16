@@ -29,16 +29,17 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/shared_ptr.hpp>
-
+#include <boost/foreach.hpp>
+#define foreach BOOST_FOREACH
 
 
 namespace markov_decision_making
 {
-  typedef boost::numeric::ublas::vector<uint32_t> IndexVector;
-  typedef boost::numeric::ublas::matrix<double> Matrix;
-  
-  typedef boost::shared_ptr<IndexVector> IndexVectorPtr;
-  typedef boost::shared_ptr<Matrix> MatrixPtr;
+typedef boost::numeric::ublas::vector<uint32_t> IndexVector;
+typedef boost::numeric::ublas::matrix<double> Matrix;
+
+typedef boost::shared_ptr<IndexVector> IndexVectorPtr;
+typedef boost::shared_ptr<Matrix> MatrixPtr;
 }
 
 #endif

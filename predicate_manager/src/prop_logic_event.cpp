@@ -1,4 +1,4 @@
-/**\file prop_logic_predicate.cpp
+/**\file prop_logic_event.cpp
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -22,7 +22,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <predicate_manager/prop_logic_predicate.h>
+#include <predicate_manager/prop_logic_event.h>
 
 #include <ros/ros.h>
 
@@ -30,28 +30,30 @@ using namespace std;
 using namespace predicate_manager;
 
 
-PropLogicPredicate::
-PropLogicPredicate ( const string& name,
-                     const PropLogic& pl ) :
-    Predicate ( name ),
-    prop_logic_ ( pl.clone() )
+PropLogicEvent::
+PropLogicEvent ( const string& name,
+                 const PropLogic& pl ) :
+    Event ( name ),
+    prop_logic_ ( pl.clone() ),
+    val_ ( false )
 {
     declareAllDependencies();
 }
 
-PropLogicPredicate::
-PropLogicPredicate ( const string& name ) :
-    Predicate ( name ),
-    prop_logic_ ()
+PropLogicEvent::
+PropLogicEvent ( const string& name ) :
+    Event ( name ),
+    prop_logic_ (),
+    val_ ( false )
 {}
 
 void
-PropLogicPredicate::
+PropLogicEvent::
 bindPropLogic ( const PropLogic& pl )
 {
     if ( prop_logic_ != 0 )
     {
-        ROS_ERROR_STREAM ( "Overwriting the Propositional Logic formula associated with predicate " << getName() );
+        ROS_ERROR_STREAM ( "Overwriting the Propositional Logic formula associated with event " << getName() );
     }
     prop_logic_ = pl.clone();
     declareAllDependencies();
@@ -60,18 +62,21 @@ bindPropLogic ( const PropLogic& pl )
 }
 
 void
-PropLogicPredicate::
+PropLogicEvent::
 update()
 {
     if ( prop_logic_ != 0 )
     {
-        bool val = prop_logic_->evaluate ( boost::bind ( &PropLogicPredicate::evaluate,this,_1 ) );
-        setValue ( val );
+        bool val = prop_logic_->evaluate ( boost::bind ( &PropLogicEvent::evaluate,this,_1 ) );
+        if ( val && !val_ )
+            triggerEvent(); ///triggers on rising edge
+
+        val_ = val;
     }
 }
 
 void
-PropLogicPredicate::
+PropLogicEvent::
 declareAllDependencies()
 {
     if ( prop_logic_!=0 )
@@ -86,7 +91,7 @@ declareAllDependencies()
 }
 
 bool
-PropLogicPredicate::
+PropLogicEvent::
 evaluate ( const NameID& dep_name_id )
 {
     return getDependencyValue ( dep_name_id.second, dep_name_id.first );

@@ -1,4 +1,4 @@
-/**\file dependencies.cpp
+/**\file event.cpp
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -27,10 +27,45 @@
 
 using namespace predicate_manager;
 
-Dependencies
-Dependencies::
-add (std::string const& name, boost::function<void (bool) > dependency_callback) {
-    dependency_map_[name] = dependency_callback;
-    return *this;
+#include <predicate_manager/event.h>
+
+#include <ros/ros.h>
+
+using namespace std;
+using namespace predicate_manager;
+
+
+Event::
+Event ( const string& name,
+        const Dependencies& deps ) :
+    PredicateDependentEntity ( deps ),
+    name_ ( name ),
+    trigger_ ()
+{}
+
+Event::
+Event ( const string& name ) :
+    PredicateDependentEntity(),
+    name_ ( name ),
+    trigger_ ()
+{}
+
+std::string Event::getName()
+{
+    return name_;
 }
-   
+
+std::string Event::setName ( const std::string& new_name )
+{
+    name_ = new_name;
+}
+
+void Event::setTrigger ( const boost::function<void () > trigger )
+{
+    trigger_ = trigger;
+}
+
+void Event::triggerEvent ()
+{
+    trigger_();
+}

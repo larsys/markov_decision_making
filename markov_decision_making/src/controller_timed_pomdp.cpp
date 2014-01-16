@@ -38,55 +38,60 @@ using namespace markov_decision_making;
 
 
 ControllerTimedPOMDP::
-ControllerTimedPOMDP (string const& problem_file,
-                      string const& value_function_file,
-                      const CONTROLLER_STATUS initial_status) :
-  ControllerPOMDP (problem_file, initial_status),
-  o_ (0)
+ControllerTimedPOMDP ( string const& problem_file,
+                       string const& value_function_file,
+                       const CONTROLLER_STATUS initial_status ) :
+    ControllerPOMDP ( problem_file, initial_status ),
+    o_ ( 0 )
 {
-  if (!nh_.hasParam ("decision_period")) {
-    ROS_ERROR ("Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter.");
-    abort();
-  }
-  
-  try {
-    timer_ = nh_.createTimer (0, &ControllerTimedPOMDP::timerCallback, this, true, false);
-    scheduleTimer();
-    
-    bool isSparse;
-    if (!nh_.getParam ("is_sparse", isSparse)) {
-      isSparse = false;
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
     }
-    
-    
-    boost::shared_ptr<PlanningUnitDecPOMDPDiscrete> np (new NullPlanner (loader_->GetDecPOMDP().get()));
-    Q_ = boost::shared_ptr<QAV<PerseusPOMDPPlanner> >
-         (new QAV<PerseusPOMDPPlanner> (np,
-                                        value_function_file));
-                                        
-    if (isSparse)
-      belief_ = boost::shared_ptr<JointBeliefSparse>
-                (new JointBeliefSparse (loader_->GetDecPOMDP()->GetNrStates()));
-    else
-      belief_ = boost::shared_ptr<JointBelief>
-                (new JointBelief (loader_->GetDecPOMDP()->GetNrStates()));
-    if (initial_status == STARTED) {
-      startController();
+
+    try
+    {
+        timer_ = nh_.createTimer ( 0, &ControllerTimedPOMDP::timerCallback, this, true, false );
+        scheduleTimer();
+
+        bool isSparse;
+        if ( !nh_.getParam ( "is_sparse", isSparse ) )
+        {
+            isSparse = false;
+        }
+
+
+        boost::shared_ptr<PlanningUnitDecPOMDPDiscrete> np ( new NullPlanner ( loader_->GetDecPOMDP().get() ) );
+        Q_ = boost::shared_ptr<QAV<PerseusPOMDPPlanner> >
+             ( new QAV<PerseusPOMDPPlanner> ( np,
+                                              value_function_file ) );
+
+        if ( isSparse )
+            belief_ = boost::shared_ptr<JointBeliefSparse>
+                      ( new JointBeliefSparse ( loader_->GetDecPOMDP()->GetNrStates() ) );
+        else
+            belief_ = boost::shared_ptr<JointBelief>
+                      ( new JointBelief ( loader_->GetDecPOMDP()->GetNrStates() ) );
+        if ( initial_status == STARTED )
+        {
+            startController();
+        }
     }
-  }
-  catch (E& e) {
-    e.Print();
-    abort();
-  }
+    catch ( E& e )
+    {
+        e.Print();
+        abort();
+    }
 }
 
 
 
 void
 ControllerTimedPOMDP::
-observationCallback (const ObservationInfoConstPtr& msg)
+observationCallback ( const WorldSymbolConstPtr& msg )
 {
-  o_ = msg->observation;
+    o_ = msg->world_symbol;
 }
 
 
@@ -95,25 +100,25 @@ void
 ControllerTimedPOMDP::
 scheduleTimer()
 {
-  double dp;
-  nh_.getParam ("decision_period", dp);
-  
-  double timeToWait = dp - fmod (ros::Time::now().toSec(), dp);
-  ros::Duration d (timeToWait);
-  
-  timer_.stop();
-  timer_.setPeriod (d);
-  timer_.start();
+    double dp;
+    nh_.getParam ( "decision_period", dp );
+
+    double timeToWait = dp - fmod ( ros::Time::now().toSec(), dp );
+    ros::Duration d ( timeToWait );
+
+    timer_.stop();
+    timer_.setPeriod ( d );
+    timer_.start();
 }
 
 
 
 void
 ControllerTimedPOMDP::
-timerCallback (const ros::TimerEvent& timerEvent)
+timerCallback ( const ros::TimerEvent& timerEvent )
 {
-  step();
-  scheduleTimer();
+    step();
+    scheduleTimer();
 }
 
 
@@ -122,7 +127,7 @@ void
 ControllerTimedPOMDP::
 step()
 {
-  act (o_);
+    act ( o_ );
 }
 
 
@@ -131,16 +136,19 @@ void
 ControllerTimedPOMDP::
 startController ()
 {
-  if (belief_ == 0) {
-    ROS_WARN ("ControllerTimedPOMDP:: Attempted to start controller, but the belief state hasn't been initialized.");
-    return;
-  }
-  if (ISD_ != 0) {
-    belief_->Set (ISD_->ToVectorOfDoubles());
-  }
-  else {
-    belief_->Set (* (loader_->GetDecPOMDP()->GetISD()));
-  }
-  setStatus (STARTED);
-  resetDecisionEpisode();
+    if ( belief_ == 0 )
+    {
+        ROS_WARN ( "ControllerTimedPOMDP:: Attempted to start controller, but the belief state hasn't been initialized." );
+        return;
+    }
+    if ( ISD_ != 0 )
+    {
+        belief_->Set ( ISD_->ToVectorOfDoubles() );
+    }
+    else
+    {
+        belief_->Set ( * ( loader_->GetDecPOMDP()->GetISD() ) );
+    }
+    setStatus ( STARTED );
+    resetDecisionEpisode();
 }

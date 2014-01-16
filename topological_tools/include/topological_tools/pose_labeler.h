@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -46,27 +46,27 @@
 
 namespace topological_tools
 {
-  class PoseLabeler
-  {
-    public:
-      PoseLabeler (const std::string& label_map_filename);
-      
-      ~PoseLabeler();
-      PoseLabel getPoseLabel (geometry_msgs::PoseWithCovarianceStamped msg);
-      uint32_t getPixelValue (boost::shared_ptr<SDL_Surface> surface, int x, int y);
-      
-      void setMapMetaData (const nav_msgs::MapMetaDataConstPtr& mdata);
-      
-      void setMapMetaData (nav_msgs::MapMetaData mdata);
-      
-    private:
-    
-      boost::shared_ptr<SDL_Surface> label_map_;
-      
-      bool map_loaded_;
-      
-      nav_msgs::MapMetaData map_metadata_;
-  };
+class PoseLabeler
+{
+public:
+    PoseLabeler ( const std::string& label_map_filename );
+
+    ~PoseLabeler();
+    PoseLabel getPoseLabel ( geometry_msgs::PoseWithCovarianceStamped msg );
+    uint32_t getPixelValue ( boost::shared_ptr<SDL_Surface> surface, int x, int y );
+
+    void setMapMetaData ( const nav_msgs::MapMetaDataConstPtr& mdata );
+
+    void setMapMetaData ( nav_msgs::MapMetaData mdata );
+
+private:
+
+    boost::shared_ptr<SDL_Surface> label_map_;
+
+    bool map_loaded_;
+
+    nav_msgs::MapMetaData map_metadata_;
+};
 }
 
 #endif

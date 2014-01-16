@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -32,21 +32,21 @@
 
 namespace topological_tools
 {
-  class TopologicalMap
-  {
-    public:
-      TopologicalMap (const std::string& map_file);
-      
-      bool hasNode (const std::string& node_name);
-      
-      boost::shared_ptr<TopologicalNode> getNodeByName (const std::string& node_name);
-      
-      void addNode (geometry_msgs::Pose goal, const std::string& node_name);
-      
-    private :
-    
-      std::map<std::string, boost::shared_ptr<TopologicalNode> > node_map_;
-  };
+class TopologicalMap
+{
+public:
+    TopologicalMap ( const std::string& map_file );
+
+    bool hasNode ( const std::string& node_name );
+
+    boost::shared_ptr<TopologicalNode> getNodeByName ( const std::string& node_name );
+
+    void addNode ( geometry_msgs::Pose goal, const std::string& node_name );
+
+private :
+
+    std::map<std::string, boost::shared_ptr<TopologicalNode> > node_map_;
+};
 }
 
 #endif

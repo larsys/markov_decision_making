@@ -35,21 +35,21 @@
 
 namespace predicate_manager
 {
-  /**
-   * The PropLogic class is a base class for propositional logic operators (connectives).
-   */
-  class PropLogic
-  {
-    public:
-      ///Evaluates this propositional formula. This should be implemented by each derived operator.
-      virtual bool evaluate (boost::function<bool (NameID) > f) const = 0;
+/**
+ * The PropLogic class is a base class for propositional logic operators (connectives).
+ */
+class PropLogic
+{
+public:
+    ///Evaluates this propositional formula. This should be implemented by each derived operator.
+    virtual bool evaluate ( boost::function<bool ( NameID ) > f ) const = 0;
 
-      ///A standard clone function for PropLogic and its derived classes.
-      virtual boost::shared_ptr<PropLogic> clone() const = 0;
-      
-      ///Gets the set of variable names for this propositional formula.
-      virtual void printVariables (NameIDSet& dep_set) const = 0;
-  };
+    ///A standard clone function for PropLogic and its derived classes.
+    virtual boost::shared_ptr<PropLogic> clone() const = 0;
+
+    ///Gets the set of variable names for this propositional formula.
+    virtual void printVariables ( NameIDSet& dep_set ) const = 0;
+};
 }
 
 #endif

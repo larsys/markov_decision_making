@@ -43,35 +43,35 @@
 
 namespace markov_decision_making
 {
-  class DecPOMDPLoader
-  {
-    protected:
-      ros::NodeHandle nh_;
-      
-    public:
-      DecPOMDPLoader (const std::string& problem_file);
-      
+class DecPOMDPLoader
+{
+protected:
+    ros::NodeHandle nh_;
+
+public:
+    DecPOMDPLoader ( const std::string& problem_file );
+
 #ifdef HAVE_MADP
-      
-      boost::shared_ptr<DecPOMDPDiscreteInterface> decpomdp_;
-      
-      const boost::shared_ptr<DecPOMDPDiscreteInterface> GetDecPOMDP();
-      PlanningUnitMADPDiscreteParameters GetParams();
-      
-      void publishActionMetadata ();
-      void publishStateMetadata (boost::shared_ptr<FactoredDecPOMDPDiscrete> f);
-      void publishStateMetadata (boost::shared_ptr<DecPOMDPDiscrete> d);
-      void publishObservationMetadata ();
-      void publishInitialStateDistribution (boost::shared_ptr<FactoredDecPOMDPDiscrete> f);
-      void publishInitialStateDistribution (boost::shared_ptr<DecPOMDPDiscrete> d);
-    private:
-      ros::Publisher action_metadata_pub_;
-      ros::Publisher state_metadata_pub_;
-      ros::Publisher observation_metadata_pub_;
-      ros::Publisher initial_state_distribution_pub_;
-      
+
+    boost::shared_ptr<DecPOMDPDiscreteInterface> decpomdp_;
+
+    const boost::shared_ptr<DecPOMDPDiscreteInterface> GetDecPOMDP();
+    PlanningUnitMADPDiscreteParameters GetParams();
+
+    void publishActionMetadata ();
+    void publishStateMetadata ( boost::shared_ptr<FactoredDecPOMDPDiscrete> f );
+    void publishStateMetadata ( boost::shared_ptr<DecPOMDPDiscrete> d );
+    void publishObservationMetadata ();
+    void publishInitialStateDistribution ( boost::shared_ptr<FactoredDecPOMDPDiscrete> f );
+    void publishInitialStateDistribution ( boost::shared_ptr<DecPOMDPDiscrete> d );
+private:
+    ros::Publisher action_metadata_pub_;
+    ros::Publisher state_metadata_pub_;
+    ros::Publisher observation_metadata_pub_;
+    ros::Publisher initial_state_distribution_pub_;
+
 #endif
-  };
+};
 }
 
 #endif

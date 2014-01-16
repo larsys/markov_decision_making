@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -38,39 +38,39 @@
 
 namespace topological_tools
 {
-  class TopologicalActionManager
-  {
-    public:
-      TopologicalActionManager (const std::string& map_file, ros::CallbackQueueInterface* queue = NULL);
-      TopologicalActionManager (TopologicalMap& tm, ros::CallbackQueueInterface* queue = NULL);
-      
-      boost::shared_ptr<TopologicalNode> getCurrentNode();
-      boost::shared_ptr<TopologicalNode> getGoalNodeForLabel (const std::string& connection_label);
-      boost::shared_ptr<TopologicalNode> getGoalNodeForLabel (const std::string& connection_label,
-          const std::string& origin_name);
-      geometry_msgs::Pose getGoalPoseForLabel (const std::string& connection_label);
-      geometry_msgs::Pose getGoalPoseForLabel (const std::string& connection_label,
-                                               const std::string& origin_name);
-      bool isInitialized();
-    private:
-      void predicateMapCallback (const predicate_manager::PredicateInfoMapConstPtr& msg);
-      void predicateUpdatesCallback (const predicate_manager::PredicateUpdateConstPtr& msg);
-      void predicateUpdatesInternal (const predicate_manager::PredicateUpdate& msg);
-      
-      ros::NodeHandle nh_;
-      
-      ros::Subscriber pred_updates_sub_;
-      ros::Subscriber pred_map_sub_;
-      
-      TopologicalMap tm_;
-      
-      std::map<uint32_t, std::string> pred_id_node_map_;
-      
-      int pm_id_; ///Agent ID as seen by the Predicate Manager
-      std::string current_node_name_;
-      ///For initialization purposes:
-      predicate_manager::PredicateUpdate requested_update_;
-  };
+class TopologicalActionManager
+{
+public:
+    TopologicalActionManager ( const std::string& map_file, ros::CallbackQueueInterface* queue = NULL );
+    TopologicalActionManager ( TopologicalMap& tm, ros::CallbackQueueInterface* queue = NULL );
+
+    boost::shared_ptr<TopologicalNode> getCurrentNode();
+    boost::shared_ptr<TopologicalNode> getGoalNodeForLabel ( const std::string& connection_label );
+    boost::shared_ptr<TopologicalNode> getGoalNodeForLabel ( const std::string& connection_label,
+            const std::string& origin_name );
+    geometry_msgs::Pose getGoalPoseForLabel ( const std::string& connection_label );
+    geometry_msgs::Pose getGoalPoseForLabel ( const std::string& connection_label,
+            const std::string& origin_name );
+    bool isInitialized();
+private:
+    void predicateMapCallback ( const predicate_manager::PredicateInfoMapConstPtr& msg );
+    void predicateUpdatesCallback ( const predicate_manager::PredicateUpdateConstPtr& msg );
+    void predicateUpdatesInternal ( const predicate_manager::PredicateUpdate& msg );
+
+    ros::NodeHandle nh_;
+
+    ros::Subscriber pred_updates_sub_;
+    ros::Subscriber pred_map_sub_;
+
+    TopologicalMap tm_;
+
+    std::map<uint32_t, std::string> pred_id_node_map_;
+
+    int pm_id_; ///Agent ID as seen by the Predicate Manager
+    std::string current_node_name_;
+    ///For initialization purposes:
+    predicate_manager::PredicateUpdate requested_update_;
+};
 }
 
 #endif

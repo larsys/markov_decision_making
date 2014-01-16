@@ -24,9 +24,6 @@
 
 #include <predicate_manager/prop_xor.h>
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 
 
 using namespace predicate_manager;
@@ -36,19 +33,19 @@ using namespace std;
 
 bool
 Xor::
-evaluate (boost::function<bool (NameID) > f) const
+evaluate ( boost::function<bool ( NameID ) > f ) const
 {
-  if(children_.empty())
-    return false;
-  
-  bool base_value = children_[0]->evaluate (f);
-  for(size_t i = 1; i < children_.size(); i++)
-  {
-    if(children_[i]->evaluate(f) != base_value)
-      return false;
-  }
-  
-  return true;
+    if ( children_.empty() )
+        return false;
+
+    bool base_value = children_[0]->evaluate ( f );
+    for ( size_t i = 1; i < children_.size(); i++ )
+    {
+        if ( children_[i]->evaluate ( f ) != base_value )
+            return false;
+    }
+
+    return true;
 }
 
 
@@ -57,6 +54,6 @@ boost::shared_ptr<PropLogic>
 Xor::
 clone() const
 {
-  boost::shared_ptr<Xor> p (new Xor (*this));
-  return (boost::dynamic_pointer_cast<PropLogic> (p));
+    boost::shared_ptr<Xor> p ( new Xor ( *this ) );
+    return ( boost::dynamic_pointer_cast<PropLogic> ( p ) );
 }

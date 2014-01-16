@@ -31,36 +31,37 @@
 
 namespace markov_decision_making
 {
-  class RewardModel
-  {
-    public:
-      /**
-       */
-      virtual double getReward (uint32_t state,
-                                uint32_t action) = 0;
-  };
-  
-  class RewardMatrix : public RewardModel
-  {
-    public:
-      RewardMatrix (MatrixPtr matrix_ptr) :
-        R_ptr_ (matrix_ptr) {}
-        
-      double getReward (uint32_t state,
-                        uint32_t action) {
-        return (*R_ptr_) (state, action);
-      }
-    private:
-      MatrixPtr R_ptr_;
-  };
-  
+class RewardModel
+{
+public:
+    /**
+     */
+    virtual double getReward ( uint32_t state,
+                               uint32_t action ) = 0;
+};
+
+class RewardMatrix : public RewardModel
+{
+public:
+    RewardMatrix ( MatrixPtr matrix_ptr ) :
+        R_ptr_ ( matrix_ptr ) {}
+
+    double getReward ( uint32_t state,
+                       uint32_t action )
+    {
+        return ( *R_ptr_ ) ( state, action );
+    }
+private:
+    MatrixPtr R_ptr_;
+};
+
 #ifdef HAVE_MADP
-  
-  class MADPReward : public RewardModel
-  {
-      
-  };
-  
+
+class MADPReward : public RewardModel
+{
+
+};
+
 #endif
 }
 

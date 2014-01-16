@@ -24,9 +24,6 @@
 
 #include <predicate_manager/prop_implies.h>
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 
 
 using namespace predicate_manager;
@@ -36,16 +33,16 @@ using namespace std;
 
 bool
 Implies::
-evaluate (boost::function<bool (NameID) > f) const
+evaluate ( boost::function<bool ( NameID ) > f ) const
 {
-  if(children_.size() >= 2)
-  {
-    if(children_[0]->evaluate (f) && !(children_[1]->evaluate (f)))
-      return false;
-    else
-      return true;
-  }
-  return false;
+    if ( children_.size() >= 2 )
+    {
+        if ( children_[0]->evaluate ( f ) && ! ( children_[1]->evaluate ( f ) ) )
+            return false;
+        else
+            return true;
+    }
+    return false;
 }
 
 
@@ -54,6 +51,6 @@ boost::shared_ptr<PropLogic>
 Implies::
 clone() const
 {
-  boost::shared_ptr<Implies> p (new Implies (*this));
-  return (boost::dynamic_pointer_cast<PropLogic> (p));
+    boost::shared_ptr<Implies> p ( new Implies ( *this ) );
+    return ( boost::dynamic_pointer_cast<PropLogic> ( p ) );
 }

@@ -32,8 +32,11 @@ add_library(${PROJECT_NAME}
             src/prop_xor.cpp
             src/prop_implies.cpp
             src/dependencies.cpp
+            src/predicate_dependent_entity.cpp
             src/predicate.cpp
+            src/event.cpp
             src/prop_logic_predicate.cpp
+            src/prop_logic_event.cpp
             src/predicate_manager.cpp)
             
 add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)

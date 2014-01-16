@@ -36,31 +36,31 @@
 
 namespace predicate_manager
 {
-  /**
-   * Implements the logical negation operator. "Not" is one of the two unary
-   * operators that directly reference Predicate instances (the other being PV).
-   */
-  class Not : public PropLogic
-  {
-    public:
-      /**
-       * Default constructor.
-       * @param name The name of the Predicate to which this negation operator should refer. 
-       */
-      Not (const std::string& name, const uint32_t pm_id = 0);
-      
-      ///Evaluates this formula.
-      bool evaluate (boost::function<bool (NameID) > f) const;
-      
-      ///A standard clone function for PropLogic and its derived classes.
-      boost::shared_ptr<PropLogic> clone() const;
-      
-      ///Gets the set of variable names for this propositional formula.
-      void printVariables (NameIDSet& dep_set) const;
-      
-    private:
-      NameID pred_name_id_; ///The NameID of the Predicate to which this negation operator should refer.
-  };
+/**
+ * Implements the logical negation operator. "Not" is one of the two unary
+ * operators that directly reference Predicate instances (the other being PV).
+ */
+class Not : public PropLogic
+{
+public:
+    /**
+     * Default constructor.
+     * @param name The name of the Predicate to which this negation operator should refer.
+     */
+    Not ( const std::string& name, const uint32_t pm_id = 0 );
+
+    ///Evaluates this formula.
+    bool evaluate ( boost::function<bool ( NameID ) > f ) const;
+
+    ///A standard clone function for PropLogic and its derived classes.
+    boost::shared_ptr<PropLogic> clone() const;
+
+    ///Gets the set of variable names for this propositional formula.
+    void printVariables ( NameIDSet& dep_set ) const;
+
+private:
+    NameID pred_name_id_; ///The NameID of the Predicate to which this negation operator should refer.
+};
 }
 
 #endif

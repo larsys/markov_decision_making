@@ -35,33 +35,33 @@
 
 namespace markov_decision_making
 {
-  /**
-   * ControllerTimedMDP implements an MDP controller that takes actions at a fixed rate.
-   */
-  class ControllerTimedMDP : public ControllerMDP
-  {
-    public:
+/**
+ * ControllerTimedMDP implements an MDP controller that takes actions at a fixed rate.
+ */
+class ControllerTimedMDP : public ControllerMDP
+{
+public:
 #ifdef HAVE_MADP
-      ControllerTimedMDP (const std::string& policy_file_path,
-                          const std::string& problem_file_path,
-                          const CONTROLLER_STATUS initial_status = STARTED);
+    ControllerTimedMDP ( const std::string& policy_file_path,
+                         const std::string& problem_file_path,
+                         const CONTROLLER_STATUS initial_status = STARTED );
 #endif
-                          
-      ControllerTimedMDP (const std::string& policy_file_path,
-                          const CONTROLLER_STATUS initial_status = STARTED);
-                          
-      void stateCallback (const WorldSymbolConstPtr& msg);
-    private:
-      void scheduleTimer();
-      void timerCallback (const ros::TimerEvent& timer_event);
-      void step();
-      
-      bool initial_state_known_;
-      
-      ros::Timer timer_;
-      
-      uint32_t s_;
-  };
+
+    ControllerTimedMDP ( const std::string& policy_file_path,
+                         const CONTROLLER_STATUS initial_status = STARTED );
+
+    void stateCallback ( const WorldSymbolConstPtr& msg );
+private:
+    void scheduleTimer();
+    void timerCallback ( const ros::TimerEvent& timer_event );
+    void step();
+
+    bool initial_state_known_;
+
+    ros::Timer timer_;
+
+    uint32_t s_;
+};
 }
 
 #endif

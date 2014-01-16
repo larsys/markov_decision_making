@@ -24,9 +24,6 @@
 
 #include <predicate_manager/prop_and.h>
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 
 
 using namespace predicate_manager;
@@ -36,13 +33,13 @@ using namespace std;
 
 bool
 And::
-evaluate (boost::function<bool (NameID) > f) const
+evaluate ( boost::function<bool ( NameID ) > f ) const
 {
-  bool v = true;
-  foreach (children_type::value_type c, children_)
-  v = v && c->evaluate (f);
-  
-  return v;
+    bool v = true;
+    foreach ( children_type::value_type c, children_ )
+        v = v && c->evaluate ( f );
+
+    return v;
 }
 
 
@@ -51,6 +48,6 @@ boost::shared_ptr<PropLogic>
 And::
 clone() const
 {
-  boost::shared_ptr<And> p (new And (*this));
-  return (boost::dynamic_pointer_cast<PropLogic> (p));
+    boost::shared_ptr<And> p ( new And ( *this ) );
+    return ( boost::dynamic_pointer_cast<PropLogic> ( p ) );
 }

@@ -32,8 +32,8 @@ using namespace std;
 
 
 Not::
-Not (const std::string& name, const uint32_t pm_id) :
-  pred_name_id_ (pm_id, name)
+Not ( const std::string& name, const uint32_t pm_id ) :
+    pred_name_id_ ( pm_id, name )
 {
 }
 
@@ -41,9 +41,9 @@ Not (const std::string& name, const uint32_t pm_id) :
 
 bool
 Not::
-evaluate (boost::function<bool (NameID) > f) const
+evaluate ( boost::function<bool ( NameID ) > f ) const
 {
-  return ! (f (pred_name_id_));
+    return ! ( f ( pred_name_id_ ) );
 }
 
 
@@ -52,15 +52,15 @@ boost::shared_ptr<PropLogic>
 Not::
 clone() const
 {
-  boost::shared_ptr<Not> p (new Not (*this));
-  return (boost::dynamic_pointer_cast<PropLogic> (p));
+    boost::shared_ptr<Not> p ( new Not ( *this ) );
+    return ( boost::dynamic_pointer_cast<PropLogic> ( p ) );
 }
 
 
 
 void
 Not::
-printVariables (NameIDSet& dep_set) const
+printVariables ( NameIDSet& dep_set ) const
 {
-  dep_set.insert (pred_name_id_);
+    dep_set.insert ( pred_name_id_ );
 }

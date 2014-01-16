@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -34,47 +34,48 @@ using namespace topological_tools;
 
 
 
-TopologicalNode::TopologicalNode (const geometry_msgs::Pose& goal, const string& name) :
-  goal_ (goal),
-  name_ (name)
+TopologicalNode::TopologicalNode ( const geometry_msgs::Pose& goal, const string& name ) :
+    goal_ ( goal ),
+    name_ ( name )
 {}
 
 
 
-void TopologicalNode::connect (boost::shared_ptr<TopologicalNode> tpn, const string& connection_label)
+void TopologicalNode::connect ( boost::shared_ptr<TopologicalNode> tpn, const string& connection_label )
 {
-  connections_[connection_label] = tpn;
+    connections_[connection_label] = tpn;
 }
 
 
 
-boost::shared_ptr<TopologicalNode> TopologicalNode::getConnection (const string& connection_label)
+boost::shared_ptr<TopologicalNode> TopologicalNode::getConnection ( const string& connection_label )
 {
-  if (!connections_.count (connection_label)) {
-    ROS_ERROR_STREAM ("TopologicalNode:: Node " << name_ << " has no connection '" << connection_label << "'.");
-    abort();
-  }
-  
-  return connections_[connection_label];
+    if ( !connections_.count ( connection_label ) )
+    {
+        ROS_ERROR_STREAM ( "TopologicalNode:: Node " << name_ << " has no connection '" << connection_label << "'." );
+        abort();
+    }
+
+    return connections_[connection_label];
 }
 
 
 
-bool TopologicalNode::hasConnection (const string& connection_label)
+bool TopologicalNode::hasConnection ( const string& connection_label )
 {
-  return connections_.count (connection_label);
+    return connections_.count ( connection_label );
 }
 
 
 
 const geometry_msgs::Pose& TopologicalNode::getGoalPose()
 {
-  return goal_;
+    return goal_;
 }
 
 
 
 const string& TopologicalNode::getName()
 {
-  return name_;
+    return name_;
 }

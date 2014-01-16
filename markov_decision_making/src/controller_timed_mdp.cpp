@@ -32,48 +32,51 @@ using namespace markov_decision_making;
 #ifdef HAVE_MADP
 
 ControllerTimedMDP::
-ControllerTimedMDP (const string& policy_file_path,
-                    const string& problem_file_path,
-                    const CONTROLLER_STATUS initial_status) :
-  ControllerMDP (policy_file_path, problem_file_path, initial_status),
-  initial_state_known_ (false)
+ControllerTimedMDP ( const string& policy_file_path,
+                     const string& problem_file_path,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, problem_file_path, initial_status ),
+    initial_state_known_ ( false )
 {
-  if (!nh_.hasParam ("decision_period")) {
-    ROS_ERROR ("Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter.");
-    abort();
-  }
-  
-  timer_ = nh_.createTimer (0, &ControllerTimedMDP::timerCallback, this, true, false);
-  scheduleTimer();
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
 }
 
 #endif
 
 ControllerTimedMDP::
-ControllerTimedMDP (const string& policy_file_path,
-                    const CONTROLLER_STATUS initial_status) :
-  ControllerMDP (policy_file_path, initial_status),
-  initial_state_known_ (false)
+ControllerTimedMDP ( const string& policy_file_path,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, initial_status ),
+    initial_state_known_ ( false )
 {
-  if (!nh_.hasParam ("decision_period")) {
-    ROS_ERROR ("Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter.");
-    abort();
-  }
-  
-  timer_ = nh_.createTimer (0, &ControllerTimedMDP::timerCallback, this, true, false);
-  scheduleTimer();
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
 }
 
 
 
 void
 ControllerTimedMDP::
-stateCallback (const WorldSymbolConstPtr& msg)
+stateCallback ( const WorldSymbolConstPtr& msg )
 {
-  s_ = msg->world_symbol;
-  if (!initial_state_known_) {
-    initial_state_known_ = true;
-  }
+    s_ = msg->world_symbol;
+    if ( !initial_state_known_ )
+    {
+        initial_state_known_ = true;
+    }
 }
 
 
@@ -82,28 +85,29 @@ void
 ControllerTimedMDP::
 scheduleTimer()
 {
-  double dp;
-  nh_.getParam ("decision_period", dp);
-  
-  double timeToWait = dp - fmod (ros::Time::now().toSec(), dp);
-  ros::Duration d (timeToWait);
-  
-  timer_.stop();
-  timer_.setPeriod (d);
-  timer_.start();
+    double dp;
+    nh_.getParam ( "decision_period", dp );
+
+    double timeToWait = dp - fmod ( ros::Time::now().toSec(), dp );
+    ros::Duration d ( timeToWait );
+
+    timer_.stop();
+    timer_.setPeriod ( d );
+    timer_.start();
 }
 
 
 
 void
 ControllerTimedMDP::
-timerCallback (const ros::TimerEvent& timer_event)
+timerCallback ( const ros::TimerEvent& timer_event )
 {
-  if (initial_state_known_) {
-    step();
-  }
-  
-  scheduleTimer();
+    if ( initial_state_known_ )
+    {
+        step();
+    }
+
+    scheduleTimer();
 }
 
 
@@ -112,5 +116,5 @@ void
 ControllerTimedMDP::
 step()
 {
-  act (s_);
+    act ( s_ );
 }

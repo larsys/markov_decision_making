@@ -69,12 +69,7 @@ add_library(mdm_state_layer
              
 add_dependencies(mdm_state_layer ${PROJECT_NAME}_generate_messages_cpp)
 
-# 
-# rosbuild_add_library(mdm_observation_layer
-#                      src/observation_layer.cpp)
-# 
+add_library(mdm_observation_layer
+            src/observation_layer.cpp)
 
-#                      
-# rosbuild_add_boost_directories()
-# rosbuild_link_boost(mdm_control_layer serialization)
-# 
+add_dependencies(mdm_observation_layer ${PROJECT_NAME}_generate_messages_cpp)

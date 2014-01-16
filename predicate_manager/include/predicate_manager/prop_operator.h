@@ -33,22 +33,22 @@
 
 namespace predicate_manager
 {
-  class PropOperator : public PropLogic
-  {
-    public:
-      ///The type for the container of a propositional connective's variables.
-      typedef std::vector<boost::shared_ptr<const PropLogic> > children_type; 
-      
-      ///Default constructor. Currently, only binary propositional operators are supported.
-      PropOperator (const PropLogic& p1,
-                    const PropLogic& p2);
-      
-      ///Gets the set of variable names for this propositional formula.
-      void printVariables (NameIDSet& dep_set) const;
-      
-    protected:
-      children_type children_; ///The container of a propositional connective's variables.
-  };
+class PropOperator : public PropLogic
+{
+public:
+    ///The type for the container of a propositional connective's variables.
+    typedef std::vector<boost::shared_ptr<const PropLogic> > children_type;
+
+    ///Default constructor. Currently, only binary propositional operators are supported.
+    PropOperator ( const PropLogic& p1,
+                   const PropLogic& p2 );
+
+    ///Gets the set of variable names for this propositional formula.
+    void printVariables ( NameIDSet& dep_set ) const;
+
+protected:
+    children_type children_; ///The container of a propositional connective's variables.
+};
 }
 
 #endif

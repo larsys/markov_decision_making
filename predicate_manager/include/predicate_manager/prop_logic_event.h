@@ -1,4 +1,4 @@
-/**\file prop_logic_predicate.h
+/**\file prop_logic_event.h
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -22,21 +22,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PROP_LOGIC_PREDICATE_H_
-#define _PROP_LOGIC_PREDICATE_H_
+#ifndef _PROP_LOGIC_EVENT_H_
+#define _PROP_LOGIC_EVENT_H_
 
 #include <string>
 #include <map>
 
-#include <predicate_manager/predicate.h>
+#include <predicate_manager/event.h>
 #include <predicate_manager/prop_logic.h>
 
 namespace predicate_manager
 {
 /**
- * PropLogicPredicate implements a Predicate that is defined over a propositional formula.
+ * PropLogicEvent implements an Event that is defined over a propositional formula.
  */
-class PropLogicPredicate : public Predicate
+class PropLogicEvent : public Event
 {
 public:
     /**
@@ -44,8 +44,8 @@ public:
      * @param name The name of this predicate.
      * @param pl The propositional formula from which the predicate should compute its value.
      */
-    PropLogicPredicate ( const std::string& name,
-                         const PropLogic& pl );
+    PropLogicEvent ( const std::string& name,
+                     const PropLogic& pl );
 
     /**
      * Alternate constructor. You can use this form, for example, if you
@@ -53,7 +53,7 @@ public:
      * of the variables involved in the respective propositional formula.
      * @param name The name of this predicate.
      */
-    PropLogicPredicate ( const std::string& name );
+    PropLogicEvent ( const std::string& name );
 
     ///To be called by the Predicate Manager.
     void update();
@@ -69,6 +69,8 @@ private:
     void declareAllDependencies();
 
     boost::shared_ptr<PropLogic> prop_logic_; ///The propositional formula to which this predicate is bound.
+
+    bool val_; ///The latest known value of the propositional formula
 };
 }
 

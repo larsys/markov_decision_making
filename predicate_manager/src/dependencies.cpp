@@ -29,33 +29,33 @@ using namespace predicate_manager;
 
 Dependencies::
 Dependencies() :
-  nh_ (),
-  pm_id_ (0)
+    nh_ (),
+    pm_id_ ( 0 )
 {
-  nh_.getParam ("pm_id", (int&) pm_id_);
-}
- 
-
-Dependencies
-Dependencies::
-add (const std::string& name) 
-{
-  return add(make_pair(pm_id_, name));
+    nh_.getParam ( "pm_id", ( int& ) pm_id_ );
 }
 
 
 Dependencies
 Dependencies::
-add (const int pm_id, const std::string& name) 
+add ( const std::string& name )
 {
-  return add(make_pair(pm_id, name));
+    return add ( make_pair ( pm_id_, name ) );
 }
-   
-  
+
+
 Dependencies
 Dependencies::
-add (const NameID& pred_nid)
+add ( const int pm_id, const std::string& name )
 {
-  dependency_set_.insert(pred_nid);
-  return *this;
+    return add ( make_pair ( pm_id, name ) );
+}
+
+
+Dependencies
+Dependencies::
+add ( const NameID& pred_nid )
+{
+    dependency_set_.insert ( pred_nid );
+    return *this;
 }

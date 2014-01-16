@@ -24,9 +24,6 @@
 
 #include <predicate_manager/prop_or.h>
 
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
-
 
 
 using namespace predicate_manager;
@@ -36,15 +33,17 @@ using namespace std;
 
 bool
 Or::
-evaluate (boost::function<bool (NameID) > f) const
+evaluate ( boost::function<bool ( NameID ) > f ) const
 {
-  foreach (children_type::value_type c, children_) {
-    if (c->evaluate (f) == true) {
-      return true;
+    foreach ( children_type::value_type c, children_ )
+    {
+        if ( c->evaluate ( f ) == true )
+        {
+            return true;
+        }
     }
-  }
-  
-  return false;
+
+    return false;
 }
 
 
@@ -53,6 +52,6 @@ boost::shared_ptr<PropLogic>
 Or::
 clone() const
 {
-  boost::shared_ptr<Or> p (new Or (*this));
-  return (boost::dynamic_pointer_cast<PropLogic> (p));
+    boost::shared_ptr<Or> p ( new Or ( *this ) );
+    return ( boost::dynamic_pointer_cast<PropLogic> ( p ) );
 }

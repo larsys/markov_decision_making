@@ -32,19 +32,19 @@ using namespace markov_decision_making;
 #ifdef HAVE_MADP
 
 ControllerEventMDP::
-ControllerEventMDP (const string& policy_file_path,
-                    const string& problem_file_path,
-                    const CONTROLLER_STATUS initial_status) :
-  ControllerMDP (policy_file_path, problem_file_path, initial_status)
+ControllerEventMDP ( const string& policy_file_path,
+                     const string& problem_file_path,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, problem_file_path, initial_status )
 {
 }
 
 #endif
 
 ControllerEventMDP::
-ControllerEventMDP (const string& policy_file_path,
-                    const CONTROLLER_STATUS initial_status) :
-  ControllerMDP (policy_file_path, initial_status)
+ControllerEventMDP ( const string& policy_file_path,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, initial_status )
 {
 }
 
@@ -52,7 +52,7 @@ ControllerEventMDP (const string& policy_file_path,
 
 void
 ControllerEventMDP::
-stateCallback (const WorldSymbolConstPtr& msg)
+stateCallback ( const WorldSymbolConstPtr& msg )
 {
-  act (msg->world_symbol);
+    act ( msg->world_symbol );
 }

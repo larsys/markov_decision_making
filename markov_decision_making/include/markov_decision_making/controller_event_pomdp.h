@@ -33,38 +33,38 @@
 
 namespace markov_decision_making
 {
-  /**
-   * ControllerEventPOMDP implements an asynchronous POMDP controller, driven by incoming observations.
-   */
-  class ControllerEventPOMDP : public ControllerPOMDP
-  {
-    public:
-      /**
-       * Constructor. When using this form, the reward function of the MDP model
-       * is known to the controller, and so reward can be logged in real-time. Furthermore,
-       * the metadata of the model is parsed automatically and passed to the Action Layer.
-       * @param problem_file A file defining the MDP, in any MADP-compatible format.
-       * @param q_value_function_file A file defining the Q-value function of this MDP, as a
-       * whitespace-separated |S|x|A| matrix of floating point numbers.
-       * If you have an explicit policy instead, convert it to a matrix where the only non-zero entries
-       * exist in the specified (s,a) pairs.
-       * @param initial_status (optional) The initial status of this controller.
-       */
-      ControllerEventPOMDP (const std::string& problem_file,
-                            const std::string& value_function_file,
-                            const CONTROLLER_STATUS initial_status = STARTED);
-      /**
-       * Start this controller. This reimplements ControlLayerBase::startController, since
-       * it must also reset the belief state of the process to the initial state distribution.
-       */
-      void startController();
-      
-    private:
-      /**
-       * Callback for observation data. A new decision step is taken whenever an observation is received.
-       */
-      void observationCallback (const ObservationInfoConstPtr& msg);
-  };
+/**
+ * ControllerEventPOMDP implements an asynchronous POMDP controller, driven by incoming observations.
+ */
+class ControllerEventPOMDP : public ControllerPOMDP
+{
+public:
+    /**
+     * Constructor. When using this form, the reward function of the MDP model
+     * is known to the controller, and so reward can be logged in real-time. Furthermore,
+     * the metadata of the model is parsed automatically and passed to the Action Layer.
+     * @param problem_file A file defining the MDP, in any MADP-compatible format.
+     * @param q_value_function_file A file defining the Q-value function of this MDP, as a
+     * whitespace-separated |S|x|A| matrix of floating point numbers.
+     * If you have an explicit policy instead, convert it to a matrix where the only non-zero entries
+     * exist in the specified (s,a) pairs.
+     * @param initial_status (optional) The initial status of this controller.
+     */
+    ControllerEventPOMDP ( const std::string& problem_file,
+                           const std::string& value_function_file,
+                           const CONTROLLER_STATUS initial_status = STARTED );
+    /**
+     * Start this controller. This reimplements ControlLayerBase::startController, since
+     * it must also reset the belief state of the process to the initial state distribution.
+     */
+    void startController();
+
+private:
+    /**
+     * Callback for observation data. A new decision step is taken whenever an observation is received.
+     */
+    void observationCallback ( const WorldSymbolConstPtr& msg );
+};
 }
 
 #endif

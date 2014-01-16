@@ -31,31 +31,33 @@
 
 namespace markov_decision_making
 {
-  class MDPPolicy
-  {
-    public:
-      /**
-       */
-      virtual uint32_t getAction (uint32_t index) = 0;
-      
-      uint32_t operator[] (uint32_t index) {
-        return getAction (index);
-      }
-  };
-  
-  class MDPPolicyVector : public MDPPolicy
-  {
-    public:
-      MDPPolicyVector (IndexVectorPtr p_ptr) :
-        policy_vec_ptr_ (p_ptr) {}
-        
-    protected:
-      virtual uint32_t getAction (uint32_t index) {
-        return (*policy_vec_ptr_) [index];
-      }
-    private:
-      IndexVectorPtr policy_vec_ptr_;
-  };
+class MDPPolicy
+{
+public:
+    /**
+     */
+    virtual uint32_t getAction ( uint32_t index ) = 0;
+
+    uint32_t operator[] ( uint32_t index )
+    {
+        return getAction ( index );
+    }
+};
+
+class MDPPolicyVector : public MDPPolicy
+{
+public:
+    MDPPolicyVector ( IndexVectorPtr p_ptr ) :
+        policy_vec_ptr_ ( p_ptr ) {}
+
+protected:
+    virtual uint32_t getAction ( uint32_t index )
+    {
+        return ( *policy_vec_ptr_ ) [index];
+    }
+private:
+    IndexVectorPtr policy_vec_ptr_;
+};
 }
 
 #endif

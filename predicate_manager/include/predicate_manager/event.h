@@ -1,4 +1,4 @@
-/**\file predicate.h
+/**\file event.h
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -22,8 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _PREDICATE_H_
-#define _PREDICATE_H_
+#ifndef _EVENT_H_
+#define _EVENT_H_
 
 #include <string>
 #include <map>
@@ -44,33 +44,26 @@ namespace predicate_manager
  * This base class provides functionalities to ease the definition of predicates and their
  * interface with the PredicateManager class.
  */
-class Predicate : public PredicateDependentEntity
+class Event : public PredicateDependentEntity
 {
 public:
     /**
      * Predicate constructor.
      * @param name The name of this Predicate.
      * @param deps The Dependencies of this Predicate (e.g. a set of names of other Predicates that may influence its value).
-     * @param initial_value The initial value of this predicate. It may be overridden according to its dependencies.
      * @sa Dependencies
      */
-    Predicate ( const std::string& name,
-                const Dependencies& deps,
-                bool initial_value = false );
+    Event ( const std::string& name,
+            const Dependencies& deps );
 
     /**
      * Predicate constructor.
      * @param name The name of this Predicate.
-     * @param initial_value The initial value of this predicate.
      */
-    Predicate ( const std::string& name,
-                bool initial_value = false );
+    Event ( const std::string& name );
 
     ///Gets the name of this Predicate.
     std::string getName();
-
-    ///Gets the value of this Predicate.
-    bool getValue();
 
     ///Sets the name of this Predicate.
     std::string setName ( const std::string& new_name );
@@ -79,26 +72,20 @@ public:
      * Sets the trigger function for this Predicate. The trigger function
      * is called whenever the Predicate changes its value (this is used by the PredicateManager).
      */
-    void setTrigger ( const boost::function<void ( bool ) > trigger );
+    void setTrigger ( const boost::function<void () > trigger );
 
 protected:
     ///Sets the value of this Predicate. Should be called from within update().
-    void setValue ( bool val );
+    void triggerEvent();
 
 private:
-    std::string name_; ///The name of this Predicate;
-    bool value_; ///The logical value of this Predicate;
+    std::string name_; ///The name of this Event;
+
     /**
-     * The number of times that this Predicate's setValue() function has been recursively called.
-     * If it exceeds a given threshold (MAX_CYCLIC_UPDATES), the Predicate is considered to be in a
-     * livelock.
-     */
-    uint8_t requested_updates_;
-    /**
-     * The trigger function.
+     * The trigger function. Note that, for events, this function doesn't take any arguments
      * @sa setTrigger
      */
-    boost::function<void ( bool ) > trigger_;
+    boost::function<void ( ) > trigger_;
 };
 }
 

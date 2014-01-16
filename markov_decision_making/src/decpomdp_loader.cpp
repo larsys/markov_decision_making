@@ -28,7 +28,7 @@
 
 #include <madp/NullPlanner.h>
 #include <madp/MADPParser.h>
-#include <madp/StateFactorDiscreteLALA.h>
+#include <madp/StateFactorDiscrete.h>
 
 
 
@@ -54,54 +54,61 @@ using namespace markov_decision_making;
 
 
 DecPOMDPLoader::
-DecPOMDPLoader (const string& problem_file) :
-  action_metadata_pub_ (nh_.advertise<SymbolMetadata> ("action_metadata", 1, true)),
-  state_metadata_pub_ (nh_.advertise<FactoredSymbolMetadata> ("state_metadata", 1, true)),
-  observation_metadata_pub_ (nh_.advertise<SymbolMetadata> ("observation_metadata", 1, true)),
-  initial_state_distribution_pub_ (nh_.advertise<FactoredDistribution> ("initial_state_distribution", 1, false))
+DecPOMDPLoader ( const string& problem_file ) :
+    action_metadata_pub_ ( nh_.advertise<FactoredSymbolMetadata> ( "action_metadata", 1, true ) ),
+    state_metadata_pub_ ( nh_.advertise<FactoredSymbolMetadata> ( "state_metadata", 1, true ) ),
+    observation_metadata_pub_ ( nh_.advertise<FactoredSymbolMetadata> ( "observation_metadata", 1, true ) ),
+    initial_state_distribution_pub_ ( nh_.advertise<FactoredDistribution> ( "initial_state_distribution", 1, false ) )
 {
-  string ext = problem_file.substr (problem_file.find_last_of ("."));
-  
-  try {
-    if (ext == ".pgmx") {
-      boost::shared_ptr<FactoredDecPOMDPDiscrete> f (new FactoredDecPOMDPDiscrete ("", "", problem_file));
-      MADPParser parser (f.get());
-      bool isSparse = false;
-      bool cacheFlatModels = false;
-      int marginalizeStateFactor;
-      
-      NodeHandle private_nh ("~");
-      private_nh.getParam ("is_sparse", isSparse);
-      private_nh.getParam ("cache_flat_models", cacheFlatModels);
-      
-      if (private_nh.getParam ("marginalize", marginalizeStateFactor)) {
-        f->MarginalizeStateFactor (marginalizeStateFactor, isSparse);  //TODO: NOTE: This is necessary for standard Perseus, but needs to be faster.
-      }
-      else if (cacheFlatModels) {
-        f->CacheFlatModels (isSparse);
-      }
-      publishStateMetadata (f);
-      publishInitialStateDistribution (f);
-      decpomdp_ = f;
+    string ext = problem_file.substr ( problem_file.find_last_of ( "." ) );
+
+    try
+    {
+        if ( ext == ".pgmx" )
+        {
+            boost::shared_ptr<FactoredDecPOMDPDiscrete> f ( new FactoredDecPOMDPDiscrete ( "", "", problem_file ) );
+            MADPParser parser ( f.get() );
+            bool isSparse = false;
+            bool cacheFlatModels = false;
+            int marginalizeStateFactor;
+
+            NodeHandle private_nh ( "~" );
+            private_nh.getParam ( "is_sparse", isSparse );
+            private_nh.getParam ( "cache_flat_models", cacheFlatModels );
+
+            if ( private_nh.getParam ( "marginalize", marginalizeStateFactor ) )
+            {
+                f->MarginalizeStateFactor ( marginalizeStateFactor, isSparse ); //TODO: NOTE: This is necessary for standard Perseus, but needs to be faster.
+            }
+            else if ( cacheFlatModels )
+            {
+                f->CacheFlatModels ( isSparse );
+            }
+            publishStateMetadata ( f );
+            publishInitialStateDistribution ( f );
+            decpomdp_ = f;
+        }
+        else if ( ext == ".dpomdp" )
+        {
+            boost::shared_ptr<DecPOMDPDiscrete> d ( new DecPOMDPDiscrete ( "", "", problem_file ) );
+            MADPParser parser ( d.get() );
+            publishStateMetadata ( d );
+            publishInitialStateDistribution ( d );
+            decpomdp_ = d;
+        }
+        else
+        {
+            ROS_ERROR_STREAM ( "Unsupported model format \"" << ext << "\"" );
+            abort();
+        }
+        publishActionMetadata();
+        publishObservationMetadata ();
     }
-    else if (ext == ".dpomdp") {
-      boost::shared_ptr<DecPOMDPDiscrete> d (new DecPOMDPDiscrete ("", "", problem_file));
-      MADPParser parser (d.get());
-      publishStateMetadata (d);
-      publishInitialStateDistribution (d);
-      decpomdp_ = d;
+    catch ( E& e )
+    {
+        e.Print();
+        abort();
     }
-    else {
-      ROS_ERROR_STREAM ("Unsupported model format \"" << ext << "\"");
-      abort();
-    }
-    publishActionMetadata();
-    publishObservationMetadata ();
-  }
-  catch (E& e) {
-    e.Print();
-    abort();
-  }
 }
 
 
@@ -110,52 +117,58 @@ void
 DecPOMDPLoader::
 publishActionMetadata ()
 {
-  ActionMetadata team_metadata;
-  for (Index ag = 0; ag < decpomdp_->GetNrAgents(); ag++) {
-    AgentActionMetadata ag_metadata;
-    uint32_t nr_actions = decpomdp_->GetNrActions (ag);
-    ag_metadata.number_of_actions = nr_actions;
-    for (Index action = 0; action < nr_actions; action++) {
-      ag_metadata.action_names.push_back (decpomdp_->GetAction (ag, action)->GetName());
+    FactoredSymbolMetadata team_metadata;
+    for ( uint32_t ag = 0; ag < decpomdp_->GetNrAgents(); ag++ )
+    {
+        SymbolMetadata ag_metadata;
+        uint32_t nr_actions = decpomdp_->GetNrActions ( ag );
+        ag_metadata.number_of_symbols = nr_actions;
+        for ( uint32_t action = 0; action < nr_actions; action++ )
+        {
+            ag_metadata.symbol_names.push_back ( decpomdp_->GetAction ( ag, action )->GetName() );
+        }
+        team_metadata.factors.push_back ( ag_metadata );
     }
-    team_metadata.agent_actions.push_back (ag_metadata);
-  }
-  action_metadata_pub_.publish (team_metadata);
+    action_metadata_pub_.publish ( team_metadata );
 }
 
 
 
 void
 DecPOMDPLoader::
-publishStateMetadata (boost::shared_ptr<FactoredDecPOMDPDiscrete> f)
+publishStateMetadata ( boost::shared_ptr<FactoredDecPOMDPDiscrete> f )
 {
-  StateMetadata state_metadata;
-  for (Index k = 0; k < f->GetNrStateFactors(); k++) {
-    StateFactorMetadata factor_metadata;
-    const StateFactorDiscrete* sf = f->GetStateFactorDiscrete (k);
-    factor_metadata.factor_name = sf->GetName();
-    for (Index j = 0; j < f->GetNrValuesForFactor (k); j++) {
-      factor_metadata.value_names.push_back (sf->GetStateFactorValue (j));
+    FactoredSymbolMetadata state_metadata;
+    for ( uint32_t k = 0; k < f->GetNrStateFactors(); k++ )
+    {
+        SymbolMetadata factor_metadata;
+        const StateFactorDiscrete* sf = f->GetStateFactorDiscrete ( k );
+        state_metadata.factor_names.push_back ( sf->GetName() );
+        for ( uint32_t j = 0; j < f->GetNrValuesForFactor ( k ); j++ )
+        {
+            factor_metadata.symbol_names.push_back ( sf->GetStateFactorValue ( j ) );
+        }
+        state_metadata.factors.push_back ( factor_metadata );
     }
-    state_metadata.factor_metadata.push_back (factor_metadata);
-  }
-  state_metadata_pub_.publish (state_metadata);
+    state_metadata_pub_.publish ( state_metadata );
 }
 
 
 
 void
 DecPOMDPLoader::
-publishStateMetadata (boost::shared_ptr<DecPOMDPDiscrete> d)
+publishStateMetadata ( boost::shared_ptr<DecPOMDPDiscrete> d )
 {
-  StateMetadata state_metadata;
-  StateFactorMetadata factor_metadata;
-  factor_metadata.factor_name = "Joint State";
-  for (Index k = 0; k < d->GetNrStates (); k++) {
-    factor_metadata.value_names.push_back (d->GetState (k)->GetName());
-  }
-  state_metadata.factor_metadata.push_back (factor_metadata);
-  state_metadata_pub_.publish (state_metadata);
+    FactoredSymbolMetadata state_metadata;
+    SymbolMetadata symbol_metadata;
+    state_metadata.factor_names.push_back ( "Joint State" );
+    for ( uint32_t k = 0; k < d->GetNrStates (); k++ )
+    {
+        symbol_metadata.symbol_names.push_back ( d->GetState ( k )->GetName() );
+    }
+    symbol_metadata.number_of_symbols = d->GetNrStates();
+    state_metadata.factors.push_back ( symbol_metadata );
+    state_metadata_pub_.publish ( state_metadata );
 }
 
 
@@ -164,44 +177,54 @@ void
 DecPOMDPLoader::
 publishObservationMetadata ()
 {
-  ///Note: Fully-observable systems in MADP have empty observation models. In that case, this metadata should be a vector of zeros.
-  ObservationMetadata msg;
-  for (Index k = 0; k < decpomdp_->GetNrAgents(); k++) {
-    msg.number_of_observations.push_back (decpomdp_->GetNrObservations (k));
-  }
-  observation_metadata_pub_.publish (msg);
-}
-
-
-
-void
-DecPOMDPLoader::
-publishInitialStateDistribution (boost::shared_ptr<FactoredDecPOMDPDiscrete> f)
-{
-  FSDist_COF* fsd = (FSDist_COF*) f->GetFactoredISD();
-  FactoredDistribution fdist;
-  for (size_t i = 0; i < f->GetNrStateFactors(); i++) {
-    BeliefStateInfo b;
-    for (size_t j = 0; j < f->GetNrValuesForFactor (i); j++) {
-      b.belief.push_back (fsd->GetReferrence (i, j));
+    ///Note: Fully-observable systems in MADP have empty observation models. In that case, this metadata should be a vector of zeros.
+    FactoredSymbolMetadata team_metadata;
+    for ( uint32_t ag = 0; ag < decpomdp_->GetNrAgents(); ag++ )
+    {
+        SymbolMetadata ag_metadata;
+        uint32_t nr_observations = decpomdp_->GetNrObservations ( ag );
+        ag_metadata.number_of_symbols = nr_observations;
+        for ( uint32_t observation = 0; observation < nr_observations; observation++ )
+        {
+            ag_metadata.symbol_names.push_back ( decpomdp_->GetObservation ( ag, observation )->GetName() );
+        }
+        team_metadata.factors.push_back ( ag_metadata );
     }
-    fdist.factors.push_back (b);
-  }
-  initial_state_distribution_pub_.publish (fdist);
+    observation_metadata_pub_.publish ( team_metadata );
 }
 
 
 
 void
 DecPOMDPLoader::
-publishInitialStateDistribution (boost::shared_ptr<DecPOMDPDiscrete> d)
+publishInitialStateDistribution ( boost::shared_ptr<FactoredDecPOMDPDiscrete> f )
 {
-  vector<double> isd = d->GetISD()->ToVectorOfDoubles();
-  FactoredDistribution fdist;
-  BeliefStateInfo b;
-  b.belief = isd;
-  fdist.factors.push_back (b);
-  initial_state_distribution_pub_.publish (b);
+    FSDist_COF* fsd = ( FSDist_COF* ) f->GetFactoredISD();
+    FactoredDistribution fdist;
+    for ( size_t i = 0; i < f->GetNrStateFactors(); i++ )
+    {
+        BeliefStateInfo b;
+        for ( size_t j = 0; j < f->GetNrValuesForFactor ( i ); j++ )
+        {
+            b.belief.push_back ( fsd->GetReferrence ( i, j ) );
+        }
+        fdist.factors.push_back ( b );
+    }
+    initial_state_distribution_pub_.publish ( fdist );
+}
+
+
+
+void
+DecPOMDPLoader::
+publishInitialStateDistribution ( boost::shared_ptr<DecPOMDPDiscrete> d )
+{
+    vector<double> isd = d->GetISD()->ToVectorOfDoubles();
+    FactoredDistribution fdist;
+    BeliefStateInfo b;
+    b.belief = isd;
+    fdist.factors.push_back ( b );
+    initial_state_distribution_pub_.publish ( b );
 }
 
 
@@ -210,7 +233,7 @@ const boost::shared_ptr<DecPOMDPDiscreteInterface>
 DecPOMDPLoader::
 GetDecPOMDP()
 {
-  return decpomdp_;
+    return decpomdp_;
 }
 
 
@@ -220,11 +243,11 @@ GetDecPOMDP()
 
 
 DecPOMDPLoader::
-DecPOMDPLoader (const string& problem_file)
+DecPOMDPLoader ( const string& problem_file )
 {
-  ROS_ERROR_STREAM ("MDM requires MADP to parse problem files.");
-  ROS_ERROR_STREAM ("Please install MADP and recompile MDM if you require this functionality.");
-  abort();
+    ROS_ERROR_STREAM ( "MDM requires MADP to parse problem files." );
+    ROS_ERROR_STREAM ( "Please install MADP and recompile MDM if you require this functionality." );
+    abort();
 }
 
 

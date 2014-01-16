@@ -5,22 +5,22 @@ using namespace std;
 using namespace ros;
 using namespace markov_decision_making;
 
-int main (int argc, char** argv)
+int main ( int argc, char** argv )
 {
-  init (argc, argv, "state_layer");
-  
-  StateLayer sl;
-  
-  sl.addStateFactor(StateDep().add("IsInSoccerField")
-                              .add("IsInLRM")
-                              .add("IsInSouthCorridor")
-                              .add("IsInCoffeeRoom")
-                              .add("IsInWestCorridor")
-                              .add("IsInElevatorHallway"));
-  
-  sl.addStateFactor(StateDep().add("PatrolHalfwayThrough"));
+    init ( argc, argv, "state_layer" );
 
-  spin();
-  
-  return 0;
+    StateLayer sl;
+
+    sl.addStateFactor ( StateDep().add ( "IsInSoccerField" )
+                        .add ( "IsInLRM" )
+                        .add ( "IsInSouthCorridor" )
+                        .add ( "IsInCoffeeRoom" )
+                        .add ( "IsInWestCorridor" )
+                        .add ( "IsInElevatorHallway" ) );
+
+    sl.addStateFactor ( StateDep().add ( "PatrolHalfwayThrough" ) );
+
+    spin();
+
+    return 0;
 }

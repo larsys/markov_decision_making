@@ -33,25 +33,25 @@
 
 namespace markov_decision_making
 {
-  class ControllerTimedPOMDP : public ControllerPOMDP
-  {
-    public:
-      ControllerTimedPOMDP (const std::string& problem_file,
-                            const std::string& value_function_file,
-                            const CONTROLLER_STATUS initial_status = STARTED);
-                            
-      void startController();
-    private:
-      void observationCallback (const ObservationInfoConstPtr& msg);
-      
-      void scheduleTimer();
-      void timerCallback (const ros::TimerEvent& timerEvent);
-      void step();
-      
-      ros::Timer timer_;
-      
-      Index o_;
-  };
+class ControllerTimedPOMDP : public ControllerPOMDP
+{
+public:
+    ControllerTimedPOMDP ( const std::string& problem_file,
+                           const std::string& value_function_file,
+                           const CONTROLLER_STATUS initial_status = STARTED );
+
+    void startController();
+private:
+    void observationCallback ( const WorldSymbolConstPtr& msg );
+
+    void scheduleTimer();
+    void timerCallback ( const ros::TimerEvent& timerEvent );
+    void step();
+
+    ros::Timer timer_;
+
+    Index o_;
+};
 }
 
 #endif

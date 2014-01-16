@@ -1,1 +1,2 @@
-SymbolMetadata[] symbol_metadata
+SymbolMetadata[] factors
+string[] factor_names

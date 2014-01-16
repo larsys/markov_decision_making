@@ -36,26 +36,26 @@
 
 namespace predicate_manager
 {
-  /**
-   * Implements the logical "Xor" operator in propositional formulas.
-   */
-  class Xor : public PropOperator
-  {
-    public:
-      /**
-       * Default constructor.
-       */
-      Xor (const PropLogic& p1,
-           const PropLogic& p2) :
-        PropOperator (p1, p2)
-      {}
-      
-      ///Evaluates this PropOperator.
-      bool evaluate (boost::function<bool (NameID) > f) const;
-      
-      ///A standard clone function for PropLogic and its derived classes.
-      boost::shared_ptr<PropLogic> clone() const;
-  };
+/**
+ * Implements the logical "Xor" operator in propositional formulas.
+ */
+class Xor : public PropOperator
+{
+public:
+    /**
+     * Default constructor.
+     */
+    Xor ( const PropLogic& p1,
+          const PropLogic& p2 ) :
+        PropOperator ( p1, p2 )
+    {}
+
+    ///Evaluates this PropOperator.
+    bool evaluate ( boost::function<bool ( NameID ) > f ) const;
+
+    ///A standard clone function for PropLogic and its derived classes.
+    boost::shared_ptr<PropLogic> clone() const;
+};
 }
 
 #endif

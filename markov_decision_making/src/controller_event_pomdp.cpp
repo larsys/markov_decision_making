@@ -34,57 +34,62 @@ using namespace markov_decision_making;
 
 
 ControllerEventPOMDP::
-ControllerEventPOMDP (string const& problem_file,
-                      string const& value_function_file,
-                      const CONTROLLER_STATUS initial_status) :
-  ControllerPOMDP (problem_file, initial_status)
+ControllerEventPOMDP ( string const& problem_file,
+                       string const& value_function_file,
+                       const CONTROLLER_STATUS initial_status ) :
+    ControllerPOMDP ( problem_file, initial_status )
 {
-  try {
-    bool isSparse;
-    NodeHandle private_nh ("~");
-    if (!private_nh.getParam ("is_sparse", isSparse)) {
-      isSparse = false;  ///Sparse JointBeliefEventDriven type NYI. Assign corresponding belief type then.
+    try
+    {
+        bool isSparse;
+        NodeHandle private_nh ( "~" );
+        if ( !private_nh.getParam ( "is_sparse", isSparse ) )
+        {
+            isSparse = false;  ///Sparse JointBeliefEventDriven type NYI. Assign corresponding belief type then.
+        }
+        int false_negative_obs = -1; /// <0 means no false negative
+        private_nh.getParam ( "false_negative_obs", false_negative_obs );
+
+        QAVParameters qavParams;
+        qavParams.falseNegativeObs = false_negative_obs;
+        PlanningUnitMADPDiscreteParameters puParams;
+        puParams.SetEventObservability ( loader_->GetDecPOMDP()->GetEventObservability() );
+        double discount;
+        if ( !private_nh.getParam ( "discount", discount ) )
+        {
+            discount = 0.9; ///this is only needed by the Planner, which is in turn required by the QAV
+            /// In the general case, we won't use it, but it does allow for forward-search planning.
+        }
+        loader_->GetDecPOMDP()->SetDiscount ( discount );
+
+        boost::shared_ptr<PlanningUnitDecPOMDPDiscrete> np ( new NullPlanner ( puParams, MAXHORIZON, loader_->GetDecPOMDP().get() ) );
+        /// only considering infinite-horizon models at the moment.
+        Q_ = boost::shared_ptr<QAV<PerseusConstrainedPOMDPPlanner> >
+             ( new QAV<PerseusConstrainedPOMDPPlanner> ( np,
+                     value_function_file,
+                     qavParams ) );
+
+        belief_ = boost::shared_ptr<JointBeliefEventDriven>
+                  ( new JointBeliefEventDriven ( loader_->GetDecPOMDP()->GetNrStates(), false_negative_obs ) );
+        if ( initial_status == STARTED )
+        {
+            startController();  ///Sets initial belief to the loader's ISD;
+        }
     }
-    int false_negative_obs = -1; /// <0 means no false negative
-    private_nh.getParam ("false_negative_obs", false_negative_obs);
-    
-    QAVParameters qavParams;
-    qavParams.falseNegativeObs = false_negative_obs;
-    PlanningUnitMADPDiscreteParameters puParams;
-    puParams.SetEventObservability (loader_->GetDecPOMDP()->GetEventObservability());
-    double discount;
-    if (!private_nh.getParam ("discount", discount)) {
-      discount = 0.9; ///this is only needed by the Planner, which is in turn required by the QAV
-      /// In the general case, we won't use it, but it does allow for forward-search planning.
+    catch ( E& e )
+    {
+        e.Print();
+        abort();
     }
-    loader_->GetDecPOMDP()->SetDiscount (discount);
-    
-    boost::shared_ptr<PlanningUnitDecPOMDPDiscrete> np (new NullPlanner (puParams, MAXHORIZON, loader_->GetDecPOMDP().get()));
-    /// only considering infinite-horizon models at the moment.
-    Q_ = boost::shared_ptr<QAV<PerseusConstrainedPOMDPPlanner> >
-         (new QAV<PerseusConstrainedPOMDPPlanner> (np,
-             value_function_file,
-             qavParams));
-             
-    belief_ = boost::shared_ptr<JointBeliefEventDriven>
-              (new JointBeliefEventDriven (loader_->GetDecPOMDP()->GetNrStates(), false_negative_obs));
-    if (initial_status == STARTED) {
-      startController();  ///Sets initial belief to the loader's ISD;
-    }
-  }
-  catch (E& e) {
-    e.Print();
-    abort();
-  }
 }
 
 
 
 void
 ControllerEventPOMDP::
-observationCallback (const ObservationInfoConstPtr& msg)
+observationCallback ( const WorldSymbolConstPtr& msg )
 {
-  act (msg->observation);
+    act ( msg->world_symbol );
 }
 
 
@@ -93,17 +98,20 @@ void
 ControllerEventPOMDP::
 startController ()
 {
-  if (belief_ == 0) {
-    ROS_WARN ("ControllerPOMDP:: Attempted to start controller, but the belief state hasn't been initialized.");
-    return;
-  }
-  if (ISD_ != 0) {
-    belief_->Set (ISD_->ToVectorOfDoubles());
-  }
-  else {
-    belief_->Set (* (loader_->GetDecPOMDP()->GetISD()));
-  }
-  setStatus (STARTED);
-  resetDecisionEpisode();
-  act (0); ///calling first decision at startup, observation is irrelevant.
+    if ( belief_ == 0 )
+    {
+        ROS_WARN ( "ControllerPOMDP:: Attempted to start controller, but the belief state hasn't been initialized." );
+        return;
+    }
+    if ( ISD_ != 0 )
+    {
+        belief_->Set ( ISD_->ToVectorOfDoubles() );
+    }
+    else
+    {
+        belief_->Set ( * ( loader_->GetDecPOMDP()->GetISD() ) );
+    }
+    setStatus ( STARTED );
+    resetDecisionEpisode();
+    act ( 0 ); ///calling first decision at startup, observation is irrelevant.
 }

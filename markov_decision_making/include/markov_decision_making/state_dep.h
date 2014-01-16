@@ -35,34 +35,38 @@
 
 namespace markov_decision_making
 {
-  class StateDep
-  {
-    public:
-      typedef std::vector<predicate_manager::NameID> SFDeps;
-      
-      StateDep
-      add (const std::string& predicate_name) {
+class StateDep
+{
+public:
+    typedef std::vector<predicate_manager::NameID> SFDeps;
+
+    StateDep
+    add ( const std::string& predicate_name )
+    {
         int pm_id;
-        if (!nh_.getParam ("pm_id", pm_id)) {
-          ROS_WARN ("StateDep:: Parameter \"pm_id\" is not set. This could lead to problems in the State Layer");
-          pm_id = 0;
+        if ( !nh_.getParam ( "pm_id", pm_id ) )
+        {
+            ROS_WARN ( "StateDep:: Parameter \"pm_id\" is not set. This could lead to problems in the State Layer" );
+            pm_id = 0;
         }
-        return (add (predicate_name, (uint32_t) pm_id));
-      }
-      StateDep
-      add (const std::string& predicate_name, const uint32_t pm_id) {
-        predicate_manager::NameID sfd (pm_id, predicate_name);
-        deps_.push_back (sfd);
+        return ( add ( predicate_name, ( uint32_t ) pm_id ) );
+    }
+    StateDep
+    add ( const std::string& predicate_name, const uint32_t pm_id )
+    {
+        predicate_manager::NameID sfd ( pm_id, predicate_name );
+        deps_.push_back ( sfd );
         return *this;
-      }
-      SFDeps getDependencies() const {
+    }
+    SFDeps getDependencies() const
+    {
         return deps_;
-      }
-      
-    private:
-      ros::NodeHandle nh_;
-      SFDeps deps_;
-  };
+    }
+
+private:
+    ros::NodeHandle nh_;
+    SFDeps deps_;
+};
 }
 
 #endif

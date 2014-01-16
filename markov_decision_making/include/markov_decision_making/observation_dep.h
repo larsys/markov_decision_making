@@ -22,71 +22,84 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _OBVSERVATION_DEP_H_
-#define _OBVSERVATION_DEP_H_
+#ifndef _OBSERVATION_DEP_H_
+#define _OBSERVATION_DEP_H_
 
 #include <string>
 
+#include <boost/unordered_map.hpp>
+
 #include <ros/ros.h>
 
+#include <predicate_manager/common_defs.h>
 
 
 namespace markov_decision_making
 {
-  class ObservationDep
-  {
-    public:
-      typedef std::vector<std::pair<uint32_t, std::string> > of_local_deps_type; ///<agent ID, event name>
-      typedef std::vector<std::string > of_global_deps_type;
-      typedef std::map<std::string, uint32_t> dep_sequence_type;
-      
-      ObservationDep
-      add (uint32_t agent_id, std::string event_name) {
-        registerDependencyName (event_name);
-        of_local_deps_type::value_type odep (agent_id, event_name);
-        local_deps_.push_back (odep);
+class ObservationDep
+{
+public:
+    typedef std::vector< predicate_manager::NameID > ObsFactorLocalDeps;
+    typedef std::vector< std::string > ObsFactorGlobalDeps;
+    typedef boost::unordered_map< std::string, uint32_t > DepIndexMap;
+
+    ObservationDep
+    add ( uint32_t pm_id, std::string event_name )
+    {
+        registerDependencyName ( event_name );
+        ObsFactorLocalDeps::value_type odep ( pm_id, event_name );
+        local_deps_.push_back ( odep );
         return *this;
-      }
-      
-      ObservationDep
-      add (std::string event_name) {
-        registerDependencyName (event_name);
-        of_global_deps_type::value_type odep (event_name);
-        global_deps_.push_back (odep);
+    }
+
+    ObservationDep
+    add ( std::string event_name )
+    {
+        registerDependencyName ( event_name );
+        ObsFactorGlobalDeps::value_type odep ( event_name );
+        global_deps_.push_back ( odep );
         return *this;
-      }
-      
-      const of_local_deps_type getLocalDependencies() const {
+    }
+
+    const ObsFactorLocalDeps getLocalDependencies() const
+    {
         return local_deps_;
-      }
-      const of_global_deps_type getGlobalDependencies() const {
+    }
+    const ObsFactorGlobalDeps getGlobalDependencies() const
+    {
         return global_deps_;
-      }
-      uint32_t getDependencyIndex (const std::string& event_name) {
-        if (!named_dep_sequence_.count (event_name)) {
-          ROS_ERROR_STREAM ("ObservationDep:: Dependency '" << event_name << "' not present for this factor.");
-          abort();
+    }
+    uint32_t getDependencyIndex ( const std::string& event_name )
+    {
+        DepIndexMap::const_iterator it = dep_index_map_.find ( event_name );
+        if ( it == dep_index_map_.end() )
+        {
+            ROS_ERROR_STREAM ( "ObservationDep:: Dependency '" << event_name << "' not present for this factor." );
+            abort();
         }
-        return named_dep_sequence_[event_name];
-      }
-      uint32_t getNumberOfValues() const {
+        return it->second;
+    }
+    uint32_t getNumberOfValues() const
+    {
         return local_deps_.size() + global_deps_.size();
-      }
-    private:
-      void registerDependencyName (const std::string& event_name) {
-        if (named_dep_sequence_.count (event_name)) {
-          ROS_ERROR_STREAM ("ObservationDep:: Attempt to re-include dependency '" << event_name << "'");
-          abort();
+    }
+private:
+    void registerDependencyName ( const std::string& event_name )
+    {
+        if ( dep_index_map_.count ( event_name ) )
+        {
+            ROS_ERROR_STREAM ( "ObservationDep:: Attempt to re-include dependency '" << event_name << "'" );
+            abort();
         }
-        named_dep_sequence_[event_name] = getNumberOfValues();
-      }
-      
-      ros::NodeHandle nh_;
-      
-      of_local_deps_type local_deps_;
-      of_global_deps_type global_deps_;
-      
-      dep_sequence_type named_dep_sequence_;
-  };
+        dep_index_map_[event_name] = getNumberOfValues();
+    }
+
+    ros::NodeHandle nh_;
+
+    ObsFactorLocalDeps local_deps_;
+    ObsFactorGlobalDeps global_deps_;
+
+    DepIndexMap dep_index_map_;
+};
 }
 #endif

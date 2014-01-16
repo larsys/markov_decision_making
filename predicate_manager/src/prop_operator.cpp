@@ -23,9 +23,7 @@
  */
 
 #include <predicate_manager/prop_operator.h>
-
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
+#include <predicate_manager/common_defs.h>
 
 
 
@@ -35,19 +33,19 @@ using namespace std;
 
 
 PropOperator::
-PropOperator (const PropLogic& p1,
-              const PropLogic& p2)
+PropOperator ( const PropLogic& p1,
+               const PropLogic& p2 )
 {
-  children_.push_back (p1.clone());
-  children_.push_back (p2.clone());
+    children_.push_back ( p1.clone() );
+    children_.push_back ( p2.clone() );
 }
 
 
 
 void
 PropOperator::
-printVariables (NameIDSet& dep_set) const
+printVariables ( NameIDSet& dep_set ) const
 {
-  foreach (children_type::value_type c, children_)
-    c->printVariables (dep_set);
+    foreach ( children_type::value_type c, children_ )
+        c->printVariables ( dep_set );
 }

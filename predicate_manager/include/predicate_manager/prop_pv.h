@@ -36,34 +36,34 @@
 
 namespace predicate_manager
 {
-  /**
-   * PV stands for "Predicate Value". 
-   * The PV class allows the use value of an actual Predicate in PropLogic structures.
-   * PV is one of the two unary operators that directly reference Predicate instances 
-   * (the other being "Not").
-   */
+/**
+ * PV stands for "Predicate Value".
+ * The PV class allows the use value of an actual Predicate in PropLogic structures.
+ * PV is one of the two unary operators that directly reference Predicate instances
+ * (the other being "Not").
+ */
 
-  class PV : public PropLogic
-  {
-    public:
-      /**
-       * Default constructor.
-       * @param name The name of the Predicate which should be used in a PropLogic formula. 
-       */
-      PV (std::string const& name, const uint32_t pm_id = 0);
-      
-      ///Evaluates this formula (i.e. gets the predicate value).
-      bool evaluate (boost::function<bool (NameID) > f) const;
-      
-      ///A standard clone function for PropLogic and its derived classes.
-      boost::shared_ptr<PropLogic> clone() const;
-      
-      ///A standard clone function for PropLogic and its derived classes.
-      void printVariables (NameIDSet& dep_set) const;
-      
-    private:
-      NameID pred_name_id_; ///The NameID of the Predicate which should be used in a PropLogic formula. 
-  };
+class PV : public PropLogic
+{
+public:
+    /**
+     * Default constructor.
+     * @param name The name of the Predicate which should be used in a PropLogic formula.
+     */
+    PV ( std::string const& name, const uint32_t pm_id = 0 );
+
+    ///Evaluates this formula (i.e. gets the predicate value).
+    bool evaluate ( boost::function<bool ( NameID ) > f ) const;
+
+    ///A standard clone function for PropLogic and its derived classes.
+    boost::shared_ptr<PropLogic> clone() const;
+
+    ///A standard clone function for PropLogic and its derived classes.
+    void printVariables ( NameIDSet& dep_set ) const;
+
+private:
+    NameID pred_name_id_; ///The NameID of the Predicate which should be used in a PropLogic formula.
+};
 }
 
 #endif

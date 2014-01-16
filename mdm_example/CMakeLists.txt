@@ -35,3 +35,5 @@ target_link_libraries(demo_action_layer ${catkin_LIBRARIES})
 add_executable(demo_control_layer src/demo_control_layer.cpp)
 
 target_link_libraries(demo_control_layer ${catkin_LIBRARIES})
+
+set_target_properties(demo_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")

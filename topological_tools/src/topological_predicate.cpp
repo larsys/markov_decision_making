@@ -3,7 +3,7 @@
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
  *
- * TopologicalTools is a set of utilities to aid the deployment of the MDM library 
+ * TopologicalTools is a set of utilities to aid the deployment of the MDM library
  * in topological navigation problems.
  * Copyright (C) 2014 Instituto Superior Tecnico, Instituto de Sistemas e Robotica
  *
@@ -33,28 +33,29 @@ using namespace topological_tools;
 
 
 TopologicalPredicate::
-TopologicalPredicate (const string& label_topic,
-                  const string& name) :
-  Predicate (name),
-  label_subs_ (nh_.subscribe (label_topic, 1, &TopologicalPredicate::labelCallback, this))
+TopologicalPredicate ( const string& label_topic,
+                       const string& name ) :
+    Predicate ( name ),
+    label_subs_ ( nh_.subscribe ( label_topic, 1, &TopologicalPredicate::labelCallback, this ) )
 {
-  nh_.getParam ("predicate_labels/" + getName(), (int&) target_label_);
+    nh_.getParam ( "predicate_labels/" + getName(), ( int& ) target_label_ );
 }
 
-TopologicalPredicate::TopologicalPredicate (const string& label_topic,
-                                    const string& name,
-                                    const uint32_t target_label) :
-  Predicate(name),
-  label_subs_ (nh_.subscribe (label_topic, 1, &TopologicalPredicate::labelCallback, this)),
-  target_label_(target_label)
+TopologicalPredicate::TopologicalPredicate ( const string& label_topic,
+        const string& name,
+        const uint32_t target_label ) :
+    Predicate ( name ),
+    label_subs_ ( nh_.subscribe ( label_topic, 1, &TopologicalPredicate::labelCallback, this ) ),
+    target_label_ ( target_label )
 {}
 
-void TopologicalPredicate::labelCallback (const PoseLabelConstPtr& msg) {
-  received_label_ = msg->label;
-  update();
+void TopologicalPredicate::labelCallback ( const PoseLabelConstPtr& msg )
+{
+    received_label_ = msg->label;
+    update();
 }
 
 void TopologicalPredicate::update()
 {
-  setValue(received_label_ == target_label_);
+    setValue ( received_label_ == target_label_ );
 }
