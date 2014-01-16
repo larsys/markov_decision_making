@@ -43,7 +43,7 @@ class ObservationLayer
 {
 public:
     typedef std::pair< size_t, uint32_t > ObsValuePair; ///ObsValuePair = < obs factor index, obs value >
-  
+
     ObservationLayer();
 
     void eventUpdatesCallback ( const predicate_manager::EventUpdateConstPtr& msg );
@@ -73,9 +73,9 @@ private:
     ///Observations can also be triggered by global events (i.e. from any agent). In that case, they don't have a fixed NameID.
     std::map< std::string, ObsValuePair > event_named_global_observer_;
 
-    boost::unordered_map< predicate_manager::NrID, 
-                          ObsValuePair, 
-                          predicate_manager::cantor_pair_hash > event_nr_observer_;
+    boost::unordered_map< predicate_manager::NrID,
+          ObsValuePair,
+          predicate_manager::cantor_pair_hash > event_nr_observer_;
 
     std::vector< ObservationDep > factored_observations_deps_;
     std::vector< uint32_t > factored_observations_;

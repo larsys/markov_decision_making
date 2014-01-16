@@ -22,20 +22,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <predicate_manager/predicate_manager.h>
+#include <time.h> ///To control the update rate
 
 #include <boost/bind.hpp>
+
+#include <predicate_manager/predicate_manager.h>
 
 using namespace std;
 using namespace ros;
 using namespace predicate_manager;
 
 /**
- * TODO: - Integrar eventos;
- *       - Fazer só advertise quando eventos ou predicados são adicionados
- *       - nome dos tópicos de saída / entrada configuraveis
- *       - RequestPredicateMap e RequestPredicateUpdate service
- *       - Rate configuravel
+ * TODO: RequestPredicateMap e RequestPredicateUpdate service
  */
 
 PredicateManager::
@@ -46,8 +44,9 @@ PredicateManager() :
     pm_id_ ( 0 ),
     nr_of_predicates_(),
     initialized_pms_(),
-    predicate_maps_pub_ ( nh_.advertise<PredicateInfoMap> ( "/predicate_maps", 1, true ) ),
-    predicate_updates_pub_ ( nh_.advertise<PredicateUpdate> ( "/predicate_updates", 1, true ) ),
+    update_period_ ( 0.1 ),
+    predicate_maps_pub_ (),
+    predicate_updates_pub_ (),
     predicate_maps_sub_ ( nh_.subscribe ( "/predicate_maps", 10, &PredicateManager::consumePredicateMap, this ) ),
     predicate_updates_sub_ ( nh_.subscribe ( "/predicate_updates", 10, &PredicateManager::consumePredicateUpdate, this ) ),
     pred_update_counters_(),
@@ -57,8 +56,8 @@ PredicateManager() :
     registered_predicates_ (),
     pred_name_observer_ (),
     pred_nr_observer_ (),
-    event_maps_pub_ ( nh_.advertise<EventInfoMap> ( "/event_maps", 1, true ) ),
-    event_updates_pub_ ( nh_.advertise<EventUpdate> ( "/event_updates", 1, true ) ),
+    event_maps_pub_ (),
+    event_updates_pub_ (),
     ev_update_counter_ ( 0 ),
     local_ev_refs_ (),
     registered_events_ (),
@@ -67,6 +66,11 @@ PredicateManager() :
     events_to_publish_ ()
 {
     nh_.getParam ( "pm_id", ( int& ) pm_id_ );
+    double update_rate;
+    if ( nh_.getParam ( "pm_update_rate", update_rate ) )
+    {
+        update_period_ = 1.0/update_rate;
+    }
 }
 
 
@@ -78,8 +82,20 @@ spin()
     started_ = true;
 
     prepareLocalDependencies();
-    publishPredicateMap();
-    publishEventMap();
+
+    if( local_pred_refs_.size() > 0 )
+    {
+      predicate_maps_pub_ = nh_.advertise<PredicateInfoMap> ( "/predicate_maps", 1, true );
+      predicate_updates_pub_ = nh_.advertise<PredicateUpdate> ( "/predicate_updates", 1, true );
+      publishPredicateMap();
+    }
+
+    if( local_ev_refs_.size() > 0 )
+    {
+      event_maps_pub_ = nh_.advertise<EventInfoMap> ( "/event_maps", 1, true );
+      event_updates_pub_ = nh_.advertise<EventUpdate> ( "/event_updates", 1, true );
+      publishEventMap();
+    }
 
     spinOnce();
 
@@ -89,11 +105,27 @@ spin()
     }
     publishPredicateUpdate();
 
-    Rate r ( 10 );
     while ( ok() )
     {
+        struct timeval pre_update;
+        gettimeofday ( &pre_update, NULL );
+
         PMUpdate();
-        r.sleep();
+
+        struct timeval post_update;
+        gettimeofday ( &post_update, NULL );
+
+        double update_duration = post_update.tv_sec-pre_update.tv_sec +
+                                 ( post_update.tv_usec-pre_update.tv_usec ) /1000000.0;
+
+        Duration rem ( update_period_- update_duration );
+        if ( update_duration > update_period_ )
+            ROS_WARN_STREAM ( "PredicateManager:: Update took longer than the desired update period! Update time: " << update_duration
+                              << "; Desired update period: " << update_period_ );
+        else
+        {
+            rem.sleep();
+        }
     }
 }
 

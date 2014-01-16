@@ -55,7 +55,7 @@ eventUpdatesCallback ( const EventUpdateConstPtr& msg )
         NrID ev_nr_id ( msg->pm_id, event_id );
         if ( event_nr_observer_.count ( ev_nr_id ) )
         {
-            ObsValuePair value_pair = event_nr_observer_[ev_nr_id]; 
+            ObsValuePair value_pair = event_nr_observer_[ev_nr_id];
             factored_observations_[value_pair.first] = value_pair.second;
             new_observation = true;
         }
@@ -78,13 +78,13 @@ eventMapCallback ( const EventInfoMapConstPtr& msg )
         NameID ev_name_id ( msg->pm_id, e.name );
         NrID ev_nr_id ( msg->pm_id, e.nr );
 
-        if ( !event_nr_observer_.count(ev_nr_id) )
+        if ( !event_nr_observer_.count ( ev_nr_id ) )
         {
-            if( event_named_local_observer_.count(ev_name_id) )
+            if ( event_named_local_observer_.count ( ev_name_id ) )
                 event_nr_observer_[ev_nr_id] = event_named_local_observer_[ev_name_id];
-            else if (event_named_global_observer_.count(e.name) )
+            else if ( event_named_global_observer_.count ( e.name ) )
                 event_nr_observer_[ev_nr_id] = event_named_global_observer_[e.name];
-        }        
+        }
     }
 }
 
@@ -126,20 +126,20 @@ addObservationFactor ( ObservationDep deps )
 
     if ( local_deps.size() + global_deps.size() <= 1 )
     {
-        ROS_FATAL("ObservationLayer:: Attempted to add an empty or unary observation factor. Observation Factors must be associated with at least two events." );
+        ROS_FATAL ( "ObservationLayer:: Attempted to add an empty or unary observation factor. Observation Factors must be associated with at least two events." );
         ros::shutdown();
     }
 
     size_t new_factor_index = factored_observations_.size();
 
     factored_observations_.push_back ( 0 );
-    
+
     foreach ( NameID ev_name_id, local_deps )
     {
-        if ( event_named_local_observer_.count(ev_name_id) )
+        if ( event_named_local_observer_.count ( ev_name_id ) )
         {
-            ROS_FATAL_STREAM("ObservationLayer:: Attempted to reassign dependency for event '" << ev_name_id.second << "' from PM " << ev_name_id.first);
-            ROS_FATAL("ObservationLayer:: Events must be associated with a single observation factor / value");
+            ROS_FATAL_STREAM ( "ObservationLayer:: Attempted to reassign dependency for event '" << ev_name_id.second << "' from PM " << ev_name_id.first );
+            ROS_FATAL ( "ObservationLayer:: Events must be associated with a single observation factor / value" );
             ros::shutdown();
         }
         event_named_local_observer_[ev_name_id] = make_pair ( new_factor_index, deps.getDependencyIndex ( ev_name_id.second ) );
@@ -147,11 +147,11 @@ addObservationFactor ( ObservationDep deps )
 
     foreach ( string event_name, global_deps )
     {
-        if ( event_named_global_observer_.count(event_name) )
+        if ( event_named_global_observer_.count ( event_name ) )
         {
-            ROS_FATAL_STREAM("ObservationLayer:: Attempted to reassign dependency for global event '" << event_name << "'");
-            ROS_FATAL("ObservationLayer:: Events must be associated with a single observation factor / value");
-            ros::shutdown();          
+            ROS_FATAL_STREAM ( "ObservationLayer:: Attempted to reassign dependency for global event '" << event_name << "'" );
+            ROS_FATAL ( "ObservationLayer:: Events must be associated with a single observation factor / value" );
+            ros::shutdown();
         }
         event_named_global_observer_[event_name] = make_pair ( new_factor_index, deps.getDependencyIndex ( event_name ) );
     }

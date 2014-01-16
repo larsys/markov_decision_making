@@ -39,50 +39,53 @@
 namespace predicate_manager
 {
 /**
- * The Predicate class is a base class for logical predicates. A "Predicate" is
- * an object with an associated truth value that can depend on arbitrary sources of information.
- * This base class provides functionalities to ease the definition of predicates and their
- * interface with the PredicateManager class.
+ * The Event class is a base class for instantaneous events. An "Event" is
+ * an object associated to a condition, and that is triggered whenever that condition becomes true
+ * (and only when that condition becomes true). Events can be though of as named representations of 
+ * transitions of logical predicates. However, the Event class (and its sub-classes) can be used 
+ * independently from the Predicate base class. Events can be bound to arbitrary user-defined conditions.
+ * Note that, contrarily to Predicates, Events don't have a "state" -- they are instantaneous signals.
  */
 class Event : public PredicateDependentEntity
 {
 public:
     /**
-     * Predicate constructor.
-     * @param name The name of this Predicate.
-     * @param deps The Dependencies of this Predicate (e.g. a set of names of other Predicates that may influence its value).
+     * Event constructor.
+     * @param name The name of this Event.
+     * @param deps The Dependencies of this Event (e.g. a set of names of Predicates that may influence the event condition).
      * @sa Dependencies
      */
     Event ( const std::string& name,
             const Dependencies& deps );
 
     /**
-     * Predicate constructor.
-     * @param name The name of this Predicate.
+     * Event constructor.
+     * @param name The name of this Event.
      */
     Event ( const std::string& name );
 
-    ///Gets the name of this Predicate.
+    ///Gets the name of this Event.
     std::string getName();
 
-    ///Sets the name of this Predicate.
+    ///Sets the name of this Event.
     std::string setName ( const std::string& new_name );
 
     /**
-     * Sets the trigger function for this Predicate. The trigger function
-     * is called whenever the Predicate changes its value (this is used by the PredicateManager).
+     * Sets the trigger function for this Event. The trigger function
+     * is typically set internally by an associated PredicateManager, and is called whenever the
+     * user decides to trigger this event (through the triggerEvent() method).
      */
     void setTrigger ( const boost::function<void () > trigger );
 
 protected:
-    ///Sets the value of this Predicate. Should be called from within update().
+    ///Triggers this Event (i.e. signals an associated PM that the event should be published). Should be called from within update().
     void triggerEvent();
 
 private:
     std::string name_; ///The name of this Event;
 
     /**
-     * The trigger function. Note that, for events, this function doesn't take any arguments
+     * The trigger function. Note that, for events, this function doesn't take any arguments.
      * @sa setTrigger
      */
     boost::function<void ( ) > trigger_;

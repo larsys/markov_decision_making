@@ -41,24 +41,24 @@ class PropLogicEvent : public Event
 public:
     /**
      * Preferred constructor.
-     * @param name The name of this predicate.
-     * @param pl The propositional formula from which the predicate should compute its value.
+     * @param name The name of this Event.
+     * @param pl The propositional formula which constitutes the event's triggering condition.
      */
     PropLogicEvent ( const std::string& name,
                      const PropLogic& pl );
 
     /**
      * Alternate constructor. You can use this form, for example, if you
-     * want to instantiate the predicate but you don't yet know the names
+     * want to instantiate the event but you don't yet know the names
      * of the variables involved in the respective propositional formula.
-     * @param name The name of this predicate.
+     * @param name The name of this event.
      */
     PropLogicEvent ( const std::string& name );
 
     ///To be called by the Predicate Manager.
     void update();
 
-    ///Binds the value of this predicate to a propositional formula.
+    ///Binds the triggering condition of this event to a propositional formula.
     void bindPropLogic ( const PropLogic& pl );
 
 private:
@@ -68,7 +68,7 @@ private:
     ///Extracts the dependency set from the associated PropLogic and declares those dependencies.
     void declareAllDependencies();
 
-    boost::shared_ptr<PropLogic> prop_logic_; ///The propositional formula to which this predicate is bound.
+    boost::shared_ptr<PropLogic> prop_logic_; ///The propositional formula to which this event is bound.
 
     bool val_; ///The latest known value of the propositional formula
 };

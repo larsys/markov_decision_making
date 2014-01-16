@@ -96,6 +96,11 @@ public:
      */
     void addPredicate ( Predicate& p );
 
+    /**
+     * Adds an Event to this PredicateManager.
+     * Events must be added before the PM starts spinning.
+     * @param p The predicate to be registered.
+     */
     void addEvent ( Event& e );
 
     /**
@@ -106,6 +111,10 @@ public:
      */
     void predicateUpdateTrigger ( const NrID pred_nr_id, bool value );
 
+    /**
+     * A trigger function that is called by each Event when it is ready to be published.
+     * @param ev_nr_id The number of the calling event (bound during event registration). Calling events are always local.
+     */
     void eventTrigger ( const uint32_t ev_nr );
 
 private:
@@ -179,6 +188,7 @@ private:
     uint32_t pm_id_; ///The ID of this PM.
     std::vector<std::size_t> nr_of_predicates_; ///Vector containing the number of predicates for each known PM.
     std::vector<bool> initialized_pms_; ///Vector containing the IDs of all known initialized PMs.
+    double update_period_; ///The update period of this Predicate Manager. Default is 0.1s (10 Hz).
 
     ///Predicate-related members:
 
@@ -200,12 +210,12 @@ private:
     ros::Publisher event_maps_pub_;
     ros::Publisher event_updates_pub_;
 
-    uint32_t ev_update_counter_; ///A vector of integer tokens that act as a "synchronization key" for predicate updates
+    uint32_t ev_update_counter_; ///A vector of integer tokens that act as a "synchronization key" for event updates.
     EvRefVector local_ev_refs_; ///Vector of references to locally registered Event Objects.
     NameIDSet registered_events_; ///The NameIDs of all registered local events.
     NameIDObserver ev_name_observer_; ///The Event observer set for each Predicate, accessible through its NameID.
     NrIDObserver ev_nr_observer_; ///The Event observer set for each Predicate, accessible through its NrID.
-    std::vector<uint32_t> events_to_publish_;
+    std::vector<uint32_t> events_to_publish_; ///The events that have been flagged for publication in this cycle (i.e. called the trigger function).
 };
 }
 
