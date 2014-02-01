@@ -166,7 +166,7 @@ uint32_t
 ControlLayerBase::
 incrementDecisionEpisode ()
 {
-    if ( decision_horizon_ < MAXHORIZON && ( decision_episode_ + 1 ) >= decision_horizon_ )
+    if ( decision_horizon_ < MDM_MAXHORIZON && ( decision_episode_ + 1 ) >= decision_horizon_ )
     {
         resetController();
     }

@@ -5,7 +5,7 @@
     <description>Markov Decision Making is a ROS library for robot decision-making based on MDPs.</description>
     
     <maintainer email="jmessias@isr.ist.utl.pt">Joao Messias</maintainer>
-    
+    <url>http://ros.org/wiki/markov_decision_making</url>    
     <license>LGPLv3</license>
         
     <buildtool_depend>catkin</buildtool_depend>
