@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(mdm_example)
 
-find_package(catkin REQUIRED COMPONENTS markov_decision_making
+find_package(catkin REQUIRED COMPONENTS mdm_library
                                         predicate_manager
                                         topological_tools)
 
@@ -13,7 +13,7 @@ if ( NOT_SDLIMAGE_FOUND )
 endif ( NOT_SDLIMAGE_FOUND )
 
 catkin_package(
-  CATKIN_DEPENDS markov_decision_making
+  CATKIN_DEPENDS mdm_library
                  predicate_manager
                  topological_tools
 )

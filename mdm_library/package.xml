@@ -1,21 +1,24 @@
 <package>
-    <name>predicate_manager</name>
+    <name>mdm_library</name>
     <version>0.1.2</version>
     
-    <description>Predicate Manager is a ROS library to define and manage logical predicates and events.</description>
+    <description>This is the core package of the Markov Decision Making Library.</description>
+    <author email="jmessias@isr.ist.utl.pt">Joao Messias</author>
     <maintainer email="jmessias@isr.ist.utl.pt">Joao Messias</maintainer>
-    <author>Joao Reis and Joao Messias</author>
+    <url>http://ros.org/wiki/mdm_library</url>    
     <license>LGPLv3</license>
-    <url>http://ros.org/wiki/predicate_manager</url> 
+        
     <buildtool_depend>catkin</buildtool_depend>
 
     <build_depend>message_generation</build_depend>
     <build_depend>roscpp</build_depend>
     <build_depend>std_msgs</build_depend>
+    <build_depend>predicate_manager</build_depend>
     <run_depend>message_generation</run_depend>
     <run_depend>message_runtime</run_depend>
     <run_depend>roscpp</run_depend>
     <run_depend>std_msgs</run_depend>
+    <run_depend>predicate_manager</run_depend>
 </package>
 
 

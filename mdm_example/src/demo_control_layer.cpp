@@ -1,9 +1,9 @@
 #include <ros/ros.h>
-#include <markov_decision_making/controller_event_mdp.h>
+#include <mdm_library/controller_event_mdp.h>
 
 using namespace std;
 using namespace ros;
-using namespace markov_decision_making;
+using namespace mdm_library;
 
 int main ( int argc, char** argv )
 {

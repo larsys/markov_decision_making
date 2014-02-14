@@ -5,7 +5,7 @@ project(topological_tools)
 find_package(catkin REQUIRED COMPONENTS
                              roscpp
                              message_generation
-                             markov_decision_making
+                             mdm_library
                              predicate_manager
                              actionlib
                              actionlib_msgs)
@@ -44,7 +44,7 @@ endif ( SDLIMAGE_FOUND )
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES topological_tools
-  CATKIN_DEPENDS roscpp markov_decision_making predicate_manager actionlib actionlib_msgs
+  CATKIN_DEPENDS roscpp mdm_library predicate_manager actionlib actionlib_msgs
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})

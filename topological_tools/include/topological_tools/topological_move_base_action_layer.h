@@ -36,7 +36,7 @@
 #include <move_base_msgs/MoveBaseFeedback.h>
 
 #include <topological_tools/topological_action_manager.h>
-#include <markov_decision_making/action_layer.h>
+#include <mdm_library/action_layer.h>
 
 
 namespace topological_tools
@@ -67,7 +67,7 @@ private:
     ros::CallbackQueue actions_cb_queue_;
     ros::CallbackQueue predicates_cb_queue_;
 
-    markov_decision_making::ActionLayer al_;
+    mdm_library::ActionLayer al_;
     TopologicalActionManager tam_;
     MoveBaseClient move_base_client_;
 };

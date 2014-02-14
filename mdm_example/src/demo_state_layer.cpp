@@ -1,9 +1,9 @@
 #include <ros/ros.h>
-#include <markov_decision_making/state_layer.h>
+#include <mdm_library/state_layer.h>
 
 using namespace std;
 using namespace ros;
-using namespace markov_decision_making;
+using namespace mdm_library;
 
 int main ( int argc, char** argv )
 {

@@ -30,7 +30,7 @@
 using namespace std;
 using namespace topological_tools;
 using namespace predicate_manager;
-using namespace markov_decision_making;
+using namespace mdm_library;
 
 TopologicalMoveBaseActionLayer::
 TopologicalMoveBaseActionLayer ( TopologicalMap& tm ) :
