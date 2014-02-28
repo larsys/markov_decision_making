@@ -24,7 +24,7 @@ generate_messages(DEPENDENCIES std_msgs)
 
 catkin_package(
    INCLUDE_DIRS include
-   LIBRARIES mdm_control_layer mdm_action_layer mdm_state_layer
+   LIBRARIES mdm_control_layer mdm_learning_layer mdm_action_layer mdm_state_layer
    CATKIN_DEPENDS roscpp predicate_manager message_generation
   )
 
@@ -38,8 +38,21 @@ if ( MADP_FOUND )
                 src/controller_timed_pomdp.cpp
                 src/controller_event_pomdp.cpp
                 src/decpomdp_loader.cpp)
+
+    add_library(mdm_learning_layer
+                src/control_layer_base.cpp
+                src/controller_mdp.cpp
+                src/controller_timed_mdp.cpp
+                src/controller_event_mdp.cpp
+                src/controller_pomdp.cpp
+                src/controller_timed_pomdp.cpp
+                src/controller_event_pomdp.cpp
+                src/decpomdp_loader.cpp
+		src/online_learning_mdp.cpp
+                src/qlearning_mdp.cpp)
             
     set_target_properties(mdm_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+    set_target_properties(mdm_learning_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
     add_definitions(-DHAVE_MADP)
 else ( MADP_FOUND )
     message(STATUS "WARNING: MADP was not found on your system. Compiling without MADP support. Some functionalities may be absent.")
@@ -49,12 +62,25 @@ else ( MADP_FOUND )
                 src/controller_timed_mdp.cpp
                 src/controller_event_mdp.cpp
                 src/decpomdp_loader.cpp)
+
+    add_library(mdm_learning_layer
+                src/control_layer_base.cpp
+                src/controller_mdp.cpp
+                src/controller_timed_mdp.cpp
+                src/controller_event_mdp.cpp
+                src/decpomdp_loader.cpp
+		src/online_learning_mdp.cpp
+                src/qlearning_mdp.cpp)
             
 endif ( MADP_FOUND )
 
 add_dependencies(mdm_control_layer ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(mdm_control_layer ${MADP_LIBRARIES})
+
+add_dependencies(mdm_learning_layer ${PROJECT_NAME}_generate_messages_cpp)
+
+target_link_libraries(mdm_learning_layer ${MADP_LIBRARIES})
 
 add_library(mdm_action_layer
             src/action_layer.cpp)
