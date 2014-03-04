@@ -1,0 +1,1 @@
+winclude $(shell rospack find mk)/cmake.mk
