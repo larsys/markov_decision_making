@@ -40,6 +40,8 @@ public:
 #ifdef HAVE_MADP
     SarsaLearningMDP ( float alpha,
                        float gamma,
+                       float epsilon,
+                       uint32_t policy_update_frequency,
                        const std::string& policy_file_path,
                        const std::string& problem_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -47,6 +49,8 @@ public:
 
     SarsaLearningMDP ( float alpha,
                        float gamma,
+                       float epsilon,
+                       uint32_t policy_update_frequency,
                        const std::string& policy_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     

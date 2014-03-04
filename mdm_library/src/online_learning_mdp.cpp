@@ -32,18 +32,60 @@ using namespace mdm_library;
 #ifdef HAVE_MADP
 
 OnlineLearningMDP::
-OnlineLearningMDP ( const string& policy_file_path,
+OnlineLearningMDP ( float alpha,
+                    float gamma,
+                    float epsilon,
+                    uint32_t policy_update_frequency,
+                    const string& policy_file_path,
                     const string& problem_file_path,
-                    const CONTROLLER_STATUS initial_status ) :
-    ControllerEventMDP ( policy_file_path, problem_file_path, initial_status )
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    controller_ ( policy_file_path, problem_file_path, initial_status ),
+    alpha_ ( alpha ),
+    gamma_ ( gamma ),
+    epsilon_ ( epsilon ),
+    policy_update_frequency_ ( policy_update_frequency ),
+    curr_decision_ep_ ( 0 ),
+    state_sub_ ( nh_.subscribe ( "state", 1, &OnlineLearningMDP::stateSymbolCallback, this ) ),
+    action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
+    reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
 {
+    num_states_ = controller_.getNumberOfStates();
+    num_actions_ = controller_.getNumberOfActions();
+    
+    Matrix q_values_ ( num_states_, num_actions_ );
+    
+    // Initialize the Q values as 0
+    for (unsigned i = 0; i < q_values_.size1(); i++ )
+        for (unsigned j = 0; j < q_values_.size2(); j++ )
+            q_values_ (i, j) = 0;
 }
 
 #endif
 
 OnlineLearningMDP::
-OnlineLearningMDP ( const string& policy_file_path,
-                    const CONTROLLER_STATUS initial_status ) :
-    ControllerEventMDP ( policy_file_path, initial_status )
+OnlineLearningMDP ( float alpha,
+                    float gamma,
+                    float epsilon,
+                    uint32_t policy_update_frequency,
+                    const string& policy_file_path,
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    controller_ ( policy_file_path, initial_status ),
+    alpha_ ( alpha ),
+    gamma_ ( gamma ),
+    epsilon_ ( epsilon ),
+    policy_update_frequency_ ( policy_update_frequency ),
+    curr_decision_ep_ ( 0 ),
+    state_sub_ ( nh_.subscribe ( "state", 1, &OnlineLearningMDP::stateSymbolCallback, this ) ),
+    action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
+    reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
 {
+    num_states_ = controller_.getNumberOfStates();
+    num_actions_ = controller_.getNumberOfActions();
+    
+    Matrix q_values_ (num_states_, num_actions_);
+    
+    // Initialize the Q values as 0
+    for (unsigned i = 0; i < q_values_.size1(); i++ )
+        for (unsigned j = 0; j < q_values_.size2(); j++ )
+            q_values_ (i, j) = 0;
 }

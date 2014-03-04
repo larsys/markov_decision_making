@@ -27,6 +27,12 @@
 
 
 #include <mdm_library/control_layer_base.h>
+#include <mdm_library/controller_event_mdp.h>
+#include <mdm_library/common_defs.h>
+
+#include <mdm_library/ActionSymbol.h>
+#include <mdm_library/WorldSymbol.h>
+#include <std_msgs/Float32.h>
 
 
 namespace mdm_library
@@ -38,20 +44,80 @@ class OnlineLearningMDP
 {
 public:
 #ifdef HAVE_MADP
-    OnlineLearningMDP ( const std::string& policy_file_path,
+    OnlineLearningMDP ( float alpha,
+                        float gamma,
+                        float epsilon,
+                        uint32_t policy_update_frequency,
+                        const std::string& policy_file_path,
                         const std::string& problem_file_path,
-                        const CONTROLLER_STATUS initial_status = STARTED );
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    OnlineLearningMDP ( const std::string& policy_file_path,
-                        const CONTROLLER_STATUS initial_status = STARTED );
+    OnlineLearningMDP ( float alpha,
+                        float gamma,
+                        float epsilon,
+                        uint32_t policy_update_frequency,
+                        const std::string& policy_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
 protected:
+    /** MDP Controller */
+    ControllerEventMDP controller_;
+    
     /** Q-table */
-    //int q_values[][];
+    Matrix q_values_;
+    
+    /** The alpha parameter TODO*/
+    float alpha_;
+    
+    /** The gamma parameter TODO*/
+    float gamma_;
+    
+    /** The epsilon parameter TODO - fazer funcao dependente de t */
+    float epsilon_;
+    
+    /** Policy update frequency */
+    uint32_t policy_update_frequency_;
+    
+    /** The current decision episode */
+    uint32_t curr_decision_ep_;
+    
+    /** Number of states */
+    size_t num_states_;
+    
+    /** Number of actions */
+    size_t num_actions_;
     
     /** Pure virtual function for updating the Q values. To be implemented in each specific method */
     virtual void updateQValues () = 0;
+    
+    /** Pure virtual callback for actions coming from the State Layer, to be implemented in each specific method. */
+    virtual void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg ) = 0;
+    
+    /** Pure virtual callback for actions coming from the Control Layer, to be implemented in each specific method. */
+    virtual void actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg ) = 0;
+    
+    /** Pure virtual callback for actions coming from the Control Layer, to be implemented in each specific method. */
+    virtual void rewardSymbolCallback ( const std_msgs::Float32& msg ) = 0;
+    
+private:
+    /** ROS Nodehandle for the learning layer. */
+    ros::NodeHandle nh_;
+    
+    /** The subscriber to the "state" topic in the local (public) namespace,
+     * in which the state information will be received.
+     */
+    ros::Subscriber state_sub_;
+    
+    /** The subscriber to the "action" topic in the local (public) namespace,
+     * in which the action information will be received.
+     */
+    ros::Subscriber action_sub_;
+    
+    /** The subscriber to the "reward" topic in the local (public) namespace,
+     * in which the reward information will be received.
+     */
+    ros::Subscriber reward_sub_;
 };
 }
 

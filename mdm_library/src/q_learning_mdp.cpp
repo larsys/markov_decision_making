@@ -35,10 +35,14 @@ using namespace mdm_library;
 
 
 QLearningMDP::
-QLearningMDP ( const string& problem_file_path,
+QLearningMDP ( float alpha,
+               float gamma,
+               float epsilon,
+               uint32_t policy_update_frequency,
+               const string& problem_file_path,
                const string& policy_file_path,
-               const CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( policy_file_path, problem_file_path, initial_status )
+               const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, problem_file_path, initial_status )
 {
 }
 
@@ -48,9 +52,87 @@ QLearningMDP ( const string& problem_file_path,
 
 
 QLearningMDP::
-QLearningMDP ( const std::string& policy_file_path,
-               const CONTROLLER_STATUS initial_status = STARTED ) :
-    OnlineLearningMDP ( policy_file_path, initial_status )
+QLearningMDP ( float alpha,
+               float gamma,
+               float epsilon,
+               uint32_t policy_update_frequency,
+               const std::string& policy_file_path,
+               const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, initial_status )
 {
-};
+}
 
+
+void
+QLearningMDP::
+updateQValues ()
+{
+    // TODO actualizacao da politica
+    q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
+                                    maxOverA() - q_values_ ( state_, action_ ) );
+}
+
+
+
+void
+QLearningMDP::
+stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
+{
+    if ( curr_decision_ep_ == 0 )
+        state_ = msg -> world_symbol;
+    else
+    {
+        if ( curr_decision_ep_ == 1 )
+            next_state_ = msg -> world_symbol;
+        else
+        {
+            state_ = next_state_;
+            next_state_ = msg -> world_symbol;
+        }
+    }
+}
+
+
+void
+QLearningMDP::
+actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg )
+{
+    curr_decision_ep_ = msg -> decision_episode;
+    action_ = msg -> action_symbol;
+    
+    // Update the Q values after each decision episode
+    if ( curr_decision_ep_ >= 1 )
+        updateQValues ();
+    
+    // TODO ver se isto e importante ver ou nao
+//     if ( ActionLayer::action_sizes_.size() > 1 )
+//         action_ = ActionLayer::jointToIndividualAction ( msg -> action_symbol );
+//     else
+//         action_ = msg -> action_symbol;
+}
+
+
+void
+QLearningMDP::
+rewardSymbolCallback ( const std_msgs::Float32& msg )
+{
+    reward_ = msg.data;
+}
+
+
+float
+QLearningMDP::
+maxOverA ()
+{
+    // Initialize the current maximum as negative infinity
+    double curr_max = std::numeric_limits<double>::infinity() * -1;
+    
+    // Find the action that leads to the highest Q value
+    for (unsigned j = 0; j < q_values_.size2(); j++ )
+    {
+        if ( q_values_ (next_state_, j) > curr_max )
+            curr_max = q_values_ (next_state_, j);
+    }
+    
+    return curr_max;
+}

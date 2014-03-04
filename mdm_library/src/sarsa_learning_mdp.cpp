@@ -38,10 +38,12 @@ using namespace mdm_library;
 SarsaLearningMDP::
 SarsaLearningMDP ( float alpha,
                    float gamma,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
                    const string& problem_file_path,
                    const string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, policy_file_path, problem_file_path, initial_status )
+    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, problem_file_path, initial_status )
 {
 }
 
@@ -53,9 +55,11 @@ SarsaLearningMDP ( float alpha,
 SarsaLearningMDP::
 SarsaLearningMDP ( float alpha,
                    float gamma,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, policy_file_path, initial_status )
+    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, initial_status )
 {
 }
 
@@ -64,6 +68,7 @@ void
 SarsaLearningMDP::
 updateQValues ()
 {
+    // TODO actualizacao da politica
     q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
                                     q_values_ ( next_state_, next_action_ ) - q_values_ ( state_, action_ ) );
 }

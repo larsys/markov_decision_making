@@ -38,16 +38,49 @@ class QLearningMDP : public OnlineLearningMDP
 {
 public:
 #ifdef HAVE_MADP
-    QLearningMDP ( const std::string& policy_file_path,
+    QLearningMDP ( float alpha,
+                   float gamma,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   const std::string& policy_file_path,
                    const std::string& problem_file_path,
-                   const CONTROLLER_STATUS initial_status = STARTED );
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    QLearningMDP ( const std::string& policy_file_path,
-                   const CONTROLLER_STATUS initial_status = STARTED );
+    QLearningMDP ( float alpha,
+                   float gamma,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
 private:
+    /** Current state backup */
+    uint32_t state_;
+    
+    /** Current action backup */
+    uint32_t action_;
+    
+    /** Current reward backup */
+    float reward_;
+    
+    /** Next state backup */
+    uint32_t next_state_;
+    
+    /** Implementation of the pure virtual function updateQValues from OnlineLearningMDP */
     void updateQValues ();
+    
+    /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
+    void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
+    
+    /** Implementation of the pure virtual function actionSymbolCallback from OnlineLearningMDP */
+    void actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg );
+    
+    /** Implementation of the pure virtual function rewardSymbolCallback from OnlineLearningMDP */
+    void rewardSymbolCallback ( const std_msgs::Float32& msg );
+    
+    /** Function to get the maximum of Q(s, a) over a */
+    float maxOverA ();
 };
 }
 

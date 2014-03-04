@@ -26,6 +26,7 @@
 #define _MDP_POLICY_H_
 
 #include <mdm_library/common_defs.h>
+#include <boost/concept_check.hpp>
 
 
 
@@ -36,13 +37,16 @@ class MDPPolicy
 public:
     /**
      */
-    virtual uint32_t getAction ( uint32_t index ) = 0;
+    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions = 0, float epsilon = 0 ) = 0;
+    virtual void setAction ( uint32_t state, uint32_t action );
 
     uint32_t operator[] ( uint32_t index )
     {
         return getAction ( index );
     }
 };
+
+
 
 class MDPPolicyVector : public MDPPolicy
 {
@@ -51,10 +55,48 @@ public:
         policy_vec_ptr_ ( p_ptr ) {}
 
 protected:
-    virtual uint32_t getAction ( uint32_t index )
+    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions = 0, float epsilon = 0 )
     {
         return ( *policy_vec_ptr_ ) [index];
     }
+
+private:
+    IndexVectorPtr policy_vec_ptr_;
+};
+
+
+
+class MDPEpsilonGreedyPolicyVector : public MDPPolicy
+{
+public:
+    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr ) :
+        policy_vec_ptr_ ( p_ptr ) {}
+
+protected:
+    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions, float epsilon )
+    {
+        // Probability to choose a random action (1 - 100)
+        float p = rand() % 100 + 1;
+        
+        // With probability epsilon choose a random action. Otherwise, follow the policy.
+        if ( p <= epsilon )
+        {
+            // Choose a random index to select a random action
+            uint32_t random_index = rand() % num_actions;
+            
+            return ( *policy_vec_ptr_ ) [random_index];
+        }
+        else
+            return ( *policy_vec_ptr_ ) [index];
+    }
+    
+    
+    
+    virtual void setAction ( uint32_t state, uint32_t action )
+    {
+        //policy_vec_ptr_ ( state ) = action;
+    }
+
 private:
     IndexVectorPtr policy_vec_ptr_;
 };
