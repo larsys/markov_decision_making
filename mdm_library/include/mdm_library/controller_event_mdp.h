@@ -69,8 +69,10 @@ public:
      */
     ControllerEventMDP ( const std::string& policy_file_path,
                          const CONTROLLER_STATUS initial_status = STARTED );
+    
     /** The callback to incoming state information. This will trigger a new decision step. */
     void stateCallback ( const WorldSymbolConstPtr& msg );
+    
 private:
 };
 }

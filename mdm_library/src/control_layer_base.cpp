@@ -125,7 +125,6 @@ setStatus ( const CONTROLLER_STATUS status )
 
 
 
-
 uint32_t
 ControlLayerBase::
 getDecisionEpisode ()
@@ -169,7 +168,8 @@ incrementDecisionEpisode ()
     if ( ( decision_episode_ + 1 ) >= decision_horizon_ )
     {
         resetController();
-	return decision_episode_;
+        return decision_episode_;
     }
+    
     return ++decision_episode_;
 }

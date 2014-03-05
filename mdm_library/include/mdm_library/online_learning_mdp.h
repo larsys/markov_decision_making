@@ -29,6 +29,7 @@
 #include <mdm_library/control_layer_base.h>
 #include <mdm_library/controller_event_mdp.h>
 #include <mdm_library/common_defs.h>
+#include <mdm_library/learning_defs.h>
 
 #include <mdm_library/ActionSymbol.h>
 #include <mdm_library/WorldSymbol.h>
@@ -44,8 +45,10 @@ class OnlineLearningMDP
 {
 public:
 #ifdef HAVE_MADP
-    OnlineLearningMDP ( float alpha,
-                        float gamma,
+    OnlineLearningMDP ( float gamma,
+                        ALPHA_TYPE alpha_type,
+                        float alpha,
+                        EPSILON_TYPE epsilon_type,
                         float epsilon,
                         uint32_t policy_update_frequency,
                         const std::string& policy_file_path,
@@ -53,8 +56,10 @@ public:
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    OnlineLearningMDP ( float alpha,
-                        float gamma,
+    OnlineLearningMDP ( float gamma,
+                        ALPHA_TYPE alpha_type,
+                        float alpha,
+                        EPSILON_TYPE epsilon_type,
                         float epsilon,
                         uint32_t policy_update_frequency,
                         const std::string& policy_file_path,
@@ -67,11 +72,17 @@ protected:
     /** Q-table */
     Matrix q_values_;
     
+    /** The gamma parameter TODO*/
+    float gamma_;
+    
+    /** The alpha type */
+    ALPHA_TYPE alpha_type_;
+    
     /** The alpha parameter TODO*/
     float alpha_;
     
-    /** The gamma parameter TODO*/
-    float gamma_;
+    /** The epsilon type */
+    EPSILON_TYPE epsilon_type_;
     
     /** The epsilon parameter TODO - fazer funcao dependente de t */
     float epsilon_;

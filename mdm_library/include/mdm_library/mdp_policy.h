@@ -27,7 +27,6 @@
 
 #include <mdm_library/common_defs.h>
 #include <boost/concept_check.hpp>
-#include <boost/numeric/ublas/io.hpp>
 
 #include <ros/ros.h>
 

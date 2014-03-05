@@ -35,14 +35,17 @@ using namespace mdm_library;
 
 
 QLearningMDP::
-QLearningMDP ( float alpha,
-               float gamma,
+QLearningMDP ( float gamma,
+               ALPHA_TYPE alpha_type,
+               float alpha,
+               EPSILON_TYPE epsilon_type,
                float epsilon,
                uint32_t policy_update_frequency,
                const string& problem_file_path,
                const string& policy_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, problem_file_path, initial_status )
+    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
+                        policy_file_path, problem_file_path, initial_status )
 {
 }
 
@@ -52,13 +55,16 @@ QLearningMDP ( float alpha,
 
 
 QLearningMDP::
-QLearningMDP ( float alpha,
-               float gamma,
+QLearningMDP ( float gamma,
+               ALPHA_TYPE alpha_type,
+               float alpha,
+               EPSILON_TYPE epsilon_type,
                float epsilon,
                uint32_t policy_update_frequency,
                const std::string& policy_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, initial_status )
+    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
+                        policy_file_path, initial_status )
 {
 }
 

@@ -38,8 +38,10 @@ class QLearningMDP : public OnlineLearningMDP
 {
 public:
 #ifdef HAVE_MADP
-    QLearningMDP ( float alpha,
-                   float gamma,
+    QLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
                    const std::string& policy_file_path,
@@ -47,8 +49,10 @@ public:
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    QLearningMDP ( float alpha,
-                   float gamma,
+    QLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
                    const std::string& policy_file_path,

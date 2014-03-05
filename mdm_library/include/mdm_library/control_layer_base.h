@@ -78,6 +78,7 @@ public:
 
     /** Returns the horizon of this controller. The MADP-defined MAXHORIZON should be interpreted as infinite.*/
     uint32_t getDecisionHorizon ();
+    
     /** Resets the decision step number of this controller back to 0.*/
     void resetDecisionEpisode ();
 
@@ -88,11 +89,13 @@ public:
      * @sa startController(), resetController()
      */
     virtual void stopController();
+    
     /**
      * Start this controller. The decision step number is set to 0 whenever a controller is started.
      * @sa stopController, resetController()
      */
     virtual void startController();
+    
     /**
      * Stops and re-starts the controller.
      * @sa stopController(), startController()
@@ -105,6 +108,7 @@ protected:
      * controller is reset.
      */
     uint32_t incrementDecisionEpisode();
+    
     /**
      * Allows direct access to the status of this controller. This can be used to reimplement the
      * start / stop / reset functions by derived classes.
@@ -119,11 +123,13 @@ private:
      * @sa stop_srv_
      */
     bool stopCallback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
+    
     /**
      * The callback for the "start" service (Empty service type).
      * @sa start_srv_
      */
     bool startCallback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
+    
     /**
     * The callback for the "reset" service (Empty service type).
     * @sa reset_srv_
@@ -135,6 +141,7 @@ private:
     
     /** The decision step number. */
     uint32_t decision_episode_;
+    
     /** The decision horizon. While, typically, infinite-horizon policies are used for robotic agents,
      * MDM also contemplates the possibility of using finite-horizon controllers.
      */
@@ -145,11 +152,13 @@ private:
      * Control Layer, which can be used to stop the controller.
      */
     ros::ServiceServer stop_srv_;
+    
     /**
      * The "start" service server. This is an empty-type service in the namespace of the node containing the
      * Control Layer, which can be used to start the controller.
      */
     ros::ServiceServer start_srv_;
+    
     /**
      * The "reset" service server. This is an empty-type service in the namespace of the node containing the
      * Control Layer, which can be used to reset (stop & start) the controller.

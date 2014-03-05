@@ -32,16 +32,20 @@ using namespace mdm_library;
 #ifdef HAVE_MADP
 
 OnlineLearningMDP::
-OnlineLearningMDP ( float alpha,
-                    float gamma,
+OnlineLearningMDP ( float gamma,
+                    ALPHA_TYPE alpha_type,
+                    float alpha,
+                    EPSILON_TYPE epsilon_type,
                     float epsilon,
                     uint32_t policy_update_frequency,
                     const string& policy_file_path,
                     const string& problem_file_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     controller_ ( policy_file_path, problem_file_path, initial_status ),
-    alpha_ ( alpha ),
     gamma_ ( gamma ),
+    alpha_type_ ( alpha_type ),
+    alpha_ ( alpha ),
+    epsilon_type_ ( epsilon_type ),
     epsilon_ ( epsilon ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
@@ -58,20 +62,42 @@ OnlineLearningMDP ( float alpha,
     for ( unsigned i = 0; i < q_values_.size1(); i++ )
         for ( unsigned j = 0; j < q_values_.size2(); j++ )
             q_values_ ( i, j ) = 0;
+        
+//     // Sanity checks on the value of epsilon
+//     if ( policy_type == EPSGREEDY )
+//     {
+//         if ( epsilon == -1 )
+//         {
+//             ROS_FATAL ( "ControlLayer:: Since the policy is epsilon-greedy, a value for epsilon must be specified." );
+//             shutdown();
+//         }
+//         else
+//         {
+//             if ( epsilon > 1 || epsilon < 0 )
+//             {
+//                 ROS_FATAL ( "ControlLayer:: The provided epsilon value is outside the [0, 1] interval." );
+//                 shutdown();
+//             }
+//         }
+//     }
 }
 
 #endif
 
 OnlineLearningMDP::
-OnlineLearningMDP ( float alpha,
-                    float gamma,
+OnlineLearningMDP ( float gamma,
+                    ALPHA_TYPE alpha_type,
+                    float alpha,
+                    EPSILON_TYPE epsilon_type,
                     float epsilon,
                     uint32_t policy_update_frequency,
                     const string& policy_file_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     controller_ ( policy_file_path, initial_status ),
-    alpha_ ( alpha ),
     gamma_ ( gamma ),
+    alpha_type_ ( alpha_type ),
+    alpha_ ( alpha ),
+    epsilon_type_ ( epsilon_type ),
     epsilon_ ( epsilon ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),

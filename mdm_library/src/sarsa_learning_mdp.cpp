@@ -36,14 +36,17 @@ using namespace mdm_library;
 
 
 SarsaLearningMDP::
-SarsaLearningMDP ( float alpha,
-                   float gamma,
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
                    const string& problem_file_path,
                    const string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, problem_file_path, initial_status )
+    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
+                        policy_file_path, problem_file_path, initial_status )
 {
 }
 
@@ -53,13 +56,16 @@ SarsaLearningMDP ( float alpha,
 
 
 SarsaLearningMDP::
-SarsaLearningMDP ( float alpha,
-                   float gamma,
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( alpha, gamma, epsilon, policy_update_frequency, policy_file_path, initial_status )
+    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
+                        policy_file_path, initial_status )
 {
 }
 

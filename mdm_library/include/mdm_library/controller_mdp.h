@@ -86,28 +86,36 @@ public:
 
     /** Returns the number of actions of this MDP. */
     size_t getNumberOfActions ();
+    
     /** Returns the number of states of this MDP. */
     size_t getNumberOfStates ();
 
 protected:
     /** Publishes an action. */
     void publishAction ( uint32_t a );
+    
     /** Publishes the reward of a state-action pair. */
     void publishReward ( uint32_t s, uint32_t a );
 
     boost::shared_ptr<RewardModel> R_ptr_;
+    
     boost::shared_ptr<MDPPolicy> policy_ptr_;
+    
     /** The parser for the MDP problem file. */
     boost::shared_ptr<DecPOMDPLoader> loader_;
+    
     /** The number of states of this MDP. */
     size_t number_of_states_;
+    
     /** The number of actions of this MDP. */
     size_t number_of_actions_;
 
     /** Subscriber to the "state" topic, where the state information will be published by a State Layer.*/
     ros::Subscriber state_sub_;
+    
     /** Publisher to the "action" topic, where the action information will be passed on to an Action Layer.*/
     ros::Publisher action_pub_;
+    
     /** Publisher to the "reward" topic, where reward information can be acessed for reinforcement learning or logging purposes.*/
     ros::Publisher reward_pub_;
 };
