@@ -88,12 +88,6 @@ public:
     size_t getNumberOfActions ();
     /** Returns the number of states of this MDP. */
     size_t getNumberOfStates ();
-    
-    /** Function to update the policy - used while learning */
-    void updatePolicy ( Matrix q_values );
-    
-    /** Arg max function to compute the policy */
-    uint32_t argMaxA ( Matrix q_values, uint32_t state );
 
 protected:
     /** Publishes an action. */

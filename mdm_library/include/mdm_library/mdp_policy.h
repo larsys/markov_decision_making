@@ -27,6 +27,9 @@
 
 #include <mdm_library/common_defs.h>
 #include <boost/concept_check.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
+#include <ros/ros.h>
 
 
 
@@ -37,8 +40,7 @@ class MDPPolicy
 public:
     /**
      */
-    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions = 0, float epsilon = 0 ) = 0;
-    virtual void setAction ( uint32_t state, uint32_t action );
+    virtual uint32_t getAction ( uint32_t index ) = 0;
 
     uint32_t operator[] ( uint32_t index )
     {
@@ -55,7 +57,7 @@ public:
         policy_vec_ptr_ ( p_ptr ) {}
 
 protected:
-    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions = 0, float epsilon = 0 )
+    virtual uint32_t getAction ( uint32_t index )
     {
         return ( *policy_vec_ptr_ ) [index];
     }
@@ -69,20 +71,24 @@ private:
 class MDPEpsilonGreedyPolicyVector : public MDPPolicy
 {
 public:
-    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr ) :
-        policy_vec_ptr_ ( p_ptr ) {}
+    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, float epsilon ) :
+        policy_vec_ptr_ ( p_ptr ),
+        num_states_ ( num_states ),
+        num_actions_ ( num_actions ),
+        epsilon_ ( epsilon )
+        {}
 
 protected:
-    virtual uint32_t getAction ( uint32_t index, uint32_t num_actions, float epsilon )
+    virtual uint32_t getAction ( uint32_t index )
     {
         // Probability to choose a random action (1 - 100)
         float p = rand() % 100 + 1;
         
         // With probability epsilon choose a random action. Otherwise, follow the policy.
-        if ( p <= epsilon )
+        if ( p <= epsilon_ )
         {
             // Choose a random index to select a random action
-            uint32_t random_index = rand() % num_actions;
+            uint32_t random_index = rand() % num_actions_;
             
             return ( *policy_vec_ptr_ ) [random_index];
         }
@@ -90,15 +96,50 @@ protected:
             return ( *policy_vec_ptr_ ) [index];
     }
     
-    
-    
-    virtual void setAction ( uint32_t state, uint32_t action )
+    void updatePolicy ( Matrix q_values )
     {
-        //policy_vec_ptr_ ( state ) = action;
+        uint32_t best_action;
+    
+        for ( uint32_t state = 0; state < num_states_; state++ )
+        {
+            best_action = argMaxA ( q_values, state );
+            
+            try
+            {
+                ( *policy_vec_ptr_) ( state ) = best_action;
+            }
+            catch ( std::exception& e )
+            {
+                ROS_ERROR_STREAM ( e.what() );
+                abort();
+            }
+        }
     }
 
 private:
     IndexVectorPtr policy_vec_ptr_;
+    uint32_t num_states_;
+    uint32_t num_actions_;
+    float epsilon_;
+    
+        uint32_t argMaxA ( Matrix q_values, uint32_t state )
+    {
+        // Initialize the current maximum as negative infinity
+        double curr_max = std::numeric_limits<double>::infinity() * -1;
+        uint32_t index;
+        
+        // Find the action that leads to the highest Q value
+        for (unsigned j = 0; j < q_values.size2(); j++ )
+        {
+            if ( q_values ( state, j ) > curr_max )
+            {
+                curr_max = q_values ( state, j );
+                index = j;
+            }
+        }
+        
+        return index;
+    }
 };
 }
 

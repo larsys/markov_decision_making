@@ -132,6 +132,7 @@ private:
 
     /** The status of this controller. */
     CONTROLLER_STATUS status_;
+    
     /** The decision step number. */
     uint32_t decision_episode_;
     /** The decision horizon. While, typically, infinite-horizon policies are used for robotic agents,

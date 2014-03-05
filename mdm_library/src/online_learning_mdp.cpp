@@ -49,15 +49,15 @@ OnlineLearningMDP ( float alpha,
     action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
     reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
 {
-    num_states_ = controller_.getNumberOfStates();
-    num_actions_ = controller_.getNumberOfActions();
+    num_states_ = controller_.getNumberOfStates ();
+    num_actions_ = controller_.getNumberOfActions ();
     
     Matrix q_values_ ( num_states_, num_actions_ );
     
     // Initialize the Q values as 0
-    for (unsigned i = 0; i < q_values_.size1(); i++ )
-        for (unsigned j = 0; j < q_values_.size2(); j++ )
-            q_values_ (i, j) = 0;
+    for ( unsigned i = 0; i < q_values_.size1(); i++ )
+        for ( unsigned j = 0; j < q_values_.size2(); j++ )
+            q_values_ ( i, j ) = 0;
 }
 
 #endif
@@ -79,13 +79,13 @@ OnlineLearningMDP ( float alpha,
     action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
     reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
 {
-    num_states_ = controller_.getNumberOfStates();
-    num_actions_ = controller_.getNumberOfActions();
+    num_states_ = controller_.getNumberOfStates ();
+    num_actions_ = controller_.getNumberOfActions ();
     
-    Matrix q_values_ (num_states_, num_actions_);
+    Matrix q_values_ ( num_states_, num_actions_ );
     
     // Initialize the Q values as 0
-    for (unsigned i = 0; i < q_values_.size1(); i++ )
-        for (unsigned j = 0; j < q_values_.size2(); j++ )
-            q_values_ (i, j) = 0;
+    for ( unsigned i = 0; i < q_values_.size1(); i++ )
+        for ( unsigned j = 0; j < q_values_.size2(); j++ )
+            q_values_ ( i, j ) = 0;
 }
