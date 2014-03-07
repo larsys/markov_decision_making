@@ -26,6 +26,7 @@
 #define _MDP_POLICY_H_
 
 #include <mdm_library/common_defs.h>
+#include <mdm_library/learning_defs.h>
 #include <boost/concept_check.hpp>
 
 #include <ros/ros.h>
@@ -70,12 +71,17 @@ private:
 class MDPEpsilonGreedyPolicyVector : public MDPPolicy
 {
 public:
-    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, float epsilon ) :
+    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, float epsilon_value ) :
         policy_vec_ptr_ ( p_ptr ),
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
-        epsilon_ ( epsilon )
-        {}
+        epsilon_ptr_ ( new ConstantParameter ( epsilon_value, "epsilon" ) ) {}
+        
+    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, EPSILON_TYPE epsilon_type ) :
+        policy_vec_ptr_ ( p_ptr ),
+        num_states_ ( num_states ),
+        num_actions_ ( num_actions ),
+        epsilon_ptr_ ( new Epsilon ( epsilon_type ) ) {}
 
 protected:
     virtual uint32_t getAction ( uint32_t index )
@@ -84,7 +90,7 @@ protected:
         float p = rand() % 100 + 1;
         
         // With probability epsilon choose a random action. Otherwise, follow the policy.
-        if ( p <= epsilon_ )
+        if ( p <= ( *epsilon_ptr_ ).getValue () )
         {
             // Choose a random index to select a random action
             uint32_t random_index = rand() % num_actions_;
@@ -119,9 +125,9 @@ private:
     IndexVectorPtr policy_vec_ptr_;
     uint32_t num_states_;
     uint32_t num_actions_;
-    float epsilon_;
+    boost::shared_ptr<Parameter> epsilon_ptr_;
     
-        uint32_t argMaxA ( Matrix q_values, uint32_t state )
+    uint32_t argMaxA ( Matrix q_values, uint32_t state )
     {
         // Initialize the current maximum as negative infinity
         double curr_max = std::numeric_limits<double>::infinity() * -1;

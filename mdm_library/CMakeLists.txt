@@ -47,10 +47,10 @@ if ( MADP_FOUND )
                 src/controller_pomdp.cpp
                 src/controller_timed_pomdp.cpp
                 src/controller_event_pomdp.cpp
-                src/decpomdp_loader.cpp
-		src/online_learning_mdp.cpp
-                src/q_learning_mdp.cpp
-		src/sarsa_learning_mdp.cpp)
+                src/decpomdp_loader.cpp)
+		#src/online_learning_mdp.cpp
+                #src/q_learning_mdp.cpp
+		#src/sarsa_learning_mdp.cpp)
             
     set_target_properties(mdm_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
     set_target_properties(mdm_learning_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
@@ -69,10 +69,10 @@ else ( MADP_FOUND )
                 src/controller_mdp.cpp
                 src/controller_timed_mdp.cpp
                 src/controller_event_mdp.cpp
-                src/decpomdp_loader.cpp
-		src/online_learning_mdp.cpp
-                src/q_learning_mdp.cpp
-		src/sarsa_learning_mdp.cpp)
+                src/decpomdp_loader.cpp)
+		#src/online_learning_mdp.cpp
+                #src/q_learning_mdp.cpp
+		#src/sarsa_learning_mdp.cpp)
             
 endif ( MADP_FOUND )
 

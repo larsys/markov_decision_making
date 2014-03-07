@@ -62,12 +62,43 @@ public:
     ControllerMDP ( const std::string& policy_file_path,
                     const std::string& problem_file_path,
                     const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerMDP ( const std::string& policy_file_path,
+                    const std::string& problem_file_path,
+                    float epsilon_value,
+                    const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerMDP ( const std::string& policy_file_path,
+                    const std::string& problem_file_path,
+                    EPSILON_TYPE epsilon_type,
+                    const CONTROLLER_STATUS initial_status = STARTED );
 #endif
 
+    /**
+     * Constructor to be used when creating a controller for planning.
+     */
     ControllerMDP ( const std::string& policy_file_path,
+                    const CONTROLLER_STATUS initial_status = STARTED );
+    
+    /**
+     * Constructor to be used by the learning layer with a constant epsilon.
+     */
+    ControllerMDP ( const std::string& policy_file_path,
+                    float epsilon_value,
+                    const CONTROLLER_STATUS initial_status = STARTED );
+    
+    /**
+     * Constructor to be used by the learning layer with a varying epsilon.
+     */
+    ControllerMDP ( const std::string& policy_file_path,
+                    EPSILON_TYPE epsilon_type,
                     const CONTROLLER_STATUS initial_status = STARTED );
 
     void loadPolicyVector ( const std::string& policy_vector_path );
+    
+    void loadPolicyVector ( const std::string& policy_vector_path, float epsilon_value );
+    
+    void loadPolicyVector ( const std::string& policy_vector_path, EPSILON_TYPE epsilon_type );
 
     void loadRewardMatrix ( const std::string& reward_matrix_path );
 
@@ -89,6 +120,9 @@ public:
     
     /** Returns the number of states of this MDP. */
     size_t getNumberOfStates ();
+    
+    /** Returns the policy */
+    boost::shared_ptr<MDPPolicy> getPolicy ();
 
 protected:
     /** Publishes an action. */

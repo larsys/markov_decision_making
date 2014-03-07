@@ -32,10 +32,32 @@ using namespace mdm_library;
 #ifdef HAVE_MADP
 
 ControllerEventMDP::
-ControllerEventMDP ( const string& policy_file_path,
-                     const string& problem_file_path,
+ControllerEventMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
                      const CONTROLLER_STATUS initial_status ) :
-    ControllerMDP ( policy_file_path, problem_file_path, initial_status )
+    ControllerMDP ( problem_file_path, policy_file_path, initial_status )
+{
+}
+
+
+
+ControllerEventMDP::
+ControllerEventMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
+                     float epsilon_value,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( problem_file_path, policy_file_path, epsilon_value, initial_status )
+{
+}
+
+
+
+ControllerEventMDP::
+ControllerEventMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
+                     EPSILON_TYPE epsilon_type,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( problem_file_path, policy_file_path, epsilon_type, initial_status )
 {
 }
 
@@ -45,6 +67,26 @@ ControllerEventMDP::
 ControllerEventMDP ( const string& policy_file_path,
                      const CONTROLLER_STATUS initial_status ) :
     ControllerMDP ( policy_file_path, initial_status )
+{
+}
+
+
+
+ControllerEventMDP::
+ControllerEventMDP ( const string& policy_file_path,
+                     float epsilon_value,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, epsilon_value, initial_status )
+{
+}
+
+
+
+ControllerEventMDP::
+ControllerEventMDP ( const string& policy_file_path,
+                     EPSILON_TYPE epsilon_type,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, epsilon_type, initial_status )
 {
 }
 

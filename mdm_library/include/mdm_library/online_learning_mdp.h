@@ -129,6 +129,11 @@ private:
      * in which the reward information will be received.
      */
     ros::Subscriber reward_sub_;
+    
+    /**
+     * Function to initialize the Q-values table.
+     */
+    void initializeQValues ();
 };
 }
 

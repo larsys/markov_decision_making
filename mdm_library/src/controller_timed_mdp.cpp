@@ -32,10 +32,50 @@ using namespace mdm_library;
 #ifdef HAVE_MADP
 
 ControllerTimedMDP::
-ControllerTimedMDP ( const string& policy_file_path,
-                     const string& problem_file_path,
+ControllerTimedMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
                      const CONTROLLER_STATUS initial_status ) :
-    ControllerMDP ( policy_file_path, problem_file_path, initial_status ),
+    ControllerMDP ( problem_file_path, policy_file_path, initial_status ),
+    initial_state_known_ ( false )
+{
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
+}
+
+
+
+ControllerTimedMDP::
+ControllerTimedMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
+                     float epsilon_value,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( problem_file_path, policy_file_path, epsilon_value, initial_status ),
+    initial_state_known_ ( false )
+{
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
+}
+
+
+
+ControllerTimedMDP::
+ControllerTimedMDP ( const string& problem_file_path,
+                     const string& policy_file_path,
+                     EPSILON_TYPE epsilon_type,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( problem_file_path, policy_file_path, epsilon_type, initial_status ),
     initial_state_known_ ( false )
 {
     if ( !nh_.hasParam ( "decision_period" ) )
@@ -50,10 +90,50 @@ ControllerTimedMDP ( const string& policy_file_path,
 
 #endif
 
+
+
 ControllerTimedMDP::
 ControllerTimedMDP ( const string& policy_file_path,
                      const CONTROLLER_STATUS initial_status ) :
     ControllerMDP ( policy_file_path, initial_status ),
+    initial_state_known_ ( false )
+{
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
+}
+
+
+
+ControllerTimedMDP::
+ControllerTimedMDP ( const string& policy_file_path,
+                     float epsilon_value,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, epsilon_value, initial_status ),
+    initial_state_known_ ( false )
+{
+    if ( !nh_.hasParam ( "decision_period" ) )
+    {
+        ROS_ERROR ( "Decision period was not specified. Synchronous MDP controllers require the 'decision_period' parameter." );
+        abort();
+    }
+
+    timer_ = nh_.createTimer ( 0, &ControllerTimedMDP::timerCallback, this, true, false );
+    scheduleTimer();
+}
+
+
+
+ControllerTimedMDP::
+ControllerTimedMDP ( const string& policy_file_path,
+                     EPSILON_TYPE epsilon_type,
+                     const CONTROLLER_STATUS initial_status ) :
+    ControllerMDP ( policy_file_path, epsilon_type, initial_status ),
     initial_state_known_ ( false )
 {
     if ( !nh_.hasParam ( "decision_period" ) )

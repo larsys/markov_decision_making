@@ -34,7 +34,7 @@ using namespace mdm_library;
 OnlineLearningMDP::
 OnlineLearningMDP ( float gamma,
                     ALPHA_TYPE alpha_type,
-                    float alpha,
+                    float alpha_value,
                     EPSILON_TYPE epsilon_type,
                     float epsilon,
                     uint32_t policy_update_frequency,
@@ -53,33 +53,7 @@ OnlineLearningMDP ( float gamma,
     action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
     reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
 {
-    num_states_ = controller_.getNumberOfStates ();
-    num_actions_ = controller_.getNumberOfActions ();
-    
-    Matrix q_values_ ( num_states_, num_actions_ );
-    
-    // Initialize the Q values as 0
-    for ( unsigned i = 0; i < q_values_.size1(); i++ )
-        for ( unsigned j = 0; j < q_values_.size2(); j++ )
-            q_values_ ( i, j ) = 0;
-        
-//     // Sanity checks on the value of epsilon
-//     if ( policy_type == EPSGREEDY )
-//     {
-//         if ( epsilon == -1 )
-//         {
-//             ROS_FATAL ( "ControlLayer:: Since the policy is epsilon-greedy, a value for epsilon must be specified." );
-//             shutdown();
-//         }
-//         else
-//         {
-//             if ( epsilon > 1 || epsilon < 0 )
-//             {
-//                 ROS_FATAL ( "ControlLayer:: The provided epsilon value is outside the [0, 1] interval." );
-//                 shutdown();
-//             }
-//         }
-//     }
+    initializeQValues ();
 }
 
 #endif
@@ -87,23 +61,52 @@ OnlineLearningMDP ( float gamma,
 OnlineLearningMDP::
 OnlineLearningMDP ( float gamma,
                     ALPHA_TYPE alpha_type,
-                    float alpha,
                     EPSILON_TYPE epsilon_type,
-                    float epsilon,
+                    uint32_t policy_update_frequency,
+                    const string& policy_file_path,
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    controller_ ( policy_file_path, epsilon_type, epsilon_value, initial_status ),
+    gamma_ ( gamma ),
+    alpha_type_ ( alpha_type ),
+    alpha_ ( -1 ),
+    epsilon_type_ ( epsilon_type ),
+    epsilon_ ( -1 ),
+    policy_update_frequency_ ( policy_update_frequency ),
+    curr_decision_ep_ ( 0 ),
+    state_sub_ ( nh_.subscribe ( "state", 1, &OnlineLearningMDP::stateSymbolCallback, this ) ),
+    action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
+    reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
+{
+    initializeQValues ();
+}
+
+
+
+OnlineLearningMDP::
+OnlineLearningMDP ( float gamma,
+                    float alpha_value,
+                    EPSILON_TYPE epsilon_type,
                     uint32_t policy_update_frequency,
                     const string& policy_file_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     controller_ ( policy_file_path, initial_status ),
     gamma_ ( gamma ),
     alpha_type_ ( alpha_type ),
-    alpha_ ( alpha ),
     epsilon_type_ ( epsilon_type ),
-    epsilon_ ( epsilon ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
     state_sub_ ( nh_.subscribe ( "state", 1, &OnlineLearningMDP::stateSymbolCallback, this ) ),
     action_sub_ ( nh_.subscribe ( "action", 1, &OnlineLearningMDP::actionSymbolCallback, this ) ),
     reward_sub_ ( nh_.subscribe ( "reward", 1, &OnlineLearningMDP::rewardSymbolCallback, this ) )
+{
+    initializeQValues ();
+}
+
+
+
+void
+OnlineLearningMDP::
+initializeQValues ()
 {
     num_states_ = controller_.getNumberOfStates ();
     num_actions_ = controller_.getNumberOfActions ();

@@ -55,6 +55,16 @@ public:
     ControllerEventMDP ( const std::string& policy_file_path,
                          const std::string& problem_file_path,
                          const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerEventMDP ( const std::string& policy_file_path,
+                         const std::string& problem_file_path,
+                         float epsilon_value,
+                         const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerEventMDP ( const std::string& policy_file_path,
+                         const std::string& problem_file_path,
+                         EPSILON_TYPE epsilon_type,
+                         const CONTROLLER_STATUS initial_status = STARTED );
 #endif
     /** Alternative constructor. This form bypasses the problem file parsing step, so it is faster, and
      * can be used if a MADP-compatible problem file isn't available. However, you can't log the reward
@@ -68,6 +78,14 @@ public:
      * @param initial_status (optional) The initial status of this controller.
      */
     ControllerEventMDP ( const std::string& policy_file_path,
+                         const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerEventMDP ( const std::string& policy_file_path,
+                         float epsilon_value,
+                         const CONTROLLER_STATUS initial_status = STARTED );
+    
+    ControllerEventMDP ( const std::string& policy_file_path,
+                         EPSILON_TYPE epsilon_type,
                          const CONTROLLER_STATUS initial_status = STARTED );
     
     /** The callback to incoming state information. This will trigger a new decision step. */
