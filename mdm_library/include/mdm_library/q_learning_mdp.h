@@ -26,7 +26,7 @@
 #define _Q_LEARNING_MDP_H_
 
 
-#include <mdm_library/online_learning_mdp.h>
+#include <mdm_library/learning_layer_base.h>
 
 
 namespace mdm_library
@@ -34,27 +34,78 @@ namespace mdm_library
 /**
  * QLearningMDP is the class for the Q-Learning method.
  */
-class QLearningMDP : public OnlineLearningMDP
+class QLearningMDP : public LearningLayerBase
 {
 public:
 #ifdef HAVE_MADP
     QLearningMDP ( float gamma,
+                   float alpha,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const std::string& problem_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
                    ALPHA_TYPE alpha_type,
+                   float alpha,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const std::string& problem_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
                    float alpha,
                    EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const std::string& problem_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
                    const std::string& policy_file_path,
                    const std::string& problem_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
     QLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
                    float alpha,
-                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    QLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
@@ -71,16 +122,19 @@ private:
     /** Next state backup */
     uint32_t next_state_;
     
-    /** Implementation of the pure virtual function updateQValues from OnlineLearningMDP */
+    /** Implementation of the pure virtual function updateQValues from LearningLayerBase */
     void updateQValues ();
     
-    /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
+    /** Implementation of the pure virtual function updatePolicy from LearningLayerBase */
+    void updatePolicy ();
+    
+    /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
     
-    /** Implementation of the pure virtual function actionSymbolCallback from OnlineLearningMDP */
+    /** Implementation of the pure virtual function actionSymbolCallback from LearningLayerBase */
     void actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg );
     
-    /** Implementation of the pure virtual function rewardSymbolCallback from OnlineLearningMDP */
+    /** Implementation of the pure virtual function rewardSymbolCallback from LearningLayerBase */
     void rewardSymbolCallback ( const std_msgs::Float32& msg );
     
     /** Function to get the maximum of Q(s, a) over a */

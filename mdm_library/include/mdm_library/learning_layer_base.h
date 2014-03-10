@@ -28,6 +28,7 @@
 
 #include <mdm_library/control_layer_base.h>
 #include <mdm_library/controller_event_mdp.h>
+#include <mdm_library/controller_timed_mdp.h>
 #include <mdm_library/common_defs.h>
 #include <mdm_library/learning_defs.h>
 
@@ -41,33 +42,84 @@ namespace mdm_library
 /**
  * OnlineLearningMDP is the base class for online learning MDPs.
  */
-class OnlineLearningMDP
+class LearningLayerBase
 {
 public:
 #ifdef HAVE_MADP
-    OnlineLearningMDP ( float gamma,
+    LearningLayerBase ( float gamma,
+                        float alpha,
+                        float epsilon,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const std::string& problem_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
                         ALPHA_TYPE alpha_type,
+                        float alpha,
+                        float epsilon,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const std::string& problem_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
                         float alpha,
                         EPSILON_TYPE epsilon_type,
                         float epsilon,
                         uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const std::string& problem_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
+                        ALPHA_TYPE alpha_type,
+                        EPSILON_TYPE epsilon_type,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
                         const std::string& policy_file_path,
                         const std::string& problem_file_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    OnlineLearningMDP ( float gamma,
-                        ALPHA_TYPE alpha_type,
+    LearningLayerBase ( float gamma,
                         float alpha,
-                        EPSILON_TYPE epsilon_type,
                         float epsilon,
                         uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
+                        ALPHA_TYPE alpha_type,
+                        float epsilon,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
+                        float alpha,
+                        EPSILON_TYPE epsilon_type,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
+                        const std::string& policy_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+    
+    LearningLayerBase ( float gamma,
+                        ALPHA_TYPE alpha_type,
+                        EPSILON_TYPE epsilon_type,
+                        uint32_t policy_update_frequency,
+                        CONTROLLER_TYPE controller_type,
                         const std::string& policy_file_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
 protected:
     /** MDP Controller */
-    ControllerEventMDP controller_;
+    boost::shared_ptr<ControllerMDP> controller_;
     
     /** Q-table */
     Matrix q_values_;
@@ -81,26 +133,17 @@ protected:
     /** The alpha parameter TODO*/
     float alpha_;
     
-    /** The epsilon type */
-    EPSILON_TYPE epsilon_type_;
-    
-    /** The epsilon parameter TODO - fazer funcao dependente de t */
-    float epsilon_;
-    
     /** Policy update frequency */
     uint32_t policy_update_frequency_;
     
     /** The current decision episode */
     uint32_t curr_decision_ep_;
     
-    /** Number of states */
-    size_t num_states_;
-    
-    /** Number of actions */
-    size_t num_actions_;
-    
-    /** Pure virtual function for updating the Q values. To be implemented in each specific method */
+    /** Pure virtual function for updating the Q values. To be implemented in each specific method. */
     virtual void updateQValues () = 0;
+    
+    /** Pure virtual function for updating the policy. To be implemented in each specific method. */
+    virtual void updatePolicy () = 0;
     
     /** Pure virtual callback for actions coming from the State Layer, to be implemented in each specific method. */
     virtual void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg ) = 0;

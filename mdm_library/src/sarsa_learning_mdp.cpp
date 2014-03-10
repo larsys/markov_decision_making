@@ -24,7 +24,6 @@
 
 
 #include <mdm_library/sarsa_learning_mdp.h>
-#include <mdm_library/action_layer.h>
 
 
 using namespace std;
@@ -37,16 +36,61 @@ using namespace mdm_library;
 
 SarsaLearningMDP::
 SarsaLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
                    float alpha,
-                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
                    const string& problem_file_path,
                    const string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
-                        policy_file_path, problem_file_path, initial_status )
+    LearningLayerBase ( gamma, alpha, epsilon, policy_update_frequency,
+                        controller_type, policy_file_path, problem_file_path, initial_status )
+{
+}
+
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const string& problem_file_path,
+                   const string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha_type, epsilon, policy_update_frequency,
+                        controller_type, policy_file_path, problem_file_path, initial_status )
+{
+}
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const string& problem_file_path,
+                   const string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha, epsilon_type, policy_update_frequency,
+                        controller_type, policy_file_path, problem_file_path, initial_status )
+{
+}
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const string& problem_file_path,
+                   const string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha_type, epsilon_type, policy_update_frequency,
+                        controller_type, policy_file_path, problem_file_path, initial_status )
 {
 }
 
@@ -57,27 +101,85 @@ SarsaLearningMDP ( float gamma,
 
 SarsaLearningMDP::
 SarsaLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
                    float alpha,
-                   EPSILON_TYPE epsilon_type,
                    float epsilon,
                    uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    OnlineLearningMDP ( gamma, alpha_type, alpha, epsilon_type, epsilon, policy_update_frequency,
-                        policy_file_path, initial_status )
+    LearningLayerBase ( gamma, alpha, epsilon, policy_update_frequency,
+                        controller_type, policy_file_path, initial_status )
 {
 }
+
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   float epsilon,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha_type, epsilon, policy_update_frequency,
+                        controller_type, policy_file_path, initial_status )
+{
+}
+
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   float alpha,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha, epsilon_type, policy_update_frequency,
+                        controller_type, policy_file_path, initial_status )
+{
+}
+
+
+
+SarsaLearningMDP::
+SarsaLearningMDP ( float gamma,
+                   ALPHA_TYPE alpha_type,
+                   EPSILON_TYPE epsilon_type,
+                   uint32_t policy_update_frequency,
+                   CONTROLLER_TYPE controller_type,
+                   const std::string& policy_file_path,
+                   const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( gamma, alpha_type, epsilon_type, policy_update_frequency,
+                        controller_type, policy_file_path, initial_status )
+{
+}
+
 
 
 void
 SarsaLearningMDP::
 updateQValues ()
 {
-    // TODO actualizacao da politica
     q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
                                     q_values_ ( next_state_, next_action_ ) - q_values_ ( state_, action_ ) );
 }
+
+
+
+void
+SarsaLearningMDP::
+updatePolicy ()
+{
+    boost::shared_ptr<MDPPolicy> policy;
+    
+    policy = ( *controller_ ).getPolicy ();
+    
+    policy -> updatePolicy ( q_values_ );
+}
+
 
 
 void
@@ -97,6 +199,7 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
         }
     }
 }
+
 
 
 void
@@ -122,12 +225,17 @@ actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg )
     if ( curr_decision_ep_ >= 1 )
         updateQValues ();
     
+    // Every policy_update_frequency_ episodes, update the policy
+    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
+        updatePolicy ();
+    
     // TODO ver se isto e importante ver ou nao
 //     if ( ActionLayer::action_sizes_.size() > 1 )
 //         action_ = ActionLayer::jointToIndividualAction ( msg -> action_symbol );
 //     else
 //         action_ = msg -> action_symbol;
 }
+
 
 
 void

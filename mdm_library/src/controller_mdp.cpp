@@ -188,8 +188,10 @@ loadPolicyVector ( const string& policy_vector_path )
         IndexVectorPtr policy_vec ( new IndexVector() );
 
         fp >> ( *policy_vec );
+        
+        MDPPolicy* policy_ptr_ = new MDPPolicyVector ( policy_vec );
 
-        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPPolicyVector ( policy_vec ) );
+        //policy_ptr_ = boost::shared_ptr<MDPPolicyVector> ( new MDPPolicyVector ( policy_vec ) );
     }
     catch ( exception& e )
     {
@@ -215,10 +217,12 @@ loadPolicyVector ( const string& policy_vector_path, float epsilon_value )
 
         fp >> ( *policy_vec );
         
-        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
-                                                                                        number_of_states_,
-                                                                                        number_of_actions_,
-                                                                                        epsilon_value ) );
+        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec, number_of_states_, number_of_actions_, epsilon_value );
+        
+//         policy_ptr_ = boost::shared_ptr<MDPEpsilonGreedyPolicyVector> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+//                                                                                                            number_of_states_,
+//                                                                                                            number_of_actions_,
+//                                                                                                            epsilon_value ) );
     }
     catch ( exception& e )
     {
@@ -244,10 +248,12 @@ loadPolicyVector ( const string& policy_vector_path, EPSILON_TYPE epsilon_type )
 
         fp >> ( *policy_vec );
         
-        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
-                                                                                        number_of_states_,
-                                                                                        number_of_actions_,
-                                                                                        epsilon_type ) );
+        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec, number_of_states_, number_of_actions_, epsilon_type );
+        
+//         policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+//                                                                                         number_of_states_,
+//                                                                                         number_of_actions_,
+//                                                                                         epsilon_type ) );
     }
     catch ( exception& e )
     {

@@ -41,6 +41,8 @@ public:
     /**
      */
     virtual uint32_t getAction ( uint32_t index ) = 0;
+    
+    virtual void updatePolicy ( Matrix q_values ) {}
 
     uint32_t operator[] ( uint32_t index )
     {
@@ -82,26 +84,8 @@ public:
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
         epsilon_ptr_ ( new Epsilon ( epsilon_type ) ) {}
-
-protected:
-    virtual uint32_t getAction ( uint32_t index )
-    {
-        // Probability to choose a random action (1 - 100)
-        float p = rand() % 100 + 1;
         
-        // With probability epsilon choose a random action. Otherwise, follow the policy.
-        if ( p <= ( *epsilon_ptr_ ).getValue () )
-        {
-            // Choose a random index to select a random action
-            uint32_t random_index = rand() % num_actions_;
-            
-            return ( *policy_vec_ptr_ ) [random_index];
-        }
-        else
-            return ( *policy_vec_ptr_ ) [index];
-    }
-    
-    void updatePolicy ( Matrix q_values )
+    virtual void updatePolicy ( Matrix q_values )
     {
         uint32_t best_action;
     
@@ -119,6 +103,24 @@ protected:
                 abort();
             }
         }
+    }
+
+protected:
+    virtual uint32_t getAction ( uint32_t index )
+    {
+        // Probability to choose a random action (1 - 100)
+        float p = rand() % 100 + 1;
+        
+        // With probability epsilon choose a random action. Otherwise, follow the policy.
+        if ( p <= ( *epsilon_ptr_ ).getValue () )
+        {
+            // Choose a random index to select a random action
+            uint32_t random_index = rand() % num_actions_;
+            
+            return ( *policy_vec_ptr_ ) [random_index];
+        }
+        else
+            return ( *policy_vec_ptr_ ) [index];
     }
 
 private:
