@@ -148,12 +148,6 @@ protected:
     /** Pure virtual callback for actions coming from the State Layer, to be implemented in each specific method. */
     virtual void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg ) = 0;
     
-    /** Pure virtual callback for actions coming from the Control Layer, to be implemented in each specific method. */
-    virtual void actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg ) = 0;
-    
-    /** Pure virtual callback for actions coming from the Control Layer, to be implemented in each specific method. */
-    virtual void rewardSymbolCallback ( const std_msgs::Float32& msg ) = 0;
-    
 private:
     /** ROS Nodehandle for the learning layer. */
     ros::NodeHandle nh_;

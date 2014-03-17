@@ -131,12 +131,6 @@ private:
     /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
     
-    /** Implementation of the pure virtual function actionSymbolCallback from LearningLayerBase */
-    void actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg );
-    
-    /** Implementation of the pure virtual function rewardSymbolCallback from LearningLayerBase */
-    void rewardSymbolCallback ( const std_msgs::Float32& msg );
-    
     /** Function to get the maximum of Q(s, a) over a */
     float maxOverA ();
 };

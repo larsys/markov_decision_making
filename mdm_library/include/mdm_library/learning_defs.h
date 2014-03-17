@@ -32,10 +32,10 @@
 namespace mdm_library
 {
     /** Flag to represent how alpha varies with "time". */
-    enum ALPHA_TYPE {ALPHA_ONE_OVER_T, ALPHA_ONE_OVER_T_SQUARED};
+    enum ALPHA_TYPE {ALPHA_CONSTANT, ALPHA_ONE_OVER_T, ALPHA_ONE_OVER_T_SQUARED};
     
     /** Flag to represent how epsilon varies with "time". */
-    enum EPSILON_TYPE {EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED};
+    enum EPSILON_TYPE {EPSILON_CONSTANT, EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED};
     
     /** Flag to represent whether the controller is event-based or timed. */
     enum CONTROLLER_TYPE {EVENT, TIMED};

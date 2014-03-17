@@ -185,7 +185,11 @@ updatePolicy ()
 void
 QLearningMDP::
 stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
-{
+{   
+    curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
+    reward_ = ( *controller_ ).getReward ();
+    action_ = ( *controller_ ).getAction ();
+    
     if ( curr_decision_ep_ == 0 )
         state_ = msg -> world_symbol;
     else
@@ -198,39 +202,6 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
             next_state_ = msg -> world_symbol;
         }
     }
-}
-
-
-
-void
-QLearningMDP::
-actionSymbolCallback ( const mdm_library::ActionSymbolConstPtr& msg )
-{
-    curr_decision_ep_ = msg -> decision_episode;
-    action_ = msg -> action_symbol;
-    
-    // Update the Q values after each decision episode
-    if ( curr_decision_ep_ >= 1 )
-        updateQValues ();
-    
-    // Every policy_update_frequency_ episodes, update the policy
-    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
-        updatePolicy ();
-    
-    // TODO ver se isto e importante ver ou nao
-//     if ( ActionLayer::action_sizes_.size() > 1 )
-//         action_ = ActionLayer::jointToIndividualAction ( msg -> action_symbol );
-//     else
-//         action_ = msg -> action_symbol;
-}
-
-
-
-void
-QLearningMDP::
-rewardSymbolCallback ( const std_msgs::Float32& msg )
-{
-    reward_ = msg.data;
 }
 
 

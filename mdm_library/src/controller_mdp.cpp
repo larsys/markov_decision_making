@@ -336,6 +336,8 @@ publishAction ( uint32_t a )
     aInfo.action_symbol = a;
     aInfo.decision_episode = getDecisionEpisode();
     action_pub_.publish ( aInfo );
+    
+    action_ = a;
 }
 
 
@@ -352,6 +354,8 @@ publishReward ( uint32_t s, uint32_t a )
     std_msgs::Float32 reward;
     reward.data = R_ptr_->getReward ( s, a );
     reward_pub_.publish ( reward );
+    
+    reward_ = reward.data;
 }
 
 
@@ -379,4 +383,22 @@ ControllerMDP::
 getPolicy ()
 {
     return policy_ptr_;
+}
+
+
+
+uint32_t
+ControllerMDP::
+getAction ()
+{
+    return action_;
+}
+
+
+
+float
+ControllerMDP::
+getReward ()
+{
+    return reward_;
 }

@@ -8,9 +8,15 @@ find_package(catkin REQUIRED COMPONENTS
                              roscpp
                              message_generation
                              std_msgs
+			     rospy
+			     rqt_gui
+			     rqt_gui_py
+			     rqt_gui_cpp
                              predicate_manager)
 
-find_package( MADP )
+catkin_python_setup()
+
+#find_package( MADP )
 
 add_message_files(FILES
                   ActionSymbol.msg 
@@ -21,12 +27,6 @@ add_message_files(FILES
                   FactoredDistribution.msg)
 
 generate_messages(DEPENDENCIES std_msgs)
-
-catkin_package(
-   INCLUDE_DIRS include
-   LIBRARIES mdm_control_layer mdm_learning_layer mdm_action_layer mdm_state_layer
-   CATKIN_DEPENDS roscpp predicate_manager message_generation
-  )
 
 if ( MADP_FOUND )
     add_library(mdm_control_layer
@@ -101,3 +101,16 @@ add_library(mdm_observation_layer
             src/observation_layer.cpp)
 
 add_dependencies(mdm_observation_layer ${PROJECT_NAME}_generate_messages_cpp)
+
+
+#----------------- GUI Stuff -------------------#
+
+catkin_package(
+   INCLUDE_DIRS include
+   LIBRARIES mdm_control_layer mdm_learning_layer mdm_action_layer mdm_state_layer
+   CATKIN_DEPENDS roscpp rospy predicate_manager message_generation rqt_gui rqt_gui_py
+  )
+
+
+install(PROGRAMS
+        DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

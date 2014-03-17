@@ -123,6 +123,12 @@ public:
     
     /** Returns the policy */
     boost::shared_ptr<MDPPolicy> getPolicy ();
+    
+    /** Returns the last action */
+    uint32_t getAction ();
+    
+    /** Returns the last published reward */
+    float getReward ();
 
 protected:
     /** Publishes an action. */
@@ -143,6 +149,12 @@ protected:
     
     /** The number of actions of this MDP. */
     size_t number_of_actions_;
+    
+    /** The last published action */
+    uint32_t action_;
+    
+    /** The last published reward */
+    float reward_;
 
     /** Subscriber to the "state" topic, where the state information will be published by a State Layer.*/
     ros::Subscriber state_sub_;

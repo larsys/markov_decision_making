@@ -44,9 +44,7 @@ LearningLayerBase ( float gamma,
     alpha_ ( alpha ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
@@ -80,9 +78,7 @@ LearningLayerBase ( float gamma,
     alpha_type_ ( alpha_type ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
@@ -116,9 +112,7 @@ LearningLayerBase ( float gamma,
     alpha_ ( alpha ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
@@ -152,9 +146,7 @@ LearningLayerBase ( float gamma,
     alpha_type_ ( alpha_type ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
@@ -187,9 +179,7 @@ LearningLayerBase ( float gamma,
     alpha_ ( alpha ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
@@ -222,9 +212,7 @@ LearningLayerBase ( float gamma,
     alpha_type_ ( alpha_type ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
@@ -257,9 +245,7 @@ LearningLayerBase ( float gamma,
     alpha_ ( alpha ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
@@ -292,9 +278,7 @@ LearningLayerBase ( float gamma,
     alpha_type_ ( alpha_type ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    action_sub_ ( nh_.subscribe ( "action", 1, &LearningLayerBase::actionSymbolCallback, this ) ),
-    reward_sub_ ( nh_.subscribe ( "reward", 1, &LearningLayerBase::rewardSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );

@@ -27,10 +27,13 @@
 
 #include <mdm_library/common_defs.h>
 #include <mdm_library/learning_defs.h>
-#include <boost/concept_check.hpp>
+#include <boost/numeric/ublas/io.hpp>
+#include <fstream>
 
 #include <ros/ros.h>
 
+
+using namespace std;
 
 
 namespace mdm_library
@@ -103,6 +106,8 @@ public:
                 abort();
             }
         }
+        
+        savePolicy ();
     }
 
 protected:
@@ -146,6 +151,26 @@ private:
         }
         
         return index;
+    }
+    
+    void savePolicy ()
+    {
+        try
+        {
+            ofstream fp;
+            const string& save_path ( "learnt_MDP_policy" );
+            
+            fp.open ( save_path.c_str() );
+
+            fp << ( *policy_vec_ptr_ );
+            
+            fp.close ();
+        }
+        catch ( exception& e )
+        {
+            ROS_ERROR_STREAM ( e.what() );
+            abort();
+        }
     }
 };
 }
