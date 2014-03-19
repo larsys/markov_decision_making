@@ -25,6 +25,10 @@
 #ifndef _ONLINE_LEARNING_MDP_H_
 #define _ONLINE_LEARNING_MDP_H_
 
+#define MDM_DEFAULT_POLICY_UPDATE_FREQ 5
+#define MDM_DEFAULT_GAMMA 0.9
+#define MDM_DEFAULT_ALPHA 0.1
+
 
 #include <mdm_library/control_layer_base.h>
 #include <mdm_library/controller_event_mdp.h>
@@ -46,73 +50,16 @@ class LearningLayerBase
 {
 public:
 #ifdef HAVE_MADP
-    LearningLayerBase ( float gamma,
-                        float alpha,
-                        float epsilon,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const std::string& problem_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    LearningLayerBase ( float gamma,
-                        ALPHA_TYPE alpha_type,
-                        float alpha,
-                        float epsilon,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const std::string& problem_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    LearningLayerBase ( float gamma,
-                        float alpha,
+    LearningLayerBase ( ALPHA_TYPE alpha_type,
                         EPSILON_TYPE epsilon_type,
-                        float epsilon,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const std::string& problem_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    LearningLayerBase ( float gamma,
-                        ALPHA_TYPE alpha_type,
-                        EPSILON_TYPE epsilon_type,
-                        uint32_t policy_update_frequency,
                         CONTROLLER_TYPE controller_type,
                         const std::string& policy_file_path,
                         const std::string& problem_file_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
-
-    LearningLayerBase ( float gamma,
-                        float alpha,
-                        float epsilon,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
-    LearningLayerBase ( float gamma,
-                        ALPHA_TYPE alpha_type,
-                        float epsilon,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    LearningLayerBase ( float gamma,
-                        float alpha,
+    LearningLayerBase ( ALPHA_TYPE alpha_type,
                         EPSILON_TYPE epsilon_type,
-                        uint32_t policy_update_frequency,
-                        CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    LearningLayerBase ( float gamma,
-                        ALPHA_TYPE alpha_type,
-                        EPSILON_TYPE epsilon_type,
-                        uint32_t policy_update_frequency,
                         CONTROLLER_TYPE controller_type,
                         const std::string& policy_file_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -124,13 +71,13 @@ protected:
     /** Q-table */
     Matrix q_values_;
     
-    /** The gamma parameter TODO*/
+    /** The gamma parameter */
     float gamma_;
     
     /** The alpha type */
     ALPHA_TYPE alpha_type_;
     
-    /** The alpha parameter TODO*/
+    /** The alpha parameter */
     float alpha_;
     
     /** Policy update frequency */
@@ -151,6 +98,9 @@ protected:
 private:
     /** ROS Nodehandle for the learning layer. */
     ros::NodeHandle nh_;
+    
+    /** ROS private Nodehandle to use the parameter server. */
+    ros::NodeHandle private_nh_;
     
     /** The subscriber to the "state" topic in the local (public) namespace,
      * in which the state information will be received.

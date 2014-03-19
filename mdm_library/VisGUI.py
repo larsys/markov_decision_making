@@ -88,7 +88,7 @@ class MainWindow (QtGui.QWidget):
         
         self.grid.addWidget ( self.button_quit, 5, 1 )
         
-        self.setLayout( self.grid )
+        self.setLayout ( self.grid )
         
         
         # Window properties
@@ -105,8 +105,8 @@ class MainWindow (QtGui.QWidget):
         
         qr = self.frameGeometry ()
         cp = QtGui.QDesktopWidget ().availableGeometry ().center ()
-        qr.moveCenter (cp)
-        self.move( qr.topLeft () )
+        qr.moveCenter ( cp )
+        self.move ( qr.topLeft () )
 
 
 
@@ -149,7 +149,7 @@ def callback_policy ( data ):
 #
 # The main function initializes the GUI and the ROS node.
 #
-def main():
+def main ():
     
     app = QtGui.QApplication ( sys.argv )
     

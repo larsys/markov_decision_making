@@ -25,6 +25,7 @@
 #ifndef _LEARNING_DEFS_
 #define _LEARNING_DEFS_
 
+
 #include <ros/ros.h>
 
 
@@ -42,121 +43,50 @@ namespace mdm_library
 
 
 
-class Parameter
-{
-public:
-    float getValue ()
+    inline float updateAlpha ( ALPHA_TYPE alpha_type, uint32_t curr_decision_ep )
     {
-        return value_;
-    }
-    
-protected:
-    float value_;
-    std::string name_;
-};
+        double alpha;
+        float updated_alpha;
 
-
-
-class ConstantParameter : public Parameter
-{
-public:
-    ConstantParameter ( float value, std::string name )
-    {
-        value_ = value;
-        name_ = name;
-        
-        if ( name.compare ( "alpha" ) != 0 && name.compare ( "epsilon" ) )
+        switch ( alpha_type )
         {
-            ROS_FATAL ( "LearningLayer:: the provided parameter name is invalid."
-                        "Valid parameter names are 'alpha' and 'epsilon'." );
-            ros::shutdown();
-        }
-        
-        if ( name.compare ( "alpha" ) == 0 )
-        {
-            if ( value < 0 || value > 1 )
-            {
-                ROS_FATAL ( "LearningLayer:: the provided alpha value is outside the [0, 1] range." );
-                ros::shutdown();
-            }
-        }
-        
-        if ( name.compare ( "epsilon" ) == 0 )
-        {
-            if ( value < 0 || value > 1 )
-            {
-                ROS_FATAL ( "LearningLayer:: the provided epsilon value is outside the [0, 1] range." );
-                ros::shutdown();
-            }
-        }
-    }
-};
-
-
-
-class Epsilon : public Parameter
-{
-public:
-    Epsilon ( EPSILON_TYPE type )
-    {
-        type_ = type;
-        name_ = "epsilon";
-    }
-    
-protected:
-    void updateValue ( uint32_t curr_decision_ep )
-    {
-        if ( type_ == EPSILON_ONE_OVER_T )
-            value_ = 1 / curr_decision_ep;
-        else
-        {
-            if ( type_ == EPSILON_ONE_OVER_T_SQUARED )
-                value_ = 1 / ( curr_decision_ep * curr_decision_ep );
-            else
-            {
-                ROS_FATAL ( "LearningLayer:: invalid epsilon type. "
-                            "Valid types are EPSILON_ONE_OVER_T and EPSILON_ONE_OVER_T_SQUARED" );
-                ros::shutdown();
-            }
-        }
-    }
-    
-private:
-    EPSILON_TYPE type_;
-};
-
-
-
-class Alpha : public Parameter
-{
-public:
-    Alpha ( ALPHA_TYPE type )
-    {
-        type_ = type;
-        name_ = "alpha";
-    }
-    
-protected:
-    void updateValue ( uint32_t curr_decision_ep )
-    {
-        if ( type_ == ALPHA_ONE_OVER_T )
-            value_ = 1 / curr_decision_ep;
-        else
-        {
-            if ( type_ == ALPHA_ONE_OVER_T_SQUARED )
-                value_ = 1 / ( curr_decision_ep * curr_decision_ep );
-            else
-            {
+            case ALPHA_ONE_OVER_T:
+                updated_alpha = 1 / curr_decision_ep;
+                
+            case ALPHA_ONE_OVER_T_SQUARED:
+                updated_alpha = 1 / ( curr_decision_ep * curr_decision_ep );
+                
+            default:
                 ROS_FATAL ( "LearningLayer:: invalid alpha type. "
-                            "Valid types are ALPHA_ONE_OVER_T and ALPHA_ONE_OVER_T_SQUARED" );
+                            "Valid types are ALPHA_CONSTANT, ALPHA_ONE_OVER_T and ALPHA_ONE_OVER_T_SQUARED" );
                 ros::shutdown();
-            }
         }
+        
+        return updated_alpha;
     }
-    
-private:
-    ALPHA_TYPE type_;
-};    
+
+
+
+    inline float updateEpsilon ( EPSILON_TYPE epsilon_type, uint32_t curr_decision_ep )
+    {
+        double epsilon;
+        float updated_epsilon;
+        
+        switch ( epsilon_type )
+        {
+            case EPSILON_ONE_OVER_T:
+                updated_epsilon = 1 / curr_decision_ep;
+                
+            case EPSILON_ONE_OVER_T_SQUARED:
+                updated_epsilon = 1 / ( curr_decision_ep * curr_decision_ep );
+                
+            default:
+                ROS_FATAL ( "Invalid provided epsilon value. The epsilon value must be between 0 and 1." );
+                ros::shutdown();
+        }
+        
+        return updated_epsilon;
+    }
 }
 
 #endif

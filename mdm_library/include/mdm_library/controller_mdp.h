@@ -65,11 +65,6 @@ public:
     
     ControllerMDP ( const std::string& policy_file_path,
                     const std::string& problem_file_path,
-                    float epsilon_value,
-                    const CONTROLLER_STATUS initial_status = STARTED );
-    
-    ControllerMDP ( const std::string& policy_file_path,
-                    const std::string& problem_file_path,
                     EPSILON_TYPE epsilon_type,
                     const CONTROLLER_STATUS initial_status = STARTED );
 #endif
@@ -81,13 +76,6 @@ public:
                     const CONTROLLER_STATUS initial_status = STARTED );
     
     /**
-     * Constructor to be used by the learning layer with a constant epsilon.
-     */
-    ControllerMDP ( const std::string& policy_file_path,
-                    float epsilon_value,
-                    const CONTROLLER_STATUS initial_status = STARTED );
-    
-    /**
      * Constructor to be used by the learning layer with a varying epsilon.
      */
     ControllerMDP ( const std::string& policy_file_path,
@@ -95,8 +83,6 @@ public:
                     const CONTROLLER_STATUS initial_status = STARTED );
 
     void loadPolicyVector ( const std::string& policy_vector_path );
-    
-    void loadPolicyVector ( const std::string& policy_vector_path, float epsilon_value );
     
     void loadPolicyVector ( const std::string& policy_vector_path, EPSILON_TYPE epsilon_type );
 
@@ -164,6 +150,9 @@ protected:
     
     /** Publisher to the "reward" topic, where reward information can be acessed for reinforcement learning or logging purposes.*/
     ros::Publisher reward_pub_;
+    
+    /** Flag to represent whether the policy is epsilon greedy or deterministic. */
+    bool eps_greedy_;
 };
 }
 

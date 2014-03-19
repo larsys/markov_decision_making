@@ -33,43 +33,8 @@ using namespace mdm_library;
 
 LearningLayerBase::
 LearningLayerBase ( float gamma,
-                    float alpha,
-                    float epsilon,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const string& problem_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_ ( alpha ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
-    
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
                     ALPHA_TYPE alpha_type,
-                    float epsilon,
-                    uint32_t policy_update_frequency,
+                    EPSILON_TYPE epsilon_type,
                     CONTROLLER_TYPE controller_type,
                     const string& policy_file_path,
                     const string& problem_file_path,
@@ -80,40 +45,55 @@ LearningLayerBase ( float gamma,
     curr_decision_ep_ ( 0 ),
     state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
+    // Gather the policy update frequency value from the parameters
+    uint32_t policy_update_frequency;
+    if ( private_nh_.getParam ( "policy_update_frequency", policy_update_frequency ) )
+    {
+        policy_update_frequency_ = ( uint32_t ) policy_update_frequency;
+    }
     else
     {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon, initial_status );
+        policy_update_frequency_ = MDM_DEFAULT_POLICY_UPDATE_FREQ;
+    }
+    
+    // Gather the gamma value from the parameters
+    double gamma;
+    if ( private_nh_.getParam ( "gamma", gamma ) )
+    {
+        if ( gamma < 0 || gamma > 1 )
+        {
+            ROS_FATAL ( "Invalid provided gamma value. The gamma value must be between 0 and 1." );
+            ros::shutdown();
+        }
+        else
+            gamma_ = ( float ) gamma;
+    }
+    else
+    {
+        gamma_ = MDM_DEFAULT_GAMMA;
+    }
+    
+    // Gather the alpha value from the parameters if alpha type is set as constant
+    double alpha;
+    if ( alpha_type_ == ALPHA_CONSTANT )
+    {
+        if ( private_nh_.getParam ( "alpha", alpha ) )
+        {
+            if ( alpha < 0 || alpha > 1 )
+            {
+                ROS_FATAL ( "Invalid provided alpha value. The alpha value must be between 0 and 1." );
+                ros::shutdown();
+            }
+            else
+                alpha_ = ( float ) alpha;
+        }
         else
         {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
+            alpha_ = MDM_DEFAULT_ALPHA;
         }
     }
     
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    float alpha,
-                    EPSILON_TYPE epsilon_type,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const string& problem_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_ ( alpha ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
+    // Create the controller
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
     else
@@ -122,42 +102,7 @@ LearningLayerBase ( float gamma,
             ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
         else
         {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
-    
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    ALPHA_TYPE alpha_type,
-                    EPSILON_TYPE epsilon_type,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const string& problem_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_type_ ( alpha_type ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
             ros::shutdown();
         }
     }
@@ -168,85 +113,57 @@ LearningLayerBase ( float gamma,
 #endif
 
 LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    float alpha,
-                    float epsilon,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_ ( alpha ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
-    
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    ALPHA_TYPE alpha_type,
-                    float epsilon,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_type_ ( alpha_type ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
-    
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    float alpha,
+LearningLayerBase ( ALPHA_TYPE alpha_type,
                     EPSILON_TYPE epsilon_type,
-                    uint32_t policy_update_frequency,
                     CONTROLLER_TYPE controller_type,
                     const string& policy_file_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_ ( alpha ),
-    policy_update_frequency_ ( policy_update_frequency ),
+    alpha_type_ ( alpha_type ),
     curr_decision_ep_ ( 0 ),
+    private_nh_ ( "~" ),
     state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
 {
+    // Gather the policy update frequency value from the parameters
+    int policy_update_frequency;
+    if ( private_nh_.getParam ( "policy_update_frequency", policy_update_frequency ) )
+        policy_update_frequency_ = ( uint32_t ) policy_update_frequency;
+    else
+        policy_update_frequency_ = MDM_DEFAULT_POLICY_UPDATE_FREQ;
+    
+    // Gather the gamma value from the parameters
+    double gamma;
+    if ( private_nh_.getParam ( "gamma", gamma ) )
+    {
+        if ( gamma < 0 || gamma > 1 )
+        {
+            ROS_FATAL ( "Invalid provided gamma value. The gamma value must be between 0 and 1." );
+            ros::shutdown();
+        }
+        else
+            gamma_ = ( float ) gamma;
+    }
+    else
+        gamma_ = MDM_DEFAULT_GAMMA;
+    
+    // Gather the alpha value from the parameters if alpha type is set as constant
+    double alpha;
+    if ( alpha_type_ == ALPHA_CONSTANT )
+    {
+        if ( private_nh_.getParam ( "alpha", alpha ) )
+        {
+            if ( alpha < 0 || alpha > 1 )
+            {
+                ROS_FATAL ( "Invalid provided alpha value. The alpha value must be between 0 and 1." );
+                ros::shutdown();
+            }
+            else
+                alpha_ = ( float ) alpha;
+        }
+        else
+            alpha_ = MDM_DEFAULT_ALPHA;
+    }
+    
+    // Create the controller
     if ( controller_type == EVENT )
         ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
     else
@@ -255,45 +172,12 @@ LearningLayerBase ( float gamma,
             ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
         else
         {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
             ros::shutdown();
         }
     }
     
-    initializeQValues ();
-}
-
-
-
-LearningLayerBase::
-LearningLayerBase ( float gamma,
-                    ALPHA_TYPE alpha_type,
-                    EPSILON_TYPE epsilon_type,
-                    uint32_t policy_update_frequency,
-                    CONTROLLER_TYPE controller_type,
-                    const string& policy_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    gamma_ ( gamma ),
-    alpha_type_ ( alpha_type ),
-    policy_update_frequency_ ( policy_update_frequency ),
-    curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
-{
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type."
-                        " Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
-    
+    // Initialize the Q values table
     initializeQValues ();
 }
 

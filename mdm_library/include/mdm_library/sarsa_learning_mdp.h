@@ -38,73 +38,16 @@ class SarsaLearningMDP : public LearningLayerBase
 {
 public:
 #ifdef HAVE_MADP
-    SarsaLearningMDP ( float gamma,
-                       float alpha,
-                       float epsilon,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const std::string& problem_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       ALPHA_TYPE alpha_type,
-                       float alpha,
-                       float epsilon,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const std::string& problem_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       float alpha,
+    SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                        EPSILON_TYPE epsilon_type,
-                       float epsilon,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const std::string& problem_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       ALPHA_TYPE alpha_type,
-                       EPSILON_TYPE epsilon_type,
-                       uint32_t policy_update_frequency,
                        CONTROLLER_TYPE controller_type,
                        const std::string& policy_file_path,
                        const std::string& problem_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
 
-    SarsaLearningMDP ( float gamma,
-                       float alpha,
-                       float epsilon,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       ALPHA_TYPE alpha_type,
-                       float epsilon,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       float alpha,
+    SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                        EPSILON_TYPE epsilon_type,
-                       uint32_t policy_update_frequency,
-                       CONTROLLER_TYPE controller_type,
-                       const std::string& policy_file_path,
-                       const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    SarsaLearningMDP ( float gamma,
-                       ALPHA_TYPE alpha_type,
-                       EPSILON_TYPE epsilon_type,
-                       uint32_t policy_update_frequency,
                        CONTROLLER_TYPE controller_type,
                        const std::string& policy_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );

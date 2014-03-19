@@ -76,27 +76,36 @@ else ( MADP_FOUND )
             
 endif ( MADP_FOUND )
 
+
+# Control Layer
 add_dependencies(mdm_control_layer ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(mdm_control_layer ${MADP_LIBRARIES})
 
+
+# Learning Layer
 add_dependencies(mdm_learning_layer ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(mdm_learning_layer ${MADP_LIBRARIES})
 
+
+# Action Layer
 add_library(mdm_action_layer
             src/action_layer.cpp)
 
 add_dependencies(mdm_action_layer ${PROJECT_NAME}_generate_messages_cpp)
-            
+
 include_directories(include ${catkin_INCLUDE_DIRS})
 
 
+# State Layer
 add_library(mdm_state_layer
             src/state_layer.cpp)
              
 add_dependencies(mdm_state_layer ${PROJECT_NAME}_generate_messages_cpp)
 
+
+# Observation Layer
 add_library(mdm_observation_layer
             src/observation_layer.cpp)
 

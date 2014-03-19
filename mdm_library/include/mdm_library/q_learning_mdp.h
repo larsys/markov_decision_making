@@ -27,6 +27,7 @@
 
 
 #include <mdm_library/learning_layer_base.h>
+#include <mdm_library/mdp_policy.h>
 
 
 namespace mdm_library
@@ -38,73 +39,17 @@ class QLearningMDP : public LearningLayerBase
 {
 public:
 #ifdef HAVE_MADP
-    QLearningMDP ( float gamma,
-                   float alpha,
-                   float epsilon,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const std::string& problem_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    QLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
-                   float alpha,
-                   float epsilon,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const std::string& problem_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    QLearningMDP ( float gamma,
-                   float alpha,
+    QLearningMDP ( ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
-                   float epsilon,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const std::string& problem_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    QLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
-                   EPSILON_TYPE epsilon_type,
-                   uint32_t policy_update_frequency,
                    CONTROLLER_TYPE controller_type,
                    const std::string& policy_file_path,
                    const std::string& problem_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
-
-    QLearningMDP ( float gamma,
-                   float alpha,
-                   float epsilon,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    QLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
-                   float epsilon,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
-    
-    QLearningMDP ( float gamma,
-                   float alpha,
-                   EPSILON_TYPE epsilon_type,
-                   uint32_t policy_update_frequency,
-                   CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
-                   const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
     QLearningMDP ( float gamma,
                    ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
-                   uint32_t policy_update_frequency,
                    CONTROLLER_TYPE controller_type,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -121,6 +66,9 @@ private:
     
     /** Next state backup */
     uint32_t next_state_;
+    
+    /** The policy to be learned */
+    boost::shared_ptr<MDPPolicy> learning_policy_ptr_;
     
     /** Implementation of the pure virtual function updateQValues from LearningLayerBase */
     void updateQValues ();

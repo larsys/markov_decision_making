@@ -48,11 +48,6 @@ public:
     
     ControllerTimedMDP ( const std::string& policy_file_path,
                          const std::string& problem_file_path,
-                         float epsilon_value,
-                         const CONTROLLER_STATUS initial_status = STARTED );
-    
-    ControllerTimedMDP ( const std::string& policy_file_path,
-                         const std::string& problem_file_path,
                          EPSILON_TYPE epsilon_type,
                          const CONTROLLER_STATUS initial_status = STARTED );
 #endif
@@ -61,13 +56,6 @@ public:
      * Constructor to be used when creating a controller for planning.
      */
     ControllerTimedMDP ( const std::string& policy_file_path,
-                         const CONTROLLER_STATUS initial_status = STARTED );
-    
-    /**
-     * Constructor to be used by the learning layer with constant epsilon.
-     */
-    ControllerTimedMDP ( const std::string& policy_file_path,
-                         float epsilon_value,
                          const CONTROLLER_STATUS initial_status = STARTED );
     
     /**

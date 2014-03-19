@@ -25,6 +25,9 @@
 #ifndef _MDP_POLICY_H_
 #define _MDP_POLICY_H_
 
+#define MDM_DEFAULT_EPSILON 0.1
+
+
 #include <mdm_library/common_defs.h>
 #include <mdm_library/learning_defs.h>
 #include <boost/numeric/ublas/io.hpp>
@@ -46,6 +49,8 @@ public:
     virtual uint32_t getAction ( uint32_t index ) = 0;
     
     virtual void updatePolicy ( Matrix q_values ) {}
+    
+    virtual void setCurrDecisionEp ( uint32_t curr_decision_ep ) {}
 
     uint32_t operator[] ( uint32_t index )
     {
@@ -76,18 +81,40 @@ private:
 class MDPEpsilonGreedyPolicyVector : public MDPPolicy
 {
 public:
-    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, float epsilon_value ) :
+    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr,
+                                   uint32_t num_states,
+                                   uint32_t num_actions,
+                                   EPSILON_TYPE epsilon_type
+                                 ) :
         policy_vec_ptr_ ( p_ptr ),
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
-        epsilon_ptr_ ( new ConstantParameter ( epsilon_value, "epsilon" ) ) {}
-        
-    MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr, uint32_t num_states, uint32_t num_actions, EPSILON_TYPE epsilon_type ) :
-        policy_vec_ptr_ ( p_ptr ),
-        num_states_ ( num_states ),
-        num_actions_ ( num_actions ),
-        epsilon_ptr_ ( new Epsilon ( epsilon_type ) ) {}
-        
+        epsilon_type_ ( epsilon_type ),
+        private_nh_ ( "~" )
+    {
+        // Gather the alpha value from the parameters if alpha type is set as constant
+        double epsilon;
+        if ( epsilon_type_ == EPSILON_CONSTANT )
+        {
+            if ( private_nh_.getParam ( "epsilon", epsilon ) )
+            {
+                if ( epsilon < 0 || epsilon > 1 )
+                {
+                    ROS_FATAL ( "Invalid provided epsilon value. The epsilon value must be between 0 and 1." );
+                    ros::shutdown();
+                }
+                else
+                    epsilon_ = ( float ) epsilon;
+            }
+            else
+            {
+                epsilon_ = MDM_DEFAULT_EPSILON;
+            }
+        }
+    }
+
+
+
     virtual void updatePolicy ( Matrix q_values )
     {
         uint32_t best_action;
@@ -110,14 +137,24 @@ public:
         savePolicy ();
     }
 
+
+
+    void setCurrDecisionEp ( uint32_t curr_decision_ep )
+    {
+        curr_decision_ep_ = curr_decision_ep;
+    }
+
 protected:
     virtual uint32_t getAction ( uint32_t index )
     {
-        // Probability to choose a random action (1 - 100)
-        float p = rand() % 100 + 1;
+        // Probability to choose a random action (range: 0 - 1)
+        double p = ( ( double ) rand () / ( RAND_MAX ) );
+        
+        if ( epsilon_type_ != EPSILON_CONSTANT )
+            epsilon_ = updateEpsilon ( epsilon_type_, curr_decision_ep_ );
         
         // With probability epsilon choose a random action. Otherwise, follow the policy.
-        if ( p <= ( *epsilon_ptr_ ).getValue () )
+        if ( p <= epsilon_ )
         {
             // Choose a random index to select a random action
             uint32_t random_index = rand() % num_actions_;
@@ -132,7 +169,12 @@ private:
     IndexVectorPtr policy_vec_ptr_;
     uint32_t num_states_;
     uint32_t num_actions_;
-    boost::shared_ptr<Parameter> epsilon_ptr_;
+    uint32_t curr_decision_ep_;
+    EPSILON_TYPE epsilon_type_;
+    float epsilon_;
+    ros::NodeHandle private_nh_;
+    
+    
     
     uint32_t argMaxA ( Matrix q_values, uint32_t state )
     {
@@ -153,12 +195,14 @@ private:
         return index;
     }
     
+    
+    
     void savePolicy ()
     {
         try
         {
             ofstream fp;
-            const string& save_path ( "learnt_MDP_policy" );
+            const string& save_path ( "learned_MDP_policy" );
             
             fp.open ( save_path.c_str() );
 

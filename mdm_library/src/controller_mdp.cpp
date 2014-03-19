@@ -68,30 +68,6 @@ ControllerMDP ( const string& problem_file_path,
 ControllerMDP::
 ControllerMDP ( const string& problem_file_path,
                 const string& policy_file_path,
-                float epsilon_value,
-                const CONTROLLER_STATUS initial_status ) :
-    R_ptr_(),
-    policy_ptr_ (),
-    loader_ ( new DecPOMDPLoader ( problem_file_path ) ),
-    number_of_states_ (),
-    number_of_actions_ (),
-    state_sub_ ( nh_.subscribe ( "state", 0, &ControllerMDP::stateCallback, this ) ),
-    action_pub_ ( nh_.advertise<ActionSymbol> ( "action", 0, true ) ),
-    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) )
-{
-    ///Note that this constructor is implicitly grabbing the number of *joint* actions and states.
-    ///This is OK for single agent controllers as long as your problem file is also defined locally.
-    ///(i.e. the size of the policy is coherent with the size of the model in problem_file)
-    number_of_states_ = loader_->GetDecPOMDP()->GetNrStates();
-    number_of_actions_ = loader_->GetDecPOMDP()->GetNrJointActions();
-    loadPolicyVector ( policy_file_path, epsilon_value );
-}
-
-
-
-ControllerMDP::
-ControllerMDP ( const string& problem_file_path,
-                const string& policy_file_path,
                 EPSILON_TYPE epsilon_type,
                 const CONTROLLER_STATUS initial_status ) :
     R_ptr_(),
@@ -126,30 +102,11 @@ ControllerMDP ( const string& policy_file_path,
     number_of_actions_ (),
     state_sub_ ( nh_.subscribe ( "state", 0, &ControllerMDP::stateCallback, this ) ),
     action_pub_ ( nh_.advertise<ActionSymbol> ( "action", 0, true ) ),
-    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) )
+    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) ),
+    eps_greedy_ ( false )
 {
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path );
-}
-
-
-
-ControllerMDP::
-ControllerMDP ( const string& policy_file_path,
-                float epsilon_value,
-                const CONTROLLER_STATUS initial_status ) :
-    ControlLayerBase ( initial_status ),
-    R_ptr_(),
-    policy_ptr_ (),
-    loader_ (),
-    number_of_states_ (),
-    number_of_actions_ (),
-    state_sub_ ( nh_.subscribe ( "state", 0, &ControllerMDP::stateCallback, this ) ),
-    action_pub_ ( nh_.advertise<ActionSymbol> ( "action", 0, true ) ),
-    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) )
-{
-    ///This constructor will not publish problem metadata or reward (you will have to do it manually).
-    loadPolicyVector ( policy_file_path, epsilon_value );
 }
 
 
@@ -166,7 +123,8 @@ ControllerMDP ( const string& policy_file_path,
     number_of_actions_ (),
     state_sub_ ( nh_.subscribe ( "state", 0, &ControllerMDP::stateCallback, this ) ),
     action_pub_ ( nh_.advertise<ActionSymbol> ( "action", 0, true ) ),
-    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) )
+    reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) ),
+    eps_greedy_ ( true )
 {
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path, epsilon_type );
@@ -190,39 +148,6 @@ loadPolicyVector ( const string& policy_vector_path )
         fp >> ( *policy_vec );
         
         MDPPolicy* policy_ptr_ = new MDPPolicyVector ( policy_vec );
-
-        //policy_ptr_ = boost::shared_ptr<MDPPolicyVector> ( new MDPPolicyVector ( policy_vec ) );
-    }
-    catch ( exception& e )
-    {
-        ROS_ERROR_STREAM ( e.what() );
-        abort();
-    }
-}
-
-
-
-void
-ControllerMDP::
-loadPolicyVector ( const string& policy_vector_path, float epsilon_value )
-{
-    try
-    {
-        if ( policy_ptr_ != 0 )
-            ROS_WARN_STREAM ( "The policy for this MDP had already been loaded! Overwriting." );
-
-        ifstream fp;
-        fp.open ( policy_vector_path.c_str() );
-        IndexVectorPtr policy_vec ( new IndexVector() );
-
-        fp >> ( *policy_vec );
-        
-        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec, number_of_states_, number_of_actions_, epsilon_value );
-        
-//         policy_ptr_ = boost::shared_ptr<MDPEpsilonGreedyPolicyVector> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
-//                                                                                                            number_of_states_,
-//                                                                                                            number_of_actions_,
-//                                                                                                            epsilon_value ) );
     }
     catch ( exception& e )
     {
@@ -248,12 +173,10 @@ loadPolicyVector ( const string& policy_vector_path, EPSILON_TYPE epsilon_type )
 
         fp >> ( *policy_vec );
         
-        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec, number_of_states_, number_of_actions_, epsilon_type );
-        
-//         policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
-//                                                                                         number_of_states_,
-//                                                                                         number_of_actions_,
-//                                                                                         epsilon_type ) );
+        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                    number_of_states_,
+                                                                    number_of_actions_,
+                                                                    epsilon_type );
     }
     catch ( exception& e )
     {
@@ -338,6 +261,12 @@ publishAction ( uint32_t a )
     action_pub_.publish ( aInfo );
     
     action_ = a;
+    
+    // Update the policy's current decision episode value
+    if ( eps_greedy_ == true )
+    {
+        ( *policy_ptr_ ).setCurrDecisionEp ( aInfo.decision_episode );
+    }
 }
 
 
