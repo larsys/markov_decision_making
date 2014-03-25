@@ -24,6 +24,7 @@
 
 
 #include <mdm_library/learning_layer_base.h>
+#include <mdm_library/Policy.h>
 
 
 using namespace std;
@@ -43,7 +44,8 @@ LearningLayerBase ( float gamma,
     alpha_type_ ( alpha_type ),
     policy_update_frequency_ ( policy_update_frequency ),
     curr_decision_ep_ ( 0 ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
+    policy_pub_ ( nh_.advertise<Policy> ( "policy", 0, true ) )
 {
     // Gather the policy update frequency value from the parameters
     uint32_t policy_update_frequency;
@@ -121,17 +123,21 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     alpha_type_ ( alpha_type ),
     curr_decision_ep_ ( 0 ),
     private_nh_ ( "~" ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) )
+    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
+    policy_pub_ ( nh_.advertise<Policy> ( "policy", 0, true ) )
 {
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
+    
     if ( private_nh_.getParam ( "policy_update_frequency", policy_update_frequency ) )
         policy_update_frequency_ = ( uint32_t ) policy_update_frequency;
     else
         policy_update_frequency_ = MDM_DEFAULT_POLICY_UPDATE_FREQ;
     
+    
     // Gather the gamma value from the parameters
     double gamma;
+    
     if ( private_nh_.getParam ( "gamma", gamma ) )
     {
         if ( gamma < 0 || gamma > 1 )
@@ -145,8 +151,10 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     else
         gamma_ = MDM_DEFAULT_GAMMA;
     
+    
     // Gather the alpha value from the parameters if alpha type is set as constant
     double alpha;
+    
     if ( alpha_type_ == ALPHA_CONSTANT )
     {
         if ( private_nh_.getParam ( "alpha", alpha ) )
@@ -163,19 +171,6 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
             alpha_ = MDM_DEFAULT_ALPHA;
     }
     
-    // Create the controller
-    if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
-    else
-    {
-        if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
-        else
-        {
-            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
-            ros::shutdown();
-        }
-    }
     
     // Initialize the Q values table
     initializeQValues ();

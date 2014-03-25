@@ -86,6 +86,10 @@ protected:
     /** The current decision episode */
     uint32_t curr_decision_ep_;
     
+    /** The publisher for the "policy" topic in the local (public) namespace,
+     * in which the policy information will be advertised. */
+    ros::Publisher policy_pub_;
+    
     /** Pure virtual function for updating the Q values. To be implemented in each specific method. */
     virtual void updateQValues () = 0;
     
@@ -94,6 +98,9 @@ protected:
     
     /** Pure virtual callback for actions coming from the State Layer, to be implemented in each specific method. */
     virtual void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg ) = 0;
+    
+    /** Pure virtual publishing function for the "policy" topic, to be implemented in each specific method. */
+    virtual void publishPolicy () = 0;
     
 private:
     /** ROS Nodehandle for the learning layer. */

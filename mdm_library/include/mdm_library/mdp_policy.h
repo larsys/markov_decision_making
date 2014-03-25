@@ -44,8 +44,9 @@ namespace mdm_library
 class MDPPolicy
 {
 public:
-    /**
-     */
+    MDPPolicy ( IndexVectorPtr policy_vec_ptr ) :
+        policy_vec_ptr_ ( policy_vec_ptr ) {}
+    
     virtual uint32_t getAction ( uint32_t index ) = 0;
     
     virtual void updatePolicy ( Matrix q_values ) {}
@@ -56,6 +57,14 @@ public:
     {
         return getAction ( index );
     }
+    
+    IndexVectorPtr getVector ()
+    {
+        return policy_vec_ptr_;
+    }
+    
+protected:
+    IndexVectorPtr policy_vec_ptr_;
 };
 
 
@@ -64,16 +73,13 @@ class MDPPolicyVector : public MDPPolicy
 {
 public:
     MDPPolicyVector ( IndexVectorPtr p_ptr ) :
-        policy_vec_ptr_ ( p_ptr ) {}
+        MDPPolicy ( p_ptr ) {}
 
 protected:
     virtual uint32_t getAction ( uint32_t index )
     {
         return ( *policy_vec_ptr_ ) [index];
     }
-
-private:
-    IndexVectorPtr policy_vec_ptr_;
 };
 
 
@@ -86,7 +92,7 @@ public:
                                    uint32_t num_actions,
                                    EPSILON_TYPE epsilon_type
                                  ) :
-        policy_vec_ptr_ ( p_ptr ),
+        MDPPolicy ( p_ptr ),
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
         epsilon_type_ ( epsilon_type ),
@@ -166,7 +172,6 @@ protected:
     }
 
 private:
-    IndexVectorPtr policy_vec_ptr_;
     uint32_t num_states_;
     uint32_t num_actions_;
     uint32_t curr_decision_ep_;

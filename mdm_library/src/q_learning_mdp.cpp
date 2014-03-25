@@ -24,6 +24,7 @@
 
 
 #include <mdm_library/q_learning_mdp.h>
+#include <mdm_library/Policy.h>
 
 
 using namespace std;
@@ -39,10 +40,49 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
                EPSILON_TYPE epsilon_type,
                CONTROLLER_TYPE controller_type,
                const string& problem_file_path,
+               const std::string& initial_learning_policy_file_path,
                const string& policy_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, policy_file_path, problem_file_path, initial_status )
 {
+    try
+    {
+        if ( learning_policy_ptr_ != 0 )
+            ROS_WARN_STREAM ( "The learning policy for this MDP had already been loaded! Overwriting." );
+
+        ifstream fp;
+        fp.open ( initial_learning_policy_file_path.c_str() );
+        IndexVectorPtr policy_vec ( new IndexVector() );
+
+        fp >> ( *policy_vec );
+        
+        uint32_t number_of_states = q_values_.size1 ();
+        uint32_t number_of_actions = q_values_.size2 ();
+        
+        MDPPolicy* learning_policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                             number_of_states,
+                                                                             number_of_actions,
+                                                                             epsilon_type );
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
+    
+    // Create the controller
+    if ( controller_type == EVENT )
+        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, initial_status );
+    else
+    {
+        if ( controller_type == TIMED )
+            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, initial_status );
+        else
+        {
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
+            ros::shutdown();
+        }
+    }
 }
 
 
@@ -55,10 +95,49 @@ QLearningMDP ( float gamma,
                ALPHA_TYPE alpha_type,
                EPSILON_TYPE epsilon_type,
                CONTROLLER_TYPE controller_type,
+               const std::string& initial_learning_policy_file_path,
                const std::string& policy_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, policy_file_path, initial_status )
 {
+    try
+    {
+        if ( learning_policy_ptr_ != 0 )
+            ROS_WARN_STREAM ( "The learning policy for this MDP had already been loaded! Overwriting." );
+
+        ifstream fp;
+        fp.open ( initial_learning_policy_file_path.c_str() );
+        IndexVectorPtr policy_vec ( new IndexVector() );
+
+        fp >> ( *policy_vec );
+        
+        uint32_t number_of_states = q_values_.size1 ();
+        uint32_t number_of_actions = q_values_.size2 ();
+        
+        MDPPolicy* learning_policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                             number_of_states,
+                                                                             number_of_actions,
+                                                                             epsilon_type );
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
+    
+    // Create the controller
+    if ( controller_type == EVENT )
+        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, initial_status );
+    else
+    {
+        if ( controller_type == TIMED )
+            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, initial_status );
+        else
+        {
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
+            ros::shutdown();
+        }
+    }
 }
 
 
@@ -80,11 +159,7 @@ void
 QLearningMDP::
 updatePolicy ()
 {
-    boost::shared_ptr<MDPPolicy> policy;
-    
-    policy = ( *controller_ ).getPolicy ();
-    
-    policy -> updatePolicy ( q_values_ );
+    learning_policy_ptr_ -> updatePolicy ( q_values_ );
 }
 
 
@@ -109,6 +184,12 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
             next_state_ = msg -> world_symbol;
         }
     }
+    
+    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
+    {
+        updatePolicy ();
+        publishPolicy ();
+    }
 }
 
 
@@ -128,4 +209,23 @@ maxOverA ()
     }
     
     return curr_max;
+}
+
+
+
+void
+QLearningMDP::
+publishPolicy ()
+{
+    Policy pol;
+    IndexVector v;
+    
+    v = ( * ( *learning_policy_ptr_ ).getVector () );
+    
+    pol.number_of_states = ( *controller_ ).getNumberOfStates ();
+    
+    for ( int i = 0; i < v.size(); i++ )
+        pol.policy[i] = v[i];
+    
+    policy_pub_.publish ( pol );
 }

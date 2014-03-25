@@ -263,10 +263,8 @@ publishAction ( uint32_t a )
     action_ = a;
     
     // Update the policy's current decision episode value
-    if ( eps_greedy_ == true )
-    {
+    if ( eps_greedy_ )
         ( *policy_ptr_ ).setCurrDecisionEp ( aInfo.decision_episode );
-    }
 }
 
 

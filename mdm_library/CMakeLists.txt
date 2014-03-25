@@ -24,7 +24,8 @@ add_message_files(FILES
                   SymbolMetadata.msg
                   FactoredSymbolMetadata.msg 
                   BeliefStateInfo.msg
-                  FactoredDistribution.msg)
+                  FactoredDistribution.msg
+                  Policy.msg)
 
 generate_messages(DEPENDENCIES std_msgs)
 

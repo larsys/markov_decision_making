@@ -42,8 +42,9 @@ public:
     QLearningMDP ( ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
                    CONTROLLER_TYPE controller_type,
-                   const std::string& policy_file_path,
                    const std::string& problem_file_path,
+                   const std::string& initial_learning_policy_file_path,
+                   const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
     
@@ -51,6 +52,7 @@ public:
                    ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
                    CONTROLLER_TYPE controller_type,
+                   const std::string& initial_learning_policy_file_path,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
@@ -78,6 +80,9 @@ private:
     
     /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
+    
+    /** Implementation of the pure virtual function publishPolicy from LearningLayerBase */
+    void publishPolicy ();
     
     /** Function to get the maximum of Q(s, a) over a */
     float maxOverA ();

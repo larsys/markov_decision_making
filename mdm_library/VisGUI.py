@@ -4,162 +4,170 @@ import os
 import rospy
 import sys
 
-from PyQt4 import QtGui, QtCore
+from Tkinter import *
+import tkFont
+import pylab
 
 from std_msgs.msg import Float32
 from mdm_library.msg import WorldSymbol
 from mdm_library.msg import ActionSymbol
-#from mdm_library import PolicySymbol
+from mdm_library.msg import Policy
 
 
-global gui
 
-
-class MainWindow (QtGui.QWidget):
-    #
-    # Constructor for the MainWindow class.
-    #
-    def __init__ (self):
-        super ( MainWindow, self ).__init__ ()
+class Application ( Frame ):
+    def __init__ ( self, master = None ):
+        Frame.__init__( self, master )
         
-        # ROS subscribers
-        self.sub_state = rospy.Subscriber ( "/state", WorldSymbol, callback_state )
-        self.sub_action = rospy.Subscriber ( "/action", ActionSymbol, callback_action )
-        self.sub_reward = rospy.Subscriber ( "/reward", Float32, callback_reward )
-        #self.sub_policy = rospy.Subscriber ( "/policy", String, callback )
+        # ROS Subscribers
+        self.sub_state = rospy.Subscriber   ( "/state",     WorldSymbol,    self.callback_state )
+        self.sub_action = rospy.Subscriber  ( "/action",    ActionSymbol,   self.callback_action )
+        self.sub_reward = rospy.Subscriber  ( "/reward",    Float32,        self.callback_reward )
+        self.sub_policy = rospy.Subscriber  ( "/policy",    Float32,        self.callback_policy )
         
-        # Class variables for the GUI
-        self.label_state = QtGui.QLabel ( 'Current State' )
-        self.label_action = QtGui.QLabel ( 'Last Action' )
-        self.label_reward = QtGui.QLabel ( 'Last Reward' )
-        self.label_policy = QtGui.QLabel ( 'Current Policy' )
-        self.button_quit = QtGui.QPushButton ( 'Quit', self )
-        self.text_state = QtGui.QPlainTextEdit ()
-        self.text_action = QtGui.QPlainTextEdit ()
-        self.text_reward = QtGui.QPlainTextEdit ()
-        self.text_policy = QtGui.QPlainTextEdit ()
-        self.grid = QtGui.QGridLayout ()
+        # Text Variables
+        self.state = StringVar ()
+        self.action = StringVar ()
+        self.reward = StringVar ()
+        self.ep = StringVar ()
+        self.policy = StringVar ()
         
-        self.initUI ()
+        # Font
+        self.custom_font = tkFont.Font( family = "Helvetica", size = 11 )
+        
+        # GUI Widgets
+        self.button_quit      = Button ( self, text = "Quit",       command = self.quit,        font = self.custom_font, anchor = E )
+        self.button_show_plot = Button ( self, text = "Show Plot",  command = self.showPlot,    font = self.custom_font, anchor = E )
+        
+        self.label_state    = Label ( self, text = "Current State:",            anchor = NW,    font = self.custom_font )
+        self.label_action   = Label ( self, text = "Last Action:",              anchor = NW,    font = self.custom_font )
+        self.label_reward   = Label ( self, text = "Last Reward:",              anchor = NW,    font = self.custom_font )
+        self.label_ep       = Label ( self, text = "Current Decision Episode:", anchor = NW,    font = self.custom_font )
+        self.label_policy   = Label ( self, text = "Current Policy:",           anchor = NW,    font = self.custom_font )
+        
+        self.text_state     = Label ( self, textvariable = self.state,  font = self.custom_font )
+        self.text_action    = Label ( self, textvariable = self.action, font = self.custom_font )
+        self.text_reward    = Label ( self, textvariable = self.reward, font = self.custom_font )
+        self.text_ep        = Label ( self, textvariable = self.ep,     font = self.custom_font )
+        self.text_policy    = Label ( self, textvariable = self.policy, font = self.custom_font )
+        
+        # Pack and setup the widgets
+        self.pack ( fill = "both", expand = True, padx = 20, pady = 20 )
+        self.setupWidgets ()
+
+
+    def setupWidgets ( self ):
+        # Buttons
+        self.button_quit.grid       ( row = 6, column = 1 )
+        self.button_show_plot.grid  ( row = 5, column = 1 )
+        
+        # Labels
+        self.label_state.grid   ( row = 0, column = 0 )
+        self.label_action.grid  ( row = 1, column = 0 )
+        self.label_reward.grid  ( row = 2, column = 0 )
+        self.label_ep.grid      ( row = 3, column = 0 )
+        self.label_policy.grid  ( row = 4, column = 0 )
+        
+        # Texts
+        self.text_state.grid    ( row = 0, column = 1 )
+        self.text_action.grid   ( row = 1, column = 1 )
+        self.text_reward.grid   ( row = 2, column = 1 )
+        self.text_ep.grid       ( row = 3, column = 1 )
+        self.text_policy.grid   ( row = 4, column = 1 )
+        
+        
     
     #
-    # Builds the GUI.
+    # Callback for the Show Plot button
     #
-    def initUI (self):
-        # Set the tooltip properties
-        QtGui.QToolTip.setFont ( QtGui.QFont ( 'SansSerif', 10 ) )
+    def showPlot ( self ):
+        x=pylab.arange(0,2,0.01)
+        y=2*pylab.sin(2*pylab.pi*(x-1/4))
+
+        pylab.plot(x,y)
+        pylab.xlabel('x-axis')
+        pylab.ylabel('y-axis')
+        pylab.title(r'$y=2\sin (2\pi(x-1/4))$')
+
+        pylab.show()
         
         
-        # Tooltips for the QLabels
-        self.label_state.setToolTip ( 'Shows the current state of the agent' )
-        self.label_action.setToolTip ( 'Shows the last action performed by the agent' )
-        self.label_reward.setToolTip ( 'Shows the last reward received by the agent' )
-        self.label_policy.setToolTip ( 'Shows the current version of the learning policy' )
-
-
-        # Set the functionality and the tooltip for the QPushButtons
-        self.button_quit.clicked.connect ( QtCore.QCoreApplication.instance ().quit )
-        self.button_quit.resize ( self.button_quit.sizeHint () )
-        self.button_quit.setToolTip ( 'Quit the vizualiser' )
-
-
-        # Set the QPlainTextEdits to read only
-        self.text_state.setReadOnly ( True )
-        self.text_action.setReadOnly ( True )
-        self.text_reward.setReadOnly ( True )
-        self.text_policy.setReadOnly ( True )
-
-
-        # Layout definitions
-        self.grid.setSpacing (10)
-
-        # Add widgets to layout
-        self.grid.addWidget ( self.label_state, 1, 0 )
-        self.grid.addWidget ( self.text_state, 1, 1 )
-
-        self.grid.addWidget ( self.label_action, 2, 0 )
-        self.grid.addWidget ( self.text_action, 2, 1 )
-
-        self.grid.addWidget ( self.label_reward, 3, 0 )
-        self.grid.addWidget ( self.text_reward, 3, 1 )
         
-        self.grid.addWidget ( self.label_policy, 4, 0 )
-        self.grid.addWidget ( self.text_policy, 4, 1 )
-        
-        self.grid.addWidget ( self.button_quit, 5, 1 )
-        
-        self.setLayout ( self.grid )
-        
-        
-        # Window properties
-        self.resize ( 500, 312 )
-        self.center ()
-        self.setWindowTitle ( 'MDM Learning Visualizer' )
-        self.setWindowIcon ( QtGui.QIcon ( os.path.join ( os.path.dirname( os.path.realpath ( __file__ ) ), 'socrob.png' ) ) )
-        self.show ()
-    
     #
-    # Centers the window on the screen.
+    # Callback for the state
     #
-    def center (self):
+    def callback_state ( self, data ):
+        self.state.set ( str ( data.world_symbol ) )
+
+
+
+    #
+    # Callback for the action and decision episode
+    #
+    def callback_action ( self, data ):
+        self.ep.set ( str ( data.decision_episode ) )
+        self.action.set ( str ( data.action_symbol ) )
         
-        qr = self.frameGeometry ()
-        cp = QtGui.QDesktopWidget ().availableGeometry ().center ()
-        qr.moveCenter ( cp )
-        self.move ( qr.topLeft () )
+        
+        
+    #
+    # Callback for the reward
+    #
+    def callback_reward ( self, data ):
+        self.reward.set ( str ( data.data ) )
+        
+        
+        
+    #
+    # Callback for the policy
+    #
+    def callback_policy ( self, data ):
+        pol = [ 0 * data.number_of_states ]
+        i = 0
+        
+        for element in data.policy:
+            pol[i] = str ( element )
+            i += 1
+        
+        self.policy.set ( ' '.join ( pol ) )
 
 
-
-#
-# Callback for the state
-#
-def callback_state ( data ):
-    s = QtCore.QString ( data.world_symbol )
-    gui.text_state.setPlainText ( s )
-
-
-
-#
-# Callback for the action
-#
-def callback_action ( data ):
-    s = QtCore.QString ( data.action_symbol )
-    gui.text_action.setPlainText ( s )
-    
-    
-    
-#
-# Callback for the reward
-#
-def callback_reward ( data ):
-    s = QtCore.QString ( str ( data.data ) )
-    gui.text_reward.setPlainText ( s )
-    
-    
-    
-#
-# Callback for the policy
-#
-def callback_policy ( data ):
-    s = QtCore.QString ( data.data )
-    gui.text_policy.setPlainText ( s )
-    
-    
     
 #
 # The main function initializes the GUI and the ROS node.
 #
 def main ():
-    
-    app = QtGui.QApplication ( sys.argv )
-    
-    global gui
-    gui = MainWindow ()
-    
+    # Create the ROS node
     rospy.init_node ( 'VisGUI', anonymous = True )
     
-    app.exec_()
-    #sys.exit ( app.exec_ () )
+    # Create the Tkinter node
+    root = Tk ()
+    
+    # Set the window's title
+    root.title ( "MDM Learning Visualizer" )
+    
+    # Set the application icon
+    icon = PhotoImage ( file = os.path.join ( os.path.dirname ( os.path.realpath ( __file__ ) ), 'socrob.gif' ) )
+    root.tk.call ( 'wm', 'iconphoto', root._w, icon )
+    
+    # Set the window's width and height and center it
+    w = 280
+    h = 200
+    
+    ws = root.winfo_screenwidth ()
+    hs = root.winfo_screenheight ()
+
+    x = ws / 2 - w / 2
+    y = hs / 2 - h / 2
+
+    root.geometry ( '%dx%d+%d+%d' % ( w, h, x, y ) )
+    
+    # Run the application
+    app = Application ( master = root )
+    app.mainloop ()
+    root.destroy ()
+    
+
 
 
 

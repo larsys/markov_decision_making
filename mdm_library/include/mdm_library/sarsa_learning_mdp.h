@@ -76,6 +76,9 @@ private:
     
     /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
+    
+    /** Implementation of the pure virtual function publishPolicy from LearningLayerBase */
+    void publishPolicy ();
 };
 }
 

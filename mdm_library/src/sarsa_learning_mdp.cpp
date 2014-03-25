@@ -24,6 +24,7 @@
 
 
 #include <mdm_library/sarsa_learning_mdp.h>
+#include <mdm_library/Policy.h>
 
 
 using namespace std;
@@ -43,6 +44,19 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, policy_file_path, problem_file_path, initial_status )
 {
+    // Create the controller
+    if ( controller_type == EVENT )
+        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
+    else
+    {
+        if ( controller_type == TIMED )
+            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
+        else
+        {
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
+            ros::shutdown();
+        }
+    }
 }
 
 
@@ -59,6 +73,19 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, policy_file_path, initial_status )
 {
+    // Create the controller
+    if ( controller_type == EVENT )
+        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
+    else
+    {
+        if ( controller_type == TIMED )
+            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
+        else
+        {
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
+            ros::shutdown();
+        }
+    }
 }
 
 
@@ -117,4 +144,31 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
             next_action_ = ( *controller_ ).getAction ();
         }
     }
+    
+    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
+    {
+        updatePolicy ();
+        publishPolicy ();
+    }
+}
+
+
+
+void
+SarsaLearningMDP::
+publishPolicy ()
+{
+    Policy pol;
+    boost::shared_ptr<MDPPolicy> policy;
+    IndexVector v;
+    
+    policy = ( *controller_ ).getPolicy ();
+    v = ( * ( *policy ).getVector () );
+    
+    pol.number_of_states = ( *controller_ ).getNumberOfStates ();
+    
+    for ( int i = 0; i < v.size(); i++ )
+        pol.policy[i] = v[i];
+    
+    policy_pub_.publish ( pol );
 }
