@@ -7,11 +7,12 @@ import sys
 from Tkinter import *
 import tkFont
 import pylab
+import matplotlib.pyplot as plt
 
-from std_msgs.msg import Float32
-from mdm_library.msg import WorldSymbol
-from mdm_library.msg import ActionSymbol
-from mdm_library.msg import Policy
+from std_msgs.msg       import Float32
+from mdm_library.msg    import WorldSymbol
+from mdm_library.msg    import ActionSymbol
+from mdm_library.msg    import Policy
 
 
 
@@ -20,30 +21,35 @@ class Application ( Frame ):
         Frame.__init__( self, master )
         
         # ROS Subscribers
-        self.sub_state = rospy.Subscriber   ( "/state",     WorldSymbol,    self.callback_state )
+        self.sub_state  = rospy.Subscriber  ( "/state",     WorldSymbol,    self.callback_state  )
         self.sub_action = rospy.Subscriber  ( "/action",    ActionSymbol,   self.callback_action )
         self.sub_reward = rospy.Subscriber  ( "/reward",    Float32,        self.callback_reward )
         self.sub_policy = rospy.Subscriber  ( "/policy",    Float32,        self.callback_policy )
         
         # Text Variables
-        self.state = StringVar ()
-        self.action = StringVar ()
-        self.reward = StringVar ()
-        self.ep = StringVar ()
-        self.policy = StringVar ()
+        self.state  =   StringVar ()
+        self.action =   StringVar ()
+        self.reward =   StringVar ()
+        self.ep     =   StringVar ()
+        self.policy =   StringVar ()
+        
+        # Plot Variables
+        self.acc_reward = [0, 1, 2, 3, 4, 5, 6, 7, 8, 15, 20, 40]
+        self.num_rewards = pylab.arange ( 0, len ( self.acc_reward ), 1 )
         
         # Font
         self.custom_font = tkFont.Font( family = "Helvetica", size = 11 )
         
         # GUI Widgets
-        self.button_quit      = Button ( self, text = "Quit",       command = self.quit,        font = self.custom_font, anchor = E )
-        self.button_show_plot = Button ( self, text = "Show Plot",  command = self.showPlot,    font = self.custom_font, anchor = E )
+        self.button_quit         = Button ( self, text = "Quit",         command = self.quit,        font = self.custom_font )
+        self.button_show_plot    = Button ( self, text = "Show Plot",    command = self.showPlot,    font = self.custom_font )
+        self.button_refresh_plot = Button ( self, text = "Refresh Plot", command = self.refreshPlot, font = self.custom_font )
         
-        self.label_state    = Label ( self, text = "Current State:",            anchor = NW,    font = self.custom_font )
-        self.label_action   = Label ( self, text = "Last Action:",              anchor = NW,    font = self.custom_font )
-        self.label_reward   = Label ( self, text = "Last Reward:",              anchor = NW,    font = self.custom_font )
-        self.label_ep       = Label ( self, text = "Current Decision Episode:", anchor = NW,    font = self.custom_font )
-        self.label_policy   = Label ( self, text = "Current Policy:",           anchor = NW,    font = self.custom_font )
+        self.label_state    = Label ( self, text = "Current State:",            font = self.custom_font )
+        self.label_action   = Label ( self, text = "Last Action:",              font = self.custom_font )
+        self.label_reward   = Label ( self, text = "Last Reward:",              font = self.custom_font )
+        self.label_ep       = Label ( self, text = "Current Decision Episode:", font = self.custom_font )
+        self.label_policy   = Label ( self, text = "Current Policy:",           font = self.custom_font )
         
         self.text_state     = Label ( self, textvariable = self.state,  font = self.custom_font )
         self.text_action    = Label ( self, textvariable = self.action, font = self.custom_font )
@@ -54,26 +60,38 @@ class Application ( Frame ):
         # Pack and setup the widgets
         self.pack ( fill = "both", expand = True, padx = 20, pady = 20 )
         self.setupWidgets ()
+        
+        # Configure the rows and columns to expand and contract with the window
+        for x in xrange ( 7 ):
+            Grid.rowconfigure ( self, x, weight = 1 )
+            
+        for y in xrange ( 2 ):
+            Grid.columnconfigure ( self, y, weight = 1 )
 
 
+
+    #
+    # Setup the widgets in a grid
+    #
     def setupWidgets ( self ):
         # Buttons
-        self.button_quit.grid       ( row = 6, column = 1 )
-        self.button_show_plot.grid  ( row = 5, column = 1 )
+        self.button_quit         .grid ( row = 7, column = 1, sticky = E )
+        self.button_show_plot    .grid ( row = 5, column = 1, sticky = E )
+        self.button_refresh_plot .grid ( row = 6, column = 1, sticky = E )
         
         # Labels
-        self.label_state.grid   ( row = 0, column = 0 )
-        self.label_action.grid  ( row = 1, column = 0 )
-        self.label_reward.grid  ( row = 2, column = 0 )
-        self.label_ep.grid      ( row = 3, column = 0 )
-        self.label_policy.grid  ( row = 4, column = 0 )
+        self.label_state         .grid ( row = 0, column = 0, sticky = W )
+        self.label_action        .grid ( row = 1, column = 0, sticky = W )
+        self.label_reward        .grid ( row = 2, column = 0, sticky = W )
+        self.label_ep            .grid ( row = 3, column = 0, sticky = W )
+        self.label_policy        .grid ( row = 4, column = 0, sticky = W )
         
         # Texts
-        self.text_state.grid    ( row = 0, column = 1 )
-        self.text_action.grid   ( row = 1, column = 1 )
-        self.text_reward.grid   ( row = 2, column = 1 )
-        self.text_ep.grid       ( row = 3, column = 1 )
-        self.text_policy.grid   ( row = 4, column = 1 )
+        self.text_state          .grid ( row = 0, column = 1 )
+        self.text_action         .grid ( row = 1, column = 1 )
+        self.text_reward         .grid ( row = 2, column = 1 )
+        self.text_ep             .grid ( row = 3, column = 1 )
+        self.text_policy         .grid ( row = 4, column = 1 )
         
         
     
@@ -81,20 +99,27 @@ class Application ( Frame ):
     # Callback for the Show Plot button
     #
     def showPlot ( self ):
-        x=pylab.arange(0,2,0.01)
-        y=2*pylab.sin(2*pylab.pi*(x-1/4))
+        self.figure = plt.figure ()
+        self.ax = self.figure.add_subplot(111)
+        self.ax.scatter ( self.num_rewards, self.acc_reward )
+        self.ax.set_xlabel ( 'Decision Episode' )
+        self.ax.set_ylabel ( 'Accumulated Reward' )
+        self.ax.set_title  ( 'Accumulated Reward' )
 
-        pylab.plot(x,y)
-        pylab.xlabel('x-axis')
-        pylab.ylabel('y-axis')
-        pylab.title(r'$y=2\sin (2\pi(x-1/4))$')
-
-        pylab.show()
+        plt.show ()
         
         
         
     #
-    # Callback for the state
+    # Callback for the Refresh Plot button
+    #
+    def refreshPlot ( self ):
+        pylab.show ()
+        
+        
+        
+    #
+    # ROS Callback for the state
     #
     def callback_state ( self, data ):
         self.state.set ( str ( data.world_symbol ) )
@@ -102,7 +127,7 @@ class Application ( Frame ):
 
 
     #
-    # Callback for the action and decision episode
+    # ROS Callback for the action and decision episode
     #
     def callback_action ( self, data ):
         self.ep.set ( str ( data.decision_episode ) )
@@ -111,15 +136,20 @@ class Application ( Frame ):
         
         
     #
-    # Callback for the reward
+    # ROS Callback for the reward
     #
     def callback_reward ( self, data ):
         self.reward.set ( str ( data.data ) )
         
+        self.acc_reward.append ( data.data )
+        self.num_rewards = pylab.arange ( 0, len ( self.acc_reward ), 1 )
+        
+        self.ax.scatter ( self.num_rewards, self.acc_reward )
+        
         
         
     #
-    # Callback for the policy
+    # ROS Callback for the policy
     #
     def callback_policy ( self, data ):
         pol = [ 0 * data.number_of_states ]
@@ -147,12 +177,12 @@ def main ():
     root.title ( "MDM Learning Visualizer" )
     
     # Set the application icon
-    icon = PhotoImage ( file = os.path.join ( os.path.dirname ( os.path.realpath ( __file__ ) ), 'socrob.gif' ) )
-    root.tk.call ( 'wm', 'iconphoto', root._w, icon )
+    #icon = PhotoImage ( file = os.path.join ( os.path.dirname ( os.path.realpath ( __file__ ) ), 'socrob.gif' ) )
+    #root.tk.call ( 'wm', 'iconphoto', root._w, icon )
     
     # Set the window's width and height and center it
-    w = 280
-    h = 200
+    w = 350
+    h = 220
     
     ws = root.winfo_screenwidth ()
     hs = root.winfo_screenheight ()
