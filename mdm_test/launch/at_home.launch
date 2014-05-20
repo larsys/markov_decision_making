@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+    <include file="$(find mbot_simulation)/launch/omni_cobot_gazebo.launch"/>
+    
+    <!-- Run the map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find mdm_test)/config/at_home_testbed.yaml">
+        <param name="frame_id" value="/map" />
+    </node>
+
+    <param name="pm_id" value="0" />
+
+    <include file="$(find mdm_test)/launch/navigation.launch"/>
+        
+    <rosparam file="$(find mdm_test)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
+
+    <node pkg="topological_tools" name="pose_labeler" type="pose_labeler_node" 
+          args="$(find mdm_test)/maps/at_home_label_map.png amcl_pose" respawn="true"/>
+
+    <node pkg="mdm_test" name="predicates" type="predicates" respawn="true"/>
+
+    <node pkg="mdm_test" name="state_layer" type="state_layer" respawn="true"/>
+
+    <node pkg="mdm_test" name="control_layer" type="control_layer" 
+          args="$(find mdm_test)/config/MDP_policy" respawn="true"/>
+        
+    <node pkg="mdm_test" name="action_layer" type="action_layer" 
+          args="$(find mdm_test)/config/topological_map.xml" respawn="true"/>
+        
+    <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
+          args="pub -1 /initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: -10, y: -7.5, z: 0}, orientation: { w: 0.7071, z: 0.7071, x: 0, y: 0 } } } }'"/>
+              
+</launch>

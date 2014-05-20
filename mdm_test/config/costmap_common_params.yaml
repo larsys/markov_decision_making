@@ -1,0 +1,11 @@
+inflation_radius: 0.5
+
+#---(in meters)---
+footprint: [ [0.3, 0.25], [-0.3, 0.25], [-0.3, -0.25], [0.3, -0.25] ]
+
+transform_tolerance: 2.0
+map_type: costmap
+
+observation_sources: laser_scan_sensor external_point_clouds
+laser_scan_sensor: {sensor_frame: base_laser_link, data_type: LaserScan, topic: scan, marking: true, clearing: true, obstacle_range: 2.5, raytrace_range: 3.0, expected_update_rate: 0.2}
+external_point_clouds: {sensor_frame: map, data_type: PointCloud, topic: external_point_clouds, marking: true, clearing: false, obstacle_range: 200}

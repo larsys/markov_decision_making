@@ -147,7 +147,7 @@ loadPolicyVector ( const string& policy_vector_path )
 
         fp >> ( *policy_vec );
         
-        MDPPolicy* policy_ptr_ = new MDPPolicyVector ( policy_vec );
+        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPPolicyVector ( policy_vec ) );
     }
     catch ( exception& e )
     {
@@ -173,10 +173,10 @@ loadPolicyVector ( const string& policy_vector_path, EPSILON_TYPE epsilon_type )
 
         fp >> ( *policy_vec );
         
-        MDPPolicy* policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
-                                                                    number_of_states_,
-                                                                    number_of_actions_,
-                                                                    epsilon_type );
+        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                                        number_of_states_,
+                                                                                        number_of_actions_,
+                                                                                        epsilon_type ) );
     }
     catch ( exception& e )
     {
@@ -229,6 +229,7 @@ act ( const uint32_t state )
     if ( policy_ptr_ == 0 )
     {
         ROS_WARN_STREAM ( "No policy has been specified for this MDP! Idling." );
+        return;
     }
 
     uint32_t action;
