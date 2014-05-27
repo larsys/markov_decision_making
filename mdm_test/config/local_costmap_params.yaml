@@ -5,8 +5,8 @@ local_costmap:
   publish_frequency: 0.5
   static_map: false
   rolling_window: true
-  width: 5.0
-  height: 5.0
+  width: 6.0
+  height: 9.0
   resolution: 0.1
   #Setting the cost threshold to 253 induces the robot to move as close as physically possible to an obstacle
   #Use only through move_base_supervisor reconfiguration, if needed.

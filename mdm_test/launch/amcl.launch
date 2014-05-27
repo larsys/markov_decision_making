@@ -1,7 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <launch>
     <arg name="global_map_server" default="true"/>
 
-    <node pkg="amcl" type="amcl" name="amcl">
+    <node pkg="amcl" type="amcl" name="amcl" output="screen">
+        <remap from="/scan" to="/rrbot/laser/scan"/>
+
         <!-- Overall filter parameters -->
         <param name="min_particles" value="50"/>
         <param name="max_particles" value="500"/>
@@ -27,13 +31,14 @@
         <param name="laser_likelihood_max_dist" value="2.0"/>
 
         <!-- Odometry model parameters -->
-        <param name="odom_model_type" value="diff"/>
+        <param name="odom_model_type" value="omni"/>
         <param name="odom_alpha1" value="0.2"/>
         <param name="odom_alpha2" value="0.2"/>
         <param name="odom_alpha3" value="0.8"/>
         <param name="odom_alpha4" value="0.2"/>
         <param name="odom_alpha5" value="0.1"/>
-        <param name="odom_frame_id" value="odom"/>
+        <param name="odom_frame_id" value="/odom"/>
+	<!--param name="base_frame_id" value="/scout_base_link"/-->
         
         <remap from="static_map" to="/static_map" if="$(arg global_map_server)"/>
         <param name="global_frame_id" value="/map" if="$(arg global_map_server)"/>

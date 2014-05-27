@@ -46,17 +46,25 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
 {
     // Create the controller
     if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
+        controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerEventMDP ( policy_file_path,
+                                                                                    epsilon_type,
+                                                                                    initial_status );
     else
     {
         if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
+            controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerTimedMDP ( policy_file_path,
+                                                                                        epsilon_type,
+                                                                                        initial_status );
         else
         {
             ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
             ros::shutdown();
         }
     }
+    
+    state_sub_ = nh_.subscribe ( "state", 1, &SarsaLearningMDP::stateSymbolCallback, this );
+    
+    initializeQValues ();
 }
 
 
@@ -69,23 +77,52 @@ SarsaLearningMDP::
 SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
                    CONTROLLER_TYPE controller_type,
+                   uint32_t num_states,
+                   uint32_t num_actions,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
-    LearningLayerBase ( alpha_type, epsilon_type, controller_type, policy_file_path, initial_status )
+    LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
+                        policy_file_path, initial_status )
 {
     // Create the controller
     if ( controller_type == EVENT )
-        ControllerEventMDP* controller_ = new ControllerEventMDP ( policy_file_path, epsilon_type, initial_status );
+        controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerEventMDP ( policy_file_path,
+                                                                                    epsilon_type,
+                                                                                    initial_status );
     else
     {
         if ( controller_type == TIMED )
-            ControllerTimedMDP* controller_ = new ControllerTimedMDP ( policy_file_path, epsilon_type, initial_status );
+            controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerTimedMDP ( policy_file_path,
+                                                                                        epsilon_type,
+                                                                                        initial_status );
         else
         {
             ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
             ros::shutdown();
         }
     }
+    
+    state_sub_ = nh_.subscribe ( "state", 1, &SarsaLearningMDP::stateSymbolCallback, this );
+    policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
+    
+    initializeQValues ();
+}
+
+
+
+void
+SarsaLearningMDP::
+initializeQValues ()
+{
+    size_t num_states = controller_.get() -> getNumberOfStates ();
+    size_t num_actions = controller_ .get() -> getNumberOfActions ();
+    
+    Matrix q_values_ ( num_states_, num_actions_ );
+    
+    // Initialize the Q values as 0
+    for ( unsigned i = 0; i < q_values_.size1(); ++i )
+        for ( unsigned j = 0; j < q_values_.size2(); ++j )
+            q_values_ ( i, j ) = 0;
 }
 
 

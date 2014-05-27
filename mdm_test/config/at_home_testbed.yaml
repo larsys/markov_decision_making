@@ -1,4 +1,4 @@
-image: at_home_testbed.pgm
+image: ../maps/at_home_testbed.pgm
 resolution: 0.020000
 origin: [-10.250000, -10.250000, 0.000000]
 negate: 0

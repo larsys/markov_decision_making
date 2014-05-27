@@ -30,6 +30,7 @@
 using namespace std;
 using namespace mdm_library;
 
+
 #ifdef HAVE_MADP
 
 LearningLayerBase::
@@ -37,6 +38,8 @@ LearningLayerBase ( float gamma,
                     ALPHA_TYPE alpha_type,
                     EPSILON_TYPE epsilon_type,
                     CONTROLLER_TYPE controller_type,
+                    uint32_t num_states,
+                    uint32_t num_actions,
                     const string& policy_file_path,
                     const string& problem_file_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
@@ -114,32 +117,47 @@ LearningLayerBase ( float gamma,
 
 #endif
 
+
+
+
 LearningLayerBase::
 LearningLayerBase ( ALPHA_TYPE alpha_type,
                     EPSILON_TYPE epsilon_type,
                     CONTROLLER_TYPE controller_type,
+                    uint32_t num_states,
+                    uint32_t num_actions,
                     const string& policy_file_path,
-                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status
+                  ) :
     alpha_type_ ( alpha_type ),
     curr_decision_ep_ ( 0 ),
     private_nh_ ( "~" ),
-    state_sub_ ( nh_.subscribe ( "state", 1, &LearningLayerBase::stateSymbolCallback, this ) ),
-    policy_pub_ ( nh_.advertise<Policy> ( "policy", 0, true ) )
+    num_states_ ( num_states ),
+    num_actions_ ( num_actions )
 {
+    cout << "Hello world from the learning layer base!!!" << endl;
+    
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
     
-    if ( private_nh_.getParam ( "policy_update_frequency", policy_update_frequency ) )
+    if ( private_nh_.hasParam ( "policy_update_frequency" ) )
+    {
+        private_nh_.getParam ( "policy_update_frequency", policy_update_frequency );
         policy_update_frequency_ = ( uint32_t ) policy_update_frequency;
+    }
     else
+    {
         policy_update_frequency_ = MDM_DEFAULT_POLICY_UPDATE_FREQ;
-    
+        cout << "Using a default value for policy update frequency of 5 decision episodes." << endl;
+    }
     
     // Gather the gamma value from the parameters
     double gamma;
     
-    if ( private_nh_.getParam ( "gamma", gamma ) )
+    if ( private_nh_.hasParam ( "gamma" ) )
     {
+        private_nh_.getParam ( "gamma", gamma );
+        
         if ( gamma < 0 || gamma > 1 )
         {
             ROS_FATAL ( "Invalid provided gamma value. The gamma value must be between 0 and 1." );
@@ -149,16 +167,20 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
             gamma_ = ( float ) gamma;
     }
     else
+    {
         gamma_ = MDM_DEFAULT_GAMMA;
-    
+        cout << "Using a default value for gamma of 0.9." << endl;
+    }
     
     // Gather the alpha value from the parameters if alpha type is set as constant
     double alpha;
     
     if ( alpha_type_ == ALPHA_CONSTANT )
     {
-        if ( private_nh_.getParam ( "alpha", alpha ) )
+        if ( private_nh_.hasParam ( "alpha" ) )
         {
+            private_nh_.getParam ( "alpha", alpha );
+            
             if ( alpha < 0 || alpha > 1 )
             {
                 ROS_FATAL ( "Invalid provided alpha value. The alpha value must be between 0 and 1." );
@@ -168,27 +190,9 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
                 alpha_ = ( float ) alpha;
         }
         else
+        {
             alpha_ = MDM_DEFAULT_ALPHA;
+            cout << "Using a default value for alpha of 0.1." << endl;
+        }
     }
-    
-    
-    // Initialize the Q values table
-    initializeQValues ();
-}
-
-
-
-void
-LearningLayerBase::
-initializeQValues ()
-{
-    size_t num_states = ( *controller_ ).getNumberOfStates ();
-    size_t num_actions = ( *controller_ ).getNumberOfActions ();
-    
-    Matrix q_values_ ( num_states, num_actions );
-    
-    // Initialize the Q values as 0
-    for ( unsigned i = 0; i < q_values_.size1(); i++ )
-        for ( unsigned j = 0; j < q_values_.size2(); j++ )
-            q_values_ ( i, j ) = 0;
 }

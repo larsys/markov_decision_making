@@ -41,6 +41,8 @@ public:
     SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                        EPSILON_TYPE epsilon_type,
                        CONTROLLER_TYPE controller_type,
+                       uint32_t num_states,
+                       uint32_t num_actions,
                        const std::string& policy_file_path,
                        const std::string& problem_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -49,6 +51,8 @@ public:
     SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                        EPSILON_TYPE epsilon_type,
                        CONTROLLER_TYPE controller_type,
+                       uint32_t num_states,
+                       uint32_t num_actions,
                        const std::string& policy_file_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
@@ -68,17 +72,20 @@ private:
     /** Next action backup */
     uint32_t next_action_;
     
+    /** Initialize the Q Values Table to zeroes */
+    void initializeQValues ();
+    
     /** Implementation of the pure virtual function updateQValues from OnlineLearningMDP */
     void updateQValues ();
     
     /** Implementation of the pure virtual function updatePolicy from LearningLayerBase */
     void updatePolicy ();
     
-    /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
-    void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
-    
     /** Implementation of the pure virtual function publishPolicy from LearningLayerBase */
     void publishPolicy ();
+    
+    /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
+    void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
 };
 }
 

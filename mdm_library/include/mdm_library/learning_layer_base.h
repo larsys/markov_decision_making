@@ -39,10 +39,11 @@
 #include <mdm_library/ActionSymbol.h>
 #include <mdm_library/WorldSymbol.h>
 #include <std_msgs/Float32.h>
+#include <boost/iterator/iterator_concepts.hpp>
 
 
 namespace mdm_library
-{
+{   
 /**
  * OnlineLearningMDP is the base class for online learning MDPs.
  */
@@ -53,6 +54,8 @@ public:
     LearningLayerBase ( ALPHA_TYPE alpha_type,
                         EPSILON_TYPE epsilon_type,
                         CONTROLLER_TYPE controller_type,
+                        uint32_t num_states,
+                        uint32_t num_actions_,
                         const std::string& policy_file_path,
                         const std::string& problem_file_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -61,12 +64,20 @@ public:
     LearningLayerBase ( ALPHA_TYPE alpha_type,
                         EPSILON_TYPE epsilon_type,
                         CONTROLLER_TYPE controller_type,
-                        const std::string& policy_file_path,
-                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
+                        uint32_t num_states,
+                        uint32_t num_actions,
+                        const string& policy_file_path,
+                        const ControlLayerBase::CONTROLLER_STATUS initial_status );
     
 protected:
     /** MDP Controller */
     boost::shared_ptr<ControllerMDP> controller_;
+    
+    /** Number of states */
+    int32_t num_states_;
+    
+    /** Number of actions */
+    int32_t num_actions_;
     
     /** Q-table */
     Matrix q_values_;
@@ -102,17 +113,17 @@ protected:
     /** Pure virtual publishing function for the "policy" topic, to be implemented in each specific method. */
     virtual void publishPolicy () = 0;
     
-private:
     /** ROS Nodehandle for the learning layer. */
     ros::NodeHandle nh_;
-    
-    /** ROS private Nodehandle to use the parameter server. */
-    ros::NodeHandle private_nh_;
     
     /** The subscriber to the "state" topic in the local (public) namespace,
      * in which the state information will be received.
      */
     ros::Subscriber state_sub_;
+    
+private:    
+    /** ROS private Nodehandle to use the parameter server. */
+    ros::NodeHandle private_nh_;
     
     /** The subscriber to the "action" topic in the local (public) namespace,
      * in which the action information will be received.
@@ -123,11 +134,6 @@ private:
      * in which the reward information will be received.
      */
     ros::Subscriber reward_sub_;
-    
-    /**
-     * Function to initialize the Q-values table.
-     */
-    void initializeQValues ();
 };
 }
 

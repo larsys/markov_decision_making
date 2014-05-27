@@ -34,7 +34,7 @@
 
         <node pkg="mdm_example" name="state_layer" type="demo_state_layer" respawn="true"/>
 
-        <node launch-prefix="xterm -e gdb --args" pkg="mdm_example" name="control_layer" type="demo_control_layer" 
+        <node pkg="mdm_example" name="control_layer" type="demo_control_layer" 
               args="$(find mdm_example)/config/MDP_policy" respawn="true"/>
         
         <node pkg="mdm_example" name="action_layer" type="demo_action_layer" 

@@ -17,14 +17,14 @@ from mdm_library.msg    import Policy
 
 
 class Application ( Frame ):
-    def __init__ ( self, master = None ):
+    def __init__ ( self, state_topic, action_topic, reward_topic, policy_topic, master = None ):
         Frame.__init__( self, master )
         
         # ROS Subscribers
-        self.sub_state  = rospy.Subscriber  ( "/state",     WorldSymbol,    self.callback_state  )
-        self.sub_action = rospy.Subscriber  ( "/action",    ActionSymbol,   self.callback_action )
-        self.sub_reward = rospy.Subscriber  ( "/reward",    Float32,        self.callback_reward )
-        self.sub_policy = rospy.Subscriber  ( "/policy",    Float32,        self.callback_policy )
+        self.sub_state  = rospy.Subscriber  ( state_topic,     WorldSymbol,    self.callback_state  )
+        self.sub_action = rospy.Subscriber  ( action_topic,    ActionSymbol,   self.callback_action )
+        self.sub_reward = rospy.Subscriber  ( reward_topic,    Float32,        self.callback_reward )
+        self.sub_policy = rospy.Subscriber  ( policy_topic,    Float32,        self.callback_policy )
         
         # Text Variables
         self.state  =   StringVar ()
@@ -176,10 +176,6 @@ def main ():
     # Set the window's title
     root.title ( "MDM Learning Visualizer" )
     
-    # Set the application icon
-    #icon = PhotoImage ( file = os.path.join ( os.path.dirname ( os.path.realpath ( __file__ ) ), 'socrob.gif' ) )
-    #root.tk.call ( 'wm', 'iconphoto', root._w, icon )
-    
     # Set the window's width and height and center it
     w = 350
     h = 220
@@ -192,8 +188,19 @@ def main ():
 
     root.geometry ( '%dx%d+%d+%d' % ( w, h, x, y ) )
     
+    # Get the topic names from params
+    try:
+        state_topic  = rospy.get_param ( "/mdm_visualizer/state_topic" )
+        action_topic = rospy.get_param ( "/mdm_visualizer/action_topic" )
+        reward_topic = rospy.get_param ( "/mdm_visualizer/reward_topic" )
+        policy_topic = rospy.get_param ( "/mdm_visualizer/policy_topic" )
+    except:
+        print "\n\nPlease set the parameters state_topic, action_topic, reward_topic and policy_topic. Each of them should"
+        print "contain the topics where the respective information is being published.\n\n"
+        sys.exit ( 0 )
+    
     # Run the application
-    app = Application ( master = root )
+    app = Application ( state_topic, action_topic, reward_topic, policy_topic, master = root )
     app.mainloop ()
     root.destroy ()
     

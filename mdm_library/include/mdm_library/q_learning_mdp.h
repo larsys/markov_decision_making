@@ -52,6 +52,8 @@ public:
                    ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
                    CONTROLLER_TYPE controller_type,
+                   uint32_t num_states,
+                   uint32_t num_actions,
                    const std::string& initial_learning_policy_file_path,
                    const std::string& policy_file_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
@@ -72,20 +74,23 @@ private:
     /** The policy to be learned */
     boost::shared_ptr<MDPPolicy> learning_policy_ptr_;
     
+    /** Initialize the Q Values Table to zeroes */
+    void initializeQValues ();
+    
     /** Implementation of the pure virtual function updateQValues from LearningLayerBase */
     void updateQValues ();
     
     /** Implementation of the pure virtual function updatePolicy from LearningLayerBase */
     void updatePolicy ();
     
-    /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
-    void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
-    
     /** Implementation of the pure virtual function publishPolicy from LearningLayerBase */
     void publishPolicy ();
     
     /** Function to get the maximum of Q(s, a) over a */
     float maxOverA ();
+    
+    /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
+    void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
 };
 }
 
