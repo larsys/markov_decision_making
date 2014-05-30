@@ -23,6 +23,7 @@
  */
 
 #include <mdm_library/controller_timed_mdp.h>
+#include <boost/iterator/iterator_concepts.hpp>
 
 
 
@@ -93,8 +94,10 @@ ControllerTimedMDP ( const string& policy_file_path,
 ControllerTimedMDP::
 ControllerTimedMDP ( const string& policy_file_path,
                      EPSILON_TYPE epsilon_type,
+                     uint32_t num_states,
+                     uint32_t num_actions,
                      const CONTROLLER_STATUS initial_status ) :
-    ControllerMDP ( policy_file_path, epsilon_type, initial_status ),
+    ControllerMDP ( policy_file_path, epsilon_type, num_states, num_actions, initial_status ),
     initial_state_known_ ( false )
 {
     if ( !nh_.hasParam ( "decision_period" ) )

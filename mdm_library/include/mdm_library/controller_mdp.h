@@ -26,6 +26,7 @@
 #define _CONTROLLER_MDP_H_
 
 #include <string>
+#include <boost/iterator/iterator_concepts.hpp>
 
 #include <ros/ros.h>
 
@@ -80,6 +81,8 @@ public:
      */
     ControllerMDP ( const std::string& policy_file_path,
                     EPSILON_TYPE epsilon_type,
+                    uint32_t num_states,
+                    uint32_t num_actions,
                     const CONTROLLER_STATUS initial_status = STARTED );
 
     void loadPolicyVector ( const std::string& policy_vector_path );

@@ -77,6 +77,8 @@ public:
     
     ControllerEventMDP ( const std::string& policy_file_path,
                          EPSILON_TYPE epsilon_type,
+                         uint32_t num_states,
+                         uint32_t num_actions,
                          const CONTROLLER_STATUS initial_status = STARTED );
     
     /** The callback to incoming state information. This will trigger a new decision step. */

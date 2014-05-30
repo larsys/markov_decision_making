@@ -195,7 +195,8 @@ def main ():
         reward_topic = rospy.get_param ( "/mdm_visualizer/reward_topic" )
         policy_topic = rospy.get_param ( "/mdm_visualizer/policy_topic" )
     except:
-        print "\n\nPlease set the parameters state_topic, action_topic, reward_topic and policy_topic. Each of them should"
+        print "\n\nPlease set the parameters /mdm_visualizer/state_topic, /mdm_visualizer/action_topic, "
+        print "/mdm_visualizer/reward_topic and /mdm_visualizer/policy_topic. Each of them should"
         print "contain the topics where the respective information is being published.\n\n"
         sys.exit ( 0 )
     

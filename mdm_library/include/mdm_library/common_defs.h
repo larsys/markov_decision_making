@@ -35,7 +35,7 @@
 
 namespace mdm_library
 {
-typedef boost::numeric::ublas::vector<uint32_t> IndexVector;
+typedef boost::numeric::ublas::vector<int32_t> IndexVector;
 typedef boost::numeric::ublas::matrix<double> Matrix;
 
 typedef boost::shared_ptr<IndexVector> IndexVectorPtr;

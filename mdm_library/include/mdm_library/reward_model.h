@@ -40,19 +40,38 @@ public:
                                uint32_t action ) = 0;
 };
 
+
+
 class RewardMatrix : public RewardModel
 {
 public:
     RewardMatrix ( MatrixPtr matrix_ptr ) :
         R_ptr_ ( matrix_ptr ) {}
 
-    double getReward ( uint32_t state,
-                       uint32_t action )
+    double getReward ( uint32_t state, uint32_t action )
     {
         return ( *R_ptr_ ) ( state, action );
     }
+    
 private:
     MatrixPtr R_ptr_;
+};
+
+
+
+class RewardVector : public RewardModel
+{
+public:
+    RewardVector ( IndexVectorPtr vector_ptr ) :
+        R_ptr_ ( vector_ptr ) {}
+        
+    double getReward ( uint32_t state, uint32_t action )
+    {
+        return ( *R_ptr_ ) ( state );
+    }
+    
+private:
+    IndexVectorPtr R_ptr_;
 };
 
 #ifdef HAVE_MADP

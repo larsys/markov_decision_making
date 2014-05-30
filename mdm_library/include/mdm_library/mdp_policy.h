@@ -90,23 +90,28 @@ public:
     MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr,
                                    uint32_t num_states,
                                    uint32_t num_actions,
-                                   EPSILON_TYPE epsilon_type
-                                 ) :
+                                   EPSILON_TYPE epsilon_type ) :
         MDPPolicy ( p_ptr ),
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
         epsilon_type_ ( epsilon_type ),
-        private_nh_ ( "~" )
+        private_nh_ ( "~" ),
+        curr_decision_ep_ ( 0 )
     {
+        srand ( time ( NULL ) );
+        
         // Gather the alpha value from the parameters if alpha type is set as constant
         double epsilon;
+        
         if ( epsilon_type_ == EPSILON_CONSTANT )
         {
-            if ( private_nh_.getParam ( "epsilon", epsilon ) )
+            if ( private_nh_.hasParam ( "epsilon" ) )
             {
+                private_nh_.getParam ( "epsilon", epsilon );
+                
                 if ( epsilon < 0 || epsilon > 1 )
                 {
-                    ROS_FATAL ( "Invalid provided epsilon value. The epsilon value must be between 0 and 1." );
+                    ROS_FATAL ( "Invalid provided epsilon value. The gamma value must be between 0 and 1." );
                     ros::shutdown();
                 }
                 else
@@ -115,19 +120,28 @@ public:
             else
             {
                 epsilon_ = MDM_DEFAULT_EPSILON;
+                cout << "Using a default value for epsilon of 0.1." << endl;
             }
         }
+        
+        cout << "Eps-Greedy Policy built!!!!" << endl;
     }
 
 
 
     virtual void updatePolicy ( Matrix q_values )
     {
+        cout << "Updating the policy!!!!!!" << endl;
+        
+        cout << q_values << endl;
+        
         uint32_t best_action;
     
         for ( uint32_t state = 0; state < num_states_; state++ )
         {
             best_action = argMaxA ( q_values, state );
+            
+            cout << "The best action is " << best_action << endl;
             
             try
             {
@@ -139,6 +153,8 @@ public:
                 abort();
             }
         }
+        
+        cout << "Saving the policy!!!!" << endl;
         
         savePolicy ();
     }
@@ -153,22 +169,51 @@ public:
 protected:
     virtual uint32_t getAction ( uint32_t index )
     {
+        cout << "Getting the best action!!!!!!" << endl;
+        
         // Probability to choose a random action (range: 0 - 1)
+        //srand ( time ( NULL ) );
         double p = ( ( double ) rand () / ( RAND_MAX ) );
         
         if ( epsilon_type_ != EPSILON_CONSTANT )
             epsilon_ = updateEpsilon ( epsilon_type_, curr_decision_ep_ );
         
+        cout << "New epsilon is " << epsilon_ << " and probability is " << p <<  endl;
+        
         // With probability epsilon choose a random action. Otherwise, follow the policy.
         if ( p <= epsilon_ )
         {
             // Choose a random index to select a random action
+            //srand ( time ( NULL ) );
             uint32_t random_index = rand() % num_actions_;
             
-            return ( *policy_vec_ptr_ ) [random_index];
+            cout << "Returning a random action!!!" << endl;
+            
+            try
+            {
+                cout << "Random index is " << random_index << endl;
+                cout << "Action is " << ( *policy_vec_ptr_ ) [random_index] << endl;
+                return ( *policy_vec_ptr_ ) [random_index];
+            }
+            catch ( exception& e )
+            {
+                ROS_ERROR_STREAM ( e.what() );
+                abort();
+            }
         }
         else
-            return ( *policy_vec_ptr_ ) [index];
+        {
+            try
+            {
+                cout << "Following the policy!!!" << ( *policy_vec_ptr_ ) [index] << endl;
+                return ( *policy_vec_ptr_ ) [index];
+            }
+            catch ( exception& e )
+            {
+                ROS_ERROR_STREAM ( e.what() );
+                abort();
+            }
+        }
     }
 
 private:
@@ -187,6 +232,8 @@ private:
         double curr_max = std::numeric_limits<double>::infinity() * -1;
         uint32_t index;
         
+        cout << "Curr_max is " << curr_max << endl;
+        
         // Find the action that leads to the highest Q value
         for (unsigned j = 0; j < q_values.size2(); j++ )
         {
@@ -204,16 +251,35 @@ private:
     
     void savePolicy ()
     {
+        string save_path;
+        
+        if ( private_nh_.hasParam ( "policy_save_path" ) )
+        {
+            private_nh_.getParam ( "policy_save_path", save_path );
+        }
+        else
+        {
+            save_path = "~/Desktop/learnt_policy";
+            cout << "Using a default save path for the learnt policy: ~/Desktop/learnt_policy." << endl;
+        }
+            
         try
         {
             ofstream fp;
-            const string& save_path ( "learned_MDP_policy" );
+            
+            cout << "Saving policy: Opening file..." << endl;
             
             fp.open ( save_path.c_str() );
+            
+            cout << "Saving policy: file open" << endl;
 
             fp << ( *policy_vec_ptr_ );
             
+            cout << "Saving policy: file written" << endl;
+            
             fp.close ();
+            
+            cout << "Saving policy: file closed" << endl;
         }
         catch ( exception& e )
         {

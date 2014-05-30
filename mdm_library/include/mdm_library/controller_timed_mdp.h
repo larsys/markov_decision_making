@@ -63,6 +63,8 @@ public:
      */
     ControllerTimedMDP ( const std::string& policy_file_path,
                          EPSILON_TYPE epsilon_type,
+                         uint32_t num_states,
+                         uint32_t num_actions,
                          const CONTROLLER_STATUS initial_status = STARTED );
 
     void stateCallback ( const WorldSymbolConstPtr& msg );

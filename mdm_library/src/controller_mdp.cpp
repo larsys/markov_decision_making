@@ -26,6 +26,7 @@
 #include <fstream>
 
 #include <boost/numeric/ublas/io.hpp>
+#include <boost/iterator/iterator_concepts.hpp>
 
 #include <mdm_library/controller_mdp.h>
 #include <mdm_library/ActionSymbol.h>
@@ -114,13 +115,15 @@ ControllerMDP ( const string& policy_file_path,
 ControllerMDP::
 ControllerMDP ( const string& policy_file_path,
                 EPSILON_TYPE epsilon_type,
+                uint32_t num_states,
+                uint32_t num_actions,
                 const CONTROLLER_STATUS initial_status ) :
     ControlLayerBase ( initial_status ),
     R_ptr_(),
     policy_ptr_ (),
     loader_ (),
-    number_of_states_ (),
-    number_of_actions_ (),
+    number_of_states_ ( num_states ),
+    number_of_actions_ ( num_actions ),
     state_sub_ ( nh_.subscribe ( "state", 0, &ControllerMDP::stateCallback, this ) ),
     action_pub_ ( nh_.advertise<ActionSymbol> ( "action", 0, true ) ),
     reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) ),
@@ -195,18 +198,33 @@ loadRewardMatrix ( const string& reward_matrix_path )
     {
         if ( R_ptr_ != 0 )
             ROS_WARN_STREAM ( "The reward model for this MDP had already been loaded! Overwriting." );
+
         if ( loader_ != 0 )
         {
             ROS_WARN_STREAM ( "Trying to load a reward model when it has already been parsed from the problem file." );
             ROS_WARN_STREAM ( "This reward model will be used instead, but it may be inconsistent with the policy." );
         }
-        ifstream fp;
-        fp.open ( reward_matrix_path.c_str() );
-        MatrixPtr reward_matrix ( new Matrix() );
+        
+        if ( eps_greedy_ )
+        {
+            ifstream fp;
+            fp.open ( reward_matrix_path.c_str() );
+            IndexVectorPtr reward_vector ( new IndexVector() );
 
-        fp >> ( *reward_matrix );
+            fp >> ( *reward_vector );
 
-        R_ptr_ = boost::shared_ptr<RewardModel> ( new RewardMatrix ( reward_matrix ) );
+            R_ptr_ = boost::shared_ptr<RewardModel> ( new RewardVector ( reward_vector ) );
+        }
+        else
+        {
+            ifstream fp;
+            fp.open ( reward_matrix_path.c_str() );
+            MatrixPtr reward_matrix ( new Matrix() );
+
+            fp >> ( *reward_matrix );
+
+            R_ptr_ = boost::shared_ptr<RewardModel> ( new RewardMatrix ( reward_matrix ) );
+        }
     }
     catch ( exception& e )
     {
@@ -234,20 +252,30 @@ act ( const uint32_t state )
 
     uint32_t action;
 
-    try
+    if ( eps_greedy_ )
     {
-        action = ( *policy_ptr_ ) [state];
+        action = policy_ptr_ -> getAction ( state );
     }
-    catch ( exception& e )
+    else
     {
-        ROS_ERROR_STREAM ( e.what() );
-        abort();
+        try
+        {
+            action = ( *policy_ptr_ ) [state];
+        }
+        catch ( exception& e )
+        {
+            ROS_ERROR_STREAM ( e.what() );
+            abort();
+        }
     }
 
     publishAction ( action );
     publishReward ( state, action );
 
     incrementDecisionEpisode();
+    
+    if ( eps_greedy_ )
+        policy_ptr_ -> setCurrDecisionEp( getDecisionEpisode () );
 }
 
 
@@ -280,7 +308,9 @@ publishReward ( uint32_t s, uint32_t a )
     }
 
     std_msgs::Float32 reward;
+    
     reward.data = R_ptr_->getReward ( s, a );
+        
     reward_pub_.publish ( reward );
     
     reward_ = reward.data;

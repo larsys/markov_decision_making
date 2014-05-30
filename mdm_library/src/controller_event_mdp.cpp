@@ -64,8 +64,10 @@ ControllerEventMDP ( const string& policy_file_path,
 ControllerEventMDP::
 ControllerEventMDP ( const string& policy_file_path,
                      EPSILON_TYPE epsilon_type,
+                     uint32_t num_states,
+                     uint32_t num_actions,
                      const CONTROLLER_STATUS initial_status ) :
-    ControllerMDP ( policy_file_path, epsilon_type, initial_status )
+    ControllerMDP ( policy_file_path, epsilon_type, num_states, num_actions, initial_status )
 {
 }
 

@@ -140,12 +140,16 @@ QLearningMDP ( float gamma,
     if ( controller_type == EVENT )
         controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerEventMDP ( policy_file_path,
                                                                                     epsilon_type,
+                                                                                    num_states,
+                                                                                    num_actions,
                                                                                     initial_status );
     else
     {
         if ( controller_type == TIMED )
             controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerTimedMDP ( policy_file_path,
                                                                                         epsilon_type,
+                                                                                        num_states,
+                                                                                        num_actions,
                                                                                         initial_status );
         else
         {

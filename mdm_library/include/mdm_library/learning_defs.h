@@ -29,6 +29,8 @@
 #include <ros/ros.h>
 
 
+using namespace std;
+
 
 namespace mdm_library
 {
@@ -51,15 +53,18 @@ namespace mdm_library
         switch ( alpha_type )
         {
             case ALPHA_ONE_OVER_T:
-                updated_alpha = 1 / curr_decision_ep;
+                updated_alpha = 1.0 / ( float ) curr_decision_ep;
+                break;
                 
             case ALPHA_ONE_OVER_T_SQUARED:
-                updated_alpha = 1 / ( curr_decision_ep * curr_decision_ep );
+                updated_alpha = 1.0 / ( ( float ) curr_decision_ep * ( float ) curr_decision_ep );
+                break;
                 
             default:
                 ROS_FATAL ( "LearningLayer:: invalid alpha type. "
                             "Valid types are ALPHA_CONSTANT, ALPHA_ONE_OVER_T and ALPHA_ONE_OVER_T_SQUARED" );
                 ros::shutdown();
+                break;
         }
         
         return updated_alpha;
@@ -69,20 +74,31 @@ namespace mdm_library
 
     inline float updateEpsilon ( EPSILON_TYPE epsilon_type, uint32_t curr_decision_ep )
     {
-        double epsilon;
         float updated_epsilon;
         
         switch ( epsilon_type )
         {
             case EPSILON_ONE_OVER_T:
-                updated_epsilon = 1 / curr_decision_ep;
+                if ( curr_decision_ep == 0 )
+                    updated_epsilon = 1;
+                else
+                    updated_epsilon = 1.0 / ( float ) curr_decision_ep;
+                
+                break;
                 
             case EPSILON_ONE_OVER_T_SQUARED:
-                updated_epsilon = 1 / ( curr_decision_ep * curr_decision_ep );
+                
+                if ( curr_decision_ep == 0 )
+                    updated_epsilon = 1;
+                else
+                    updated_epsilon = 1.0 / ( ( float ) curr_decision_ep * ( float ) curr_decision_ep + 1 );
+                
+                break;
                 
             default:
                 ROS_FATAL ( "Invalid provided epsilon value. The epsilon value must be between 0 and 1." );
                 ros::shutdown();
+                break;
         }
         
         return updated_epsilon;
