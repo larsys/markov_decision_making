@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <param name="/mdm_visualizer/state_topic" value="/agent/100/state"/>
+    <param name="/mdm_visualizer/action_topic" value="/agent/100/action"/>
+    <param name="/mdm_visualizer/reward_topic" value="/agent/100/reward"/>
+    <param name="/mdm_visualizer/policy_topic" value="/agent/100/policy"/>
+
+    <node pkg="mdm_library" name="visualizer" type="VisGUI.py" output="screen"/>
+</launch>

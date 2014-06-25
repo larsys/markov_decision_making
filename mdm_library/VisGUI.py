@@ -24,7 +24,7 @@ class Application ( Frame ):
         self.sub_state  = rospy.Subscriber  ( state_topic,     WorldSymbol,    self.callback_state  )
         self.sub_action = rospy.Subscriber  ( action_topic,    ActionSymbol,   self.callback_action )
         self.sub_reward = rospy.Subscriber  ( reward_topic,    Float32,        self.callback_reward )
-        self.sub_policy = rospy.Subscriber  ( policy_topic,    Float32,        self.callback_policy )
+        self.sub_policy = rospy.Subscriber  ( policy_topic,    Policy,        self.callback_policy )
         
         # Text Variables
         self.state  =   StringVar ()
@@ -34,7 +34,9 @@ class Application ( Frame ):
         self.policy =   StringVar ()
         
         # Plot Variables
-        self.acc_reward = [0, 1, 2, 3, 4, 5, 6, 7, 8, 15, 20, 40]
+        self.total_reward = 0
+        #self.acc_reward = [0, 1, 2, 3, 4, 5, 6, 7, 8, 15, 20, 40]
+        self.acc_reward = [0]
         self.num_rewards = pylab.arange ( 0, len ( self.acc_reward ), 1 )
         
         # Font
@@ -141,10 +143,10 @@ class Application ( Frame ):
     def callback_reward ( self, data ):
         self.reward.set ( str ( data.data ) )
         
-        self.acc_reward.append ( data.data )
-        self.num_rewards = pylab.arange ( 0, len ( self.acc_reward ), 1 )
+        self.total_reward += data.data
         
-        self.ax.scatter ( self.num_rewards, self.acc_reward )
+        self.acc_reward.append ( self.total_reward )
+        self.num_rewards = pylab.arange ( 0, len ( self.acc_reward ), 1 )
         
         
         
@@ -152,14 +154,7 @@ class Application ( Frame ):
     # ROS Callback for the policy
     #
     def callback_policy ( self, data ):
-        pol = [ 0 * data.number_of_states ]
-        i = 0
-        
-        for element in data.policy:
-            pol[i] = str ( element )
-            i += 1
-        
-        self.policy.set ( ' '.join ( pol ) )
+        self.policy.set ( ' '.join ( str ( data.policy ) ) )
 
 
     
@@ -177,8 +172,8 @@ def main ():
     root.title ( "MDM Learning Visualizer" )
     
     # Set the window's width and height and center it
-    w = 350
-    h = 220
+    w = 550
+    h = 300
     
     ws = root.winfo_screenwidth ()
     hs = root.winfo_screenheight ()
@@ -199,6 +194,12 @@ def main ():
         print "/mdm_visualizer/reward_topic and /mdm_visualizer/policy_topic. Each of them should"
         print "contain the topics where the respective information is being published.\n\n"
         sys.exit ( 0 )
+    
+    print "Subscribing to topics:"
+    print "\tState:", state_topic
+    print "\tAction:", action_topic
+    print "\tReward:", reward_topic
+    print "\tPolicy:", policy_topic
     
     # Run the application
     app = Application ( state_topic, action_topic, reward_topic, policy_topic, master = root )

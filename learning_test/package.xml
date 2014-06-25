@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package>
+  <name>learning_test</name>
+  <version>0.1.2</version>
+  <description>An example application of the MDM bundle</description>
+
+  <maintainer email="jmessias@isr.ist.utl.pt">Joao Messias</maintainer>
+
+  <license>LGPLv3</license>
+
+  <author email="jmessias@isr.ist.utl.pt">Joao Messias</author>
+  <url>http://ros.org/wiki/mdm_example</url>
+  <build_depend>mdm_library</build_depend>
+  <build_depend>predicate_manager</build_depend>
+  <build_depend>topological_tools</build_depend>
+
+  <run_depend>mdm_library</run_depend>
+  <run_depend>predicate_manager</run_depend>
+  <run_depend>topological_tools</run_depend>
+    
+  <buildtool_depend>catkin</buildtool_depend>
+</package>

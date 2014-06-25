@@ -1,0 +1,20 @@
+<launch>
+    <!--- Run AMCL -->
+    <include file="$(find learning_test)/launch/amcl.launch" />
+
+    <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+        <rosparam file="$(find learning_test)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find learning_test)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find learning_test)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find learning_test)/config/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find learning_test)/config/base_local_planner_params.yaml" command="load" />
+        <param name="base_global_planner" type="string" value="navfn/NavfnROS" />
+        <param name="controller_frequency" type="double" value="20.0" />
+        <rosparam param="recovery_behaviors">[{name: conservative_reset, type: clear_costmap_recovery/ClearCostmapRecovery},
+                                              {name: aggressive_reset, type: clear_costmap_recovery/ClearCostmapRecovery}]</rosparam>
+        <param name="planner_frequency" type="double" value="0.1"/>
+        <param name="planner_patience" type="double" value="2.0"/>
+        <param name="controller_patience" type="double" value="60.0"/>
+        <remap from="map" to="/map"/>
+    </node>        
+</launch>
