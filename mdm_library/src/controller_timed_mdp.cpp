@@ -116,7 +116,7 @@ void
 ControllerTimedMDP::
 stateCallback ( const WorldSymbolConstPtr& msg )
 {
-    s_ = msg->world_symbol;
+    last_state_ = msg->world_symbol;
     if ( !initial_state_known_ )
     {
         initial_state_known_ = true;
@@ -160,5 +160,5 @@ void
 ControllerTimedMDP::
 step()
 {
-    act ( s_ );
+    act ( last_state_ );
 }

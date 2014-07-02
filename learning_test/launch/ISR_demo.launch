@@ -10,7 +10,7 @@
 
     <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py" output="screen"/-->
 
-    <node pkg="stage_ros" type="stageros" name="stageros" args=" $(find learning_test)/config/ISR.world">
+    <node pkg="stage_ros" type="stageros" name="stageros" args="-g $(find learning_test)/config/ISR.world">
         <remap from="odom" to="agent/100/odom" />
         <remap from="base_scan" to="agent/100/scan" />
         <remap from="base_pose_ground_truth" to="agent/100/base_pose_ground_truth" />
@@ -46,7 +46,7 @@
         <node pkg="learning_test" name="state_layer" type="learning_state_layer" respawn="true"/>
 
         <node pkg="learning_test" name="control_layer" type="learning_control_layer" 
-              args="$(find learning_test)/config/MDP_policy $(find learning_test)/config/MDP_reward" respawn="false" output="screen" cwd="node"/>
+              args="$(find learning_test)/config/MDP_policy $(find learning_test)/config/learning_policy $(find learning_test)/config/MDP_reward" respawn="false" output="screen" cwd="node"/>
         
         <node pkg="learning_test" name="action_layer" type="learning_action_layer" 
               args="$(find learning_test)/config/topological_map.xml" respawn="true"/>

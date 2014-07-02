@@ -144,6 +144,9 @@ protected:
     
     /** The last published reward */
     float reward_;
+    
+    /** The last received state */
+    uint32_t last_state_;
 
     /** Subscriber to the "state" topic, where the state information will be published by a State Layer.*/
     ros::Subscriber state_sub_;
@@ -156,6 +159,9 @@ protected:
     
     /** Flag to represent whether the policy is epsilon greedy or deterministic. */
     bool eps_greedy_;
+    
+private:
+    bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
 };
 }
 

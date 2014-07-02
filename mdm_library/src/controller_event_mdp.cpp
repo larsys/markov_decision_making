@@ -77,5 +77,7 @@ void
 ControllerEventMDP::
 stateCallback ( const WorldSymbolConstPtr& msg )
 {
+    last_state_ = msg->world_symbol;
+    
     act ( msg->world_symbol );
 }

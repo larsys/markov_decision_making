@@ -76,8 +76,6 @@ private:
     bool initial_state_known_;
 
     ros::Timer timer_;
-
-    uint32_t s_;
 };
 }
 

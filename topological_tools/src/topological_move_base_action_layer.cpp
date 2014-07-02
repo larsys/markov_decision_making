@@ -40,6 +40,8 @@ TopologicalMoveBaseActionLayer ( TopologicalMap& tm ) :
     tam_ ( tm, &predicates_cb_queue_ ),
     move_base_client_ ( "move_base", true ) ///auto spin is true
 {
+    //ros::ServiceClient client = n.serviceClient<std_srvs::Empty> ( "republish_service" );
+    
     ros::Duration d ( 10.0 );
     d.sleep(); ///TODO: This Action Layer should wait for the PM to come up as well. This can be removed when the predicate update service is implemented.
     while ( ! ( move_base_client_.waitForServer ( d ) ) )
@@ -56,6 +58,8 @@ TopologicalMoveBaseActionLayer ( const std::string& map_file ) :
     tam_ ( map_file, &predicates_cb_queue_ ),
     move_base_client_ ( "move_base", true ) ///auto spin is true
 {
+    //ros::ServiceClient client = n.serviceClient<std_srvs::Empty> ( "republish_service" );
+    
     ros::Duration d ( 10.0 );
     d.sleep(); ///TODO: This Action Layer should wait for the PM to come up as well. This can be removed when the predicate update service is implemented.
     while ( ! ( move_base_client_.waitForServer ( d ) ) )
@@ -82,12 +86,15 @@ moveToLabel ( const string& connection_label )
     {
         goal_pose.pose =  tam_.getGoalPoseForLabel ( connection_label );
     }
-    catch ( int a )
+    catch ( string e )
     {
-        std_srvs::Empty request;
-        
-        if ( ros::service::call ( "republish_service", request ) )
+        if ( e == "republish_state" )
         {
+            std_srvs::Empty request;
+            
+            cout << "Republishing State!!!" << endl;
+            
+            ros::service::call ( "republish_service", request );
         }
     }
     

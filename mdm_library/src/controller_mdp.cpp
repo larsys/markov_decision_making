@@ -106,6 +106,8 @@ ControllerMDP ( const string& policy_file_path,
     reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) ),
     eps_greedy_ ( false )
 {
+    ros::ServiceServer republish_service = nh_.advertiseService ( "republish_service", &ControllerMDP::republish_callback, this );
+    
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path );
 }
@@ -129,8 +131,21 @@ ControllerMDP ( const string& policy_file_path,
     reward_pub_ ( nh_.advertise<std_msgs::Float32> ( "reward", 0, true ) ),
     eps_greedy_ ( true )
 {
+    ros::ServiceServer republish_service = nh_.advertiseService ( "republish_service", &ControllerMDP::republish_callback, this );
+    
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path, epsilon_type );
+}
+
+
+
+bool
+ControllerMDP::
+republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
+{
+    act ( last_state_ );
+    
+    return true;
 }
 
 

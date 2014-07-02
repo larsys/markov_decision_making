@@ -1,7 +1,8 @@
 
 #include <ros/ros.h>
-//#include <mdm_library/controller_event_mdp.h>
+#include <mdm_library/controller_event_mdp.h>
 #include <mdm_library/sarsa_learning_mdp.h>
+#include <mdm_library/q_learning_mdp.h>
 
 using namespace std;
 using namespace ros;
@@ -11,14 +12,15 @@ int main ( int argc, char** argv )
 {
     init ( argc, argv, "control_layer" );
 
-    if ( argc < 3 )
+    if ( argc < 4 )
     {
         ROS_ERROR ( "Usage: rosrun mdm_example demo_control_layer <path to policy file>" );
         abort();
     }
 
     string policy_path = argv[1];
-    string reward_path = argv[2];
+    string learning_policy_path = argv[2];
+    string reward_path = argv[3];
 
     //ControllerEventMDP cl ( policy_path );
 
@@ -34,6 +36,7 @@ int main ( int argc, char** argv )
     uint32_t num_actions = 4;
 
     SarsaLearningMDP sarsa ( alpha, epsilon, controller, num_states, num_actions, policy_path, reward_path );
+    //QLearningMDP ql (0.1, alpha, epsilon, controller, num_states, num_actions, learning_policy_path, policy_path, reward_path );
 
     std::cout << "Spinning..." << std::endl;
 

@@ -107,9 +107,12 @@ QLearningMDP ( float gamma,
                uint32_t num_actions,
                const std::string& learning_policy_file_path,
                const std::string& policy_file_path,
+               const std::string& reward_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
-                        policy_file_path, initial_status )
+                        policy_file_path, initial_status ),
+    state_ ( 0 ),
+    action_ ( 0 )
 {
     try
     {
@@ -159,6 +162,8 @@ QLearningMDP ( float gamma,
         }
     }
     
+    ( *controller_ ).loadRewardMatrix ( reward_file_path );
+    
     state_sub_ = nh_.subscribe ( "state", 1, &QLearningMDP::stateSymbolCallback, this );
     policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
     
@@ -173,12 +178,12 @@ initializeQValues ()
 {   
     size_t num_states = controller_.get() -> getNumberOfStates ();
     size_t num_actions = controller_ .get() -> getNumberOfActions ();
-    
-    Matrix q_values_ ( num_states_, num_actions_ );
+
+    q_values_ = Matrix ( num_states_, num_actions_ );
     
     // Initialize the Q values as 0
-    for ( unsigned i = 0; i < q_values_.size1(); i++ )
-        for ( unsigned j = 0; j < q_values_.size2(); j++ )
+    for ( unsigned i = 0; i < q_values_.size1(); ++i )
+        for ( unsigned j = 0; j < q_values_.size2(); ++j )
             q_values_ ( i, j ) = 0;
 }
 
@@ -214,18 +219,15 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
     reward_ = ( *controller_ ).getReward ();
     action_ = ( *controller_ ).getAction ();
     
-    if ( curr_decision_ep_ == 0 )
-        state_ = msg -> world_symbol;
-    else
-    {
-        if ( curr_decision_ep_ == 1 )
-            next_state_ = msg -> world_symbol;
-        else
-        {
-            state_ = next_state_;
-            next_state_ = msg -> world_symbol;
-        }
-    }
+    state_ = msg -> world_symbol;
+    
+    cout << "NEW EPISODE!!!!!!!!!!!!!!!!!!!!!!" << endl;
+    cout << "\t\tDec Ep: " << curr_decision_ep_ << endl;
+    cout << "\t\tReward: " << reward_ << endl;
+    cout << "\t\tState: " << state_ << endl;
+    cout << "\t\tAction: " << action_ << endl;
+    
+    updateQValues ();
     
     if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
     {
