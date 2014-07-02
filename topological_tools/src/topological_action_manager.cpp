@@ -93,6 +93,8 @@ getGoalPoseForLabel ( const std::string& connection_label )
     if ( !isInitialized() )
     {
         ROS_ERROR ( "TopologicalActionManager:: Not yet initialized. Current node unknown." );
+        //TODO: aqui meter um throw
+        throw;
         return geometry_msgs::Pose();
     }
 

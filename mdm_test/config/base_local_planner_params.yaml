@@ -19,7 +19,7 @@ TrajectoryPlannerROS:
   path_distance_bias: 0.8
   goal_distance_bias: 0.7
   vtheta_samples: 50
-  occdist_scale: 0.05
+  occdist_scale: 1 #0.05
 
   oscillation_reset_dist: 0.125
 

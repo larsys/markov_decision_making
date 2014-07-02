@@ -103,7 +103,7 @@ spin()
     {
         pred_ref->update();
     }
-    publishPredicateUpdate();
+    PMUpdate();
 
     while ( ok() )
     {

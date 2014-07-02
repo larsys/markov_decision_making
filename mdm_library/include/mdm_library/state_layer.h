@@ -28,6 +28,7 @@
 #include <string>
 
 #include <ros/ros.h>
+#include <std_srvs/Empty.h>
 
 #include <predicate_manager/predicate_manager.h>
 #include <predicate_manager/PredicateInfoMap.h>
@@ -56,6 +57,8 @@ private:
     void publishJointState();
     std::string factorString ( unsigned k );
     void updateStateInfo ( const uint32_t& factor );
+    
+    bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
 
     ros::NodeHandle nh_;
     ros::Subscriber pred_map_sub_;

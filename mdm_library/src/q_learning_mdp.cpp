@@ -105,7 +105,7 @@ QLearningMDP ( float gamma,
                CONTROLLER_TYPE controller_type,
                uint32_t num_states,
                uint32_t num_actions,
-               const std::string& initial_learning_policy_file_path,
+               const std::string& learning_policy_file_path,
                const std::string& policy_file_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
@@ -117,7 +117,7 @@ QLearningMDP ( float gamma,
             ROS_WARN_STREAM ( "The learning policy for this MDP had already been loaded! Overwriting." );
 
         ifstream fp;
-        fp.open ( initial_learning_policy_file_path.c_str() );
+        fp.open ( learning_policy_file_path.c_str() );
         IndexVectorPtr policy_vec ( new IndexVector() );
 
         fp >> ( *policy_vec );
@@ -128,7 +128,8 @@ QLearningMDP ( float gamma,
         MDPPolicy* learning_policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
                                                                              number_of_states,
                                                                              number_of_actions,
-                                                                             epsilon_type );
+                                                                             epsilon_type,
+                                                                             learning_policy_file_path );
     }
     catch ( exception& e )
     {

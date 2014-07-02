@@ -18,8 +18,6 @@ int main ( int argc, char** argv )
                         .add ( "IsInWestCorridor" )
                         .add ( "IsInElevatorHallway" ) );
 
-    sl.addStateFactor ( StateDep().add ( "PatrolHalfwayThrough" ) );
-
     spin();
 
     return 0;

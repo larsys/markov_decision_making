@@ -90,11 +90,13 @@ public:
     MDPEpsilonGreedyPolicyVector ( IndexVectorPtr p_ptr,
                                    uint32_t num_states,
                                    uint32_t num_actions,
-                                   EPSILON_TYPE epsilon_type ) :
+                                   EPSILON_TYPE epsilon_type,
+                                   const string& file_path ) :
         MDPPolicy ( p_ptr ),
         num_states_ ( num_states ),
         num_actions_ ( num_actions ),
         epsilon_type_ ( epsilon_type ),
+        file_path_ ( file_path ),
         private_nh_ ( "~" ),
         curr_decision_ep_ ( 0 )
     {
@@ -146,6 +148,8 @@ public:
             }
         }
         
+        cout << "Policy updated!" << endl;
+        
         savePolicy ();
     }
 
@@ -173,9 +177,12 @@ protected:
             //srand ( time ( NULL ) );
             uint32_t random_index = rand() % num_actions_;
             
+            cout << "Choosing random action. Action chosen is " << random_index << endl;
+            
             try
             {
-                return ( *policy_vec_ptr_ ) [random_index];
+                //return ( *policy_vec_ptr_ ) [random_index];
+                return random_index;
             }
             catch ( exception& e )
             {
@@ -185,6 +192,8 @@ protected:
         }
         else
         {
+            cout << "Following the policy. Action chosen is " << ( *policy_vec_ptr_ ) [index] << endl;
+            
             try
             {
                 return ( *policy_vec_ptr_ ) [index];
@@ -202,6 +211,7 @@ private:
     uint32_t num_actions_;
     uint32_t curr_decision_ep_;
     EPSILON_TYPE epsilon_type_;
+    const string& file_path_;
     float epsilon_;
     ros::NodeHandle private_nh_;
     
@@ -230,28 +240,31 @@ private:
     
     void savePolicy ()
     {
-        string save_path;
-        
-        if ( private_nh_.hasParam ( "policy_save_path" ) )
-            private_nh_.getParam ( "policy_save_path", save_path );
-        else
-        {
-            save_path = "learnt_policy";
-            cout << "Param policy_save_path not set; writting the learnt policy to the cwd." << endl;
-            cout << "If no file is being created, make sure to use 'cwd=\"node\"' in your launch file when launching the";
-            cout << " control layer node." << endl;
-        }
+//         string save_path;
+//         
+//         if ( private_nh_.hasParam ( "policy_save_path" ) )
+//             private_nh_.getParam ( "policy_save_path", save_path );
+//         else
+//         {
+//             save_path = "learnt_policy";
+//             cout << "Param policy_save_path not set; writting the learnt policy to the cwd." << endl;
+//             cout << "If no file is being created, make sure to use 'cwd=\"node\"' in your launch file when launching the";
+//             cout << " control layer node." << endl;
+//         }
             
         try
         {
             ofstream fp;
             
-            fp.open ( save_path.c_str(), ios::out );
+            //fp.open ( save_path.c_str(), ios::out );
+            fp.open ( file_path_.c_str(), ios::out );
 
             fp << ( *policy_vec_ptr_ );
             
             fp.flush ();
             fp.close ();
+            
+            cout << "Policy saved!" << endl;
         }
         catch ( exception& e )
         {

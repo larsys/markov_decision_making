@@ -22,6 +22,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+//TODO: Create a service to republish the state that can be called by the user to republish the state
+
 #include <mdm_library/common_defs.h>
 #include <mdm_library/state_layer.h>
 #include <mdm_library/WorldSymbol.h>
@@ -39,7 +41,21 @@ StateLayer() :
     pred_map_sub_ ( nh_.subscribe ( "/predicate_maps", 1, &StateLayer::predicateMapCallback, this ) ),
     pred_update_sub_ ( nh_.subscribe ( "/predicate_updates", 1, &StateLayer::predicateUpdatesCallback, this ) ),
     state_pub_ ( nh_.advertise<WorldSymbol> ( "state", 1, true ) )
-{}
+{
+    //Aqui declarar service server e callback
+    ros::ServiceServer republish_service = nh_.advertiseService ( "republish_service", &StateLayer::republish_callback, this );
+}
+
+
+
+bool
+StateLayer::
+republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
+{
+    publishJointState ();
+    
+    return true;
+}
 
 
 
@@ -65,7 +81,7 @@ predicateUpdatesCallback ( const PredicateUpdateConstPtr& msg )
     {
         NrID nr_id ( msg->pm_id, pred_id );
         value_it = nr_value_map_.find ( nr_id );
-        if ( value_it != nr_value_map_.end() )
+        if ( value_it != nr_value_map_.end() && * ( value_it->second ) == false)
         {
             * ( value_it->second ) = true;
             if ( nr_pred_observer_[nr_id] != 0 && !nr_pred_observer_[nr_id]->empty() )

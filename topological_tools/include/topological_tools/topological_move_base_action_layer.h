@@ -29,6 +29,7 @@
 #include <string.h>
 
 #include <ros/ros.h>
+#include <std_srvs/Empty.h>
 #include <ros/callback_queue.h>
 #include <actionlib/client/simple_action_client.h>
 #include <move_base_msgs/MoveBaseResult.h>

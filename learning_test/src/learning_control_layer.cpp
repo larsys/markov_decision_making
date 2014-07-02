@@ -30,7 +30,7 @@ int main ( int argc, char** argv )
 
     std::cout << "Types set..." << std::endl;
 
-    uint32_t num_states = 12;
+    uint32_t num_states = 6;
     uint32_t num_actions = 4;
 
     SarsaLearningMDP sarsa ( alpha, epsilon, controller, num_states, num_actions, policy_path, reward_path );

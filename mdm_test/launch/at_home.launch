@@ -26,7 +26,7 @@
     <node pkg="mdm_test" name="state_layer" type="state_layer" respawn="true"/>
 
     <node pkg="mdm_test" name="control_layer" type="control_layer" 
-          args="$(find mdm_test)/config/MDP_policy" respawn="true"/>
+          args="$(find mdm_test)/config/MDP_policy $(find mdm_test)/config/MDP_reward" respawn="true" output="screen"/>
         
     <node pkg="mdm_test" name="action_layer" type="action_layer" 
           args="$(find mdm_test)/config/topological_map.xml" respawn="true"/>

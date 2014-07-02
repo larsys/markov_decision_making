@@ -179,7 +179,8 @@ loadPolicyVector ( const string& policy_vector_path, EPSILON_TYPE epsilon_type )
         policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
                                                                                         number_of_states_,
                                                                                         number_of_actions_,
-                                                                                        epsilon_type ) );
+                                                                                        epsilon_type,
+                                                                                        policy_vector_path ) );
     }
     catch ( exception& e )
     {
@@ -255,6 +256,7 @@ act ( const uint32_t state )
     if ( eps_greedy_ )
     {
         action = policy_ptr_ -> getAction ( state );
+        cout << "ACTION IS " << action << endl;
     }
     else
     {

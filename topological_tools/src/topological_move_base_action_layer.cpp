@@ -77,7 +77,20 @@ TopologicalMoveBaseActionLayer::
 moveToLabel ( const string& connection_label )
 {
     geometry_msgs::PoseStamped goal_pose;
-    goal_pose.pose =  tam_.getGoalPoseForLabel ( connection_label );
+
+    try
+    {
+        goal_pose.pose =  tam_.getGoalPoseForLabel ( connection_label );
+    }
+    catch ( int a )
+    {
+        std_srvs::Empty request;
+        
+        if ( ros::service::call ( "republish_service", request ) )
+        {
+        }
+    }
+    
     goal_pose.header.stamp = ros::Time::now();
     goal_pose.header.frame_id = "/map";
 
