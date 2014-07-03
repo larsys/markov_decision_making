@@ -38,9 +38,10 @@ TopologicalMoveBaseActionLayer ( TopologicalMap& tm ) :
     predicates_cb_queue_(),
     al_ ( &actions_cb_queue_ ),
     tam_ ( tm, &predicates_cb_queue_ ),
-    move_base_client_ ( "move_base", true ) ///auto spin is true
+    move_base_client_ ( "move_base", true ), ///auto spin is true
+    client_ ( nh_.serviceClient<std_srvs::Empty> ( "publish_new_action" ) )
 {
-    //ros::ServiceClient client = n.serviceClient<std_srvs::Empty> ( "republish_service" );
+    ros::service::waitForService ( "republish_service", 5 );
     
     ros::Duration d ( 10.0 );
     d.sleep(); ///TODO: This Action Layer should wait for the PM to come up as well. This can be removed when the predicate update service is implemented.
@@ -56,9 +57,10 @@ TopologicalMoveBaseActionLayer ( const std::string& map_file ) :
     predicates_cb_queue_(),
     al_ ( &actions_cb_queue_ ),
     tam_ ( map_file, &predicates_cb_queue_ ),
-    move_base_client_ ( "move_base", true ) ///auto spin is true
+    move_base_client_ ( "move_base", true ), ///auto spin is true
+    client_ ( nh_.serviceClient<std_srvs::Empty> ( "publish_new_action" ) )
 {
-    //ros::ServiceClient client = n.serviceClient<std_srvs::Empty> ( "republish_service" );
+    ros::service::waitForService ( "publish_new_action", 5 );
     
     ros::Duration d ( 10.0 );
     d.sleep(); ///TODO: This Action Layer should wait for the PM to come up as well. This can be removed when the predicate update service is implemented.
@@ -81,20 +83,20 @@ TopologicalMoveBaseActionLayer::
 moveToLabel ( const string& connection_label )
 {
     geometry_msgs::PoseStamped goal_pose;
-
+    
     try
     {
         goal_pose.pose =  tam_.getGoalPoseForLabel ( connection_label );
     }
-    catch ( string e )
+    catch ( char const* a )
     {
-        if ( e == "republish_state" )
+        if ( strcmp ( a, "republish" ) == 0 )
         {
             std_srvs::Empty request;
             
-            cout << "Republishing State!!!" << endl;
+            cout << "Action impossible to realize. Generating new action." << endl;
             
-            ros::service::call ( "republish_service", request );
+            client_.call ( request );
         }
     }
     

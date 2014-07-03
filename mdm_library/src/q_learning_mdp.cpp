@@ -125,14 +125,14 @@ QLearningMDP ( float gamma,
 
         fp >> ( *policy_vec );
         
-        uint32_t number_of_states = q_values_.size1 ();
-        uint32_t number_of_actions = q_values_.size2 ();
+        uint32_t number_of_states = num_states_;
+        uint32_t number_of_actions = num_actions_;
         
-        MDPPolicy* learning_policy_ptr_ = new MDPEpsilonGreedyPolicyVector ( policy_vec,
-                                                                             number_of_states,
-                                                                             number_of_actions,
-                                                                             epsilon_type,
-                                                                             learning_policy_file_path );
+        learning_policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                                                 number_of_states,
+                                                                                                 number_of_actions,
+                                                                                                 epsilon_type,
+                                                                                                 learning_policy_file_path ) );
     }
     catch ( exception& e )
     {

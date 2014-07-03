@@ -161,6 +161,8 @@ protected:
     bool eps_greedy_;
     
 private:
+    ros::ServiceServer republish_service_;
+    
     bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
 };
 }

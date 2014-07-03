@@ -164,8 +164,13 @@ protected:
     virtual uint32_t getAction ( uint32_t index )
     {
         // Probability to choose a random action (range: 0 - 1)
-        //srand ( time ( NULL ) );
-        double p = ( ( double ) rand () / ( RAND_MAX ) );
+        double r = (double) rand ();
+        double p = ( r / ( RAND_MAX ) );
+        //double p = ( ( double ) rand () / ( RAND_MAX ) );
+        
+        cout << "Random number for epsilon is " << r << endl;
+        cout << "Probability is " << p << endl;
+        cout << "Epsilon is " << epsilon_ << endl;
         
         if ( epsilon_type_ != EPSILON_CONSTANT )
             epsilon_ = updateEpsilon ( epsilon_type_, curr_decision_ep_ );
@@ -175,7 +180,11 @@ protected:
         {
             // Choose a random index to select a random action
             //srand ( time ( NULL ) );
-            uint32_t random_index = rand() % num_actions_;
+            int r1 = rand ();
+            uint32_t random_index = r1 % num_actions_;
+            //uint32_t random_index = rand() % num_actions_;
+            
+            cout << "Random number for action is " << r1 << endl;
             
             cout << "Choosing random action. Action chosen is " << random_index << endl;
             

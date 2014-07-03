@@ -63,6 +63,9 @@ protected:
     virtual void moveBaseFeedbackCB ( const move_base_msgs::MoveBaseFeedbackConstPtr& feedback ) {};
 
 private:
+    ros::NodeHandle nh_;
+    ros::ServiceClient client_;
+    
     void moveToLabel ( const std::string& connection_label );
 
     ros::CallbackQueue actions_cb_queue_;

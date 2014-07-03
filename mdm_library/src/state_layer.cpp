@@ -42,19 +42,6 @@ StateLayer() :
     pred_update_sub_ ( nh_.subscribe ( "/predicate_updates", 1, &StateLayer::predicateUpdatesCallback, this ) ),
     state_pub_ ( nh_.advertise<WorldSymbol> ( "state", 1, true ) )
 {
-    //Aqui declarar service server e callback
-    ros::ServiceServer republish_service = nh_.advertiseService ( "republish_service", &StateLayer::republish_callback, this );
-}
-
-
-
-bool
-StateLayer::
-republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
-{
-    publishJointState ();
-    
-    return true;
 }
 
 

@@ -9,8 +9,9 @@
     <param name="policy_save_path" value="~/Desktop"/>
 
     <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py" output="screen"/-->
+    <node pkg="mdm_library" name="MDMLogger" type="logger.py" output="screen"/>
 
-    <node pkg="stage_ros" type="stageros" name="stageros" args="-g $(find learning_test)/config/ISR.world">
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find learning_test)/config/ISR.world">
         <remap from="odom" to="agent/100/odom" />
         <remap from="base_scan" to="agent/100/scan" />
         <remap from="base_pose_ground_truth" to="agent/100/base_pose_ground_truth" />
@@ -43,13 +44,13 @@
               args="$(find learning_test)/maps/ISR_label_map.png amcl_pose" respawn="true"/>
         <node pkg="learning_test" name="predicates" type="learning_predicates" respawn="true"/>
 
-        <node pkg="learning_test" name="state_layer" type="learning_state_layer" respawn="true"/>
+        <node pkg="learning_test" name="state_layer" type="learning_state_layer" respawn="true" output="screen"/>
 
         <node pkg="learning_test" name="control_layer" type="learning_control_layer" 
               args="$(find learning_test)/config/MDP_policy $(find learning_test)/config/learning_policy $(find learning_test)/config/MDP_reward" respawn="false" output="screen" cwd="node"/>
         
         <node pkg="learning_test" name="action_layer" type="learning_action_layer" 
-              args="$(find learning_test)/config/topological_map.xml" respawn="true"/>
+              args="$(find learning_test)/config/topological_map.xml" respawn="true" output="screen"/>
         
         <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
               args="pub -1 /agent/100/initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: -10, y: -7.5, z: 0}, orientation: { w: 0.7071, z: 0.7071, x: 0, y: 0 } } } }'"/>

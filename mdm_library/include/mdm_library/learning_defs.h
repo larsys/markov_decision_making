@@ -82,7 +82,7 @@ namespace mdm_library
                 if ( curr_decision_ep == 0 )
                     updated_epsilon = 1;
                 else
-                    updated_epsilon = 1.0 / ( float ) curr_decision_ep;
+                    updated_epsilon = 1.0 / ( ( float ) curr_decision_ep / 100 );
                 
                 break;
                 
