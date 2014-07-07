@@ -66,7 +66,7 @@ public:
                         CONTROLLER_TYPE controller_type,
                         uint32_t num_states,
                         uint32_t num_actions,
-                        const string& policy_file_path,
+                        const string& q_values_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status );
     
 protected:
@@ -101,6 +101,12 @@ protected:
      * in which the policy information will be advertised. */
     ros::Publisher policy_pub_;
     
+    /** Save the Q-Values table to file */
+    void saveQValues ();
+    
+    /** Load the Q-Values table from file. Returns false if the file is empty. */
+    bool loadQValues ();
+    
     /** Pure virtual function for updating the Q values. To be implemented in each specific method. */
     virtual void updateQValues () = 0;
     
@@ -121,7 +127,10 @@ protected:
      */
     ros::Subscriber state_sub_;
     
-private:    
+private:
+    /** Path to the q_values file */
+    const std::string& q_values_path_;
+    
     /** ROS private Nodehandle to use the parameter server. */
     ros::NodeHandle private_nh_;
     

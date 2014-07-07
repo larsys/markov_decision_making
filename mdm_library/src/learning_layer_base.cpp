@@ -126,17 +126,16 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
                     CONTROLLER_TYPE controller_type,
                     uint32_t num_states,
                     uint32_t num_actions,
-                    const string& policy_file_path,
+                    const string& q_values_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status
                   ) :
     alpha_type_ ( alpha_type ),
     curr_decision_ep_ ( 0 ),
     private_nh_ ( "~" ),
     num_states_ ( num_states ),
-    num_actions_ ( num_actions )
+    num_actions_ ( num_actions ),
+    q_values_path_ ( q_values_path )
 {
-    cout << "Hello world from the learning layer base!!!" << endl;
-    
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
     
@@ -194,5 +193,62 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
             alpha_ = MDM_DEFAULT_ALPHA;
             cout << "Using a default value for alpha of 0.1." << endl;
         }
+    }
+}
+
+
+
+bool
+LearningLayerBase::
+loadQValues ()
+{
+    try
+    {
+        ifstream fp;
+        fp.open ( q_values_path_.c_str() );
+        
+        if ( fp.peek() == std::ifstream::traits_type::eof() )
+            return false;
+        
+        q_values_ = Matrix ( num_states_, num_actions_ );
+        
+        fp >> q_values_;
+        
+        cout << "Q-Values file is not empty. Loading the Q-Values from the file." << endl;
+        
+        fp.close ();
+        
+        return true;
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
+}
+
+
+
+void
+LearningLayerBase::
+saveQValues ()
+{       
+    try
+    {
+        ofstream fp;
+
+        fp.open ( q_values_path_.c_str(), ios::out );
+
+        fp << q_values_;
+        
+        fp.flush ();
+        fp.close ();
+        
+        cout << "Q-Values saved!" << endl;
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
     }
 }

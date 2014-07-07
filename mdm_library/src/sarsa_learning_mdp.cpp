@@ -91,9 +91,10 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                    uint32_t num_actions,
                    const std::string& policy_file_path,
                    const std::string& reward_file_path,
+                   const std::string& q_values_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
-                        policy_file_path, initial_status ),
+                        q_values_path, initial_status ),
     state_ ( 0 ),
     action_ ( 0 ),
     next_state_ ( 0 ),
@@ -126,7 +127,11 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
     state_sub_ = nh_.subscribe ( "state", 1, &SarsaLearningMDP::stateSymbolCallback, this );
     policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
     
-    initializeQValues ();
+    if ( !loadQValues() )
+    {
+        cout << "Q-Values file is empty. Initializing the values at zero." << endl;
+        initializeQValues ();
+    }
 }
 
 
@@ -176,39 +181,95 @@ SarsaLearningMDP::
 stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
 {
     curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
-    reward_ = ( *controller_ ).getReward ();
     
     if ( curr_decision_ep_ == 0 )
     {
-        state_ = msg -> world_symbol;
-        action_ = ( *controller_ ).getAction ();
+        uint32_t obs_state = msg -> world_symbol;
+        
+        state_ = obs_state;
+        
+        cout << "First Decision Episode:" << endl;
+        cout << "\tState:\t\t" << state_ << endl;
     }
     else
     {
+        uint32_t obs_state = msg -> world_symbol;
+        uint32_t obs_action = ( *controller_ ).getAction ();
+        float obs_reward = ( *controller_ ).getReward ();
+            
         if ( curr_decision_ep_ == 1 )
         {
-            next_state_ = msg -> world_symbol;
-            next_action_ = ( *controller_ ).getAction ();
+            action_ = obs_action;
+            reward_ = obs_reward;
+            next_state_ = obs_state;
+            
+            cout << "Second Decision Episode:" << endl;
+            cout << "\tAction:\t\t" << action_ << endl;
+            cout << "\tReward:\t\t" << reward_ << endl;
+            cout << "\tNext State:\t\t" << next_state_ << endl;
         }
         else
         {
-            state_ = next_state_;
-            next_state_ = msg -> world_symbol;
+            next_action_ = obs_action;
             
+            updateQValues ();
+            
+            cout << "Updating the QValues with:" << endl;
+            cout << "\tState:\t\t" << state_ << endl;
+            cout << "\tAction:\t\t" << action_ << endl;
+            cout << "\tReward:\t\t" << reward_ << endl;
+            cout << "\tNext State:\t\t" << next_state_ << endl;
+            cout << "\tNext Action:\t\t" << next_action_ << endl;
+            
+            state_ = next_state_;
             action_ = next_action_;
-            next_action_ = ( *controller_ ).getAction ();
+            reward_ = obs_reward;
+            next_state_ = obs_state;
         }
     }
     
-    cout << "NEW EPISODE!!!!!!!!!!!!!!!!!!!!!!" << endl;
-    cout << "\t\tDec Ep: " << curr_decision_ep_ << endl;
-    cout << "\t\tReward: " << reward_ << endl;
-    cout << "\t\tState: " << state_ << endl;
-    cout << "\t\tAction: " << action_ << endl;
-    cout << "\t\tNext State: " << next_state_ << endl;
-    cout << "\t\tNext Action: " << next_action_ << endl;
     
-    updateQValues ();
+    
+    
+    
+    
+    
+    
+    
+    
+//     reward_ = ( *controller_ ).getReward ();
+//     
+//     if ( curr_decision_ep_ == 0 )
+//     {
+//         state_ = msg -> world_symbol;
+//         action_ = ( *controller_ ).getAction ();
+//     }
+//     else
+//     {
+//         if ( curr_decision_ep_ == 1 )
+//         {
+//             next_state_ = msg -> world_symbol;
+//             next_action_ = ( *controller_ ).getAction ();
+//         }
+//         else
+//         {
+//             state_ = next_state_;
+//             next_state_ = msg -> world_symbol;
+//             
+//             action_ = next_action_;
+//             next_action_ = ( *controller_ ).getAction ();
+//         }
+//     }
+    
+//     cout << "NEW EPISODE!!!!!!!!!!!!!!!!!!!!!!" << endl;
+//     cout << "\t\tDec Ep: " << curr_decision_ep_ << endl;
+//     cout << "\t\tReward: " << reward_ << endl;
+//     cout << "\t\tState: " << state_ << endl;
+//     cout << "\t\tAction: " << action_ << endl;
+//     cout << "\t\tNext State: " << next_state_ << endl;
+//     cout << "\t\tNext Action: " << next_action_ << endl;
+    
+    //updateQValues ();
     
     if ( curr_decision_ep_ == 1 )
         publishPolicy ();
@@ -217,6 +278,7 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
     {
         updatePolicy ();
         publishPolicy ();
+        saveQValues ();
     }
 }
 

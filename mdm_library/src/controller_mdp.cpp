@@ -109,6 +109,19 @@ ControllerMDP ( const string& policy_file_path,
 {
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path );
+    
+    string reward_type;
+    
+    if ( private_nh_.hasParam ( "reward_type" ) )
+    {
+        private_nh_.getParam ( "reward_type", reward_type );
+        reward_type_ = reward_type;
+    }
+    else
+    {
+        reward_type_ = "matrix";
+        ROS_WARN_STREAM ( "No specified reward type. Assuming a reward type of matrix." );
+    }
 }
 
 
@@ -133,6 +146,19 @@ ControllerMDP ( const string& policy_file_path,
 {
     ///This constructor will not publish problem metadata or reward (you will have to do it manually).
     loadPolicyVector ( policy_file_path, epsilon_type );
+    
+    string reward_type;
+    
+    if ( private_nh_.hasParam ( "reward_type" ) )
+    {
+        private_nh_.getParam ( "reward_type", reward_type );
+        reward_type_ = reward_type;
+    }
+    else
+    {
+        reward_type_ = "matrix";
+        ROS_WARN_STREAM ( "No specified reward type. Assuming a reward type of matrix." );
+    }
 }
 
 
@@ -219,10 +245,11 @@ loadRewardMatrix ( const string& reward_matrix_path )
             ROS_WARN_STREAM ( "This reward model will be used instead, but it may be inconsistent with the policy." );
         }
         
-        if ( eps_greedy_ )
+        ifstream fp;
+        fp.open ( reward_matrix_path.c_str() );
+        
+        if ( strcmp ( reward_type_.c_str(), "vector" ) == 0 )
         {
-            ifstream fp;
-            fp.open ( reward_matrix_path.c_str() );
             IndexVectorPtr reward_vector ( new IndexVector() );
 
             fp >> ( *reward_vector );
@@ -231,13 +258,19 @@ loadRewardMatrix ( const string& reward_matrix_path )
         }
         else
         {
-            ifstream fp;
-            fp.open ( reward_matrix_path.c_str() );
-            MatrixPtr reward_matrix ( new Matrix() );
+            if ( strcmp ( reward_type_.c_str(), "matrix" ) == 0 )
+            {
+                MatrixPtr reward_matrix ( new Matrix() );
 
-            fp >> ( *reward_matrix );
+                fp >> ( *reward_matrix );
 
-            R_ptr_ = boost::shared_ptr<RewardModel> ( new RewardMatrix ( reward_matrix ) );
+                R_ptr_ = boost::shared_ptr<RewardModel> ( new RewardMatrix ( reward_matrix ) );
+            }
+            else
+            {
+                ROS_ERROR_STREAM ( "The specified reward type is neither \"matrix\" nor \"vector\"." );
+                abort ();
+            }
         }
     }
     catch ( exception& e )
@@ -267,10 +300,7 @@ act ( const uint32_t state )
     uint32_t action;
 
     if ( eps_greedy_ )
-    {
         action = policy_ptr_ -> getAction ( state );
-        cout << "ACTION IS " << action << endl;
-    }
     else
     {
         try
@@ -324,7 +354,19 @@ publishReward ( uint32_t s, uint32_t a )
 
     std_msgs::Float32 reward;
     
-    reward.data = R_ptr_->getReward ( s, a );
+    if ( strcmp ( reward_type_.c_str(), "matrix" ) == 0 )
+        reward.data = R_ptr_->getReward ( s, a );
+    else
+    {
+        if ( strcmp ( reward_type_.c_str(), "vector" ) == 0 )
+            reward.data = R_ptr_->getReward ( s, 0 );
+        else
+        {
+            ROS_ERROR_STREAM ( "The specified reward type is neither \"matrix\" nor \"vector\"." );
+            abort ();
+        }
+    }
+            
         
     reward_pub_.publish ( reward );
     

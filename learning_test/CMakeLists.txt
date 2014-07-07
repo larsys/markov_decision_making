@@ -32,8 +32,14 @@ add_executable(learning_action_layer src/learning_action_layer.cpp)
 
 target_link_libraries(learning_action_layer ${catkin_LIBRARIES})
 
-add_executable(learning_control_layer src/learning_control_layer.cpp)
+add_executable(learning_control_q_layer src/learning_control_q_layer.cpp)
 
-target_link_libraries(learning_control_layer ${catkin_LIBRARIES})
+target_link_libraries(learning_control_q_layer ${catkin_LIBRARIES})
 
-set_target_properties(learning_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+set_target_properties(learning_control_q_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+add_executable(learning_control_sarsa_layer src/learning_control_sarsa_layer.cpp)
+
+target_link_libraries(learning_control_sarsa_layer ${catkin_LIBRARIES})
+
+set_target_properties(learning_control_sarsa_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")

@@ -38,7 +38,7 @@ namespace mdm_library
     enum ALPHA_TYPE {ALPHA_CONSTANT, ALPHA_ONE_OVER_T, ALPHA_ONE_OVER_T_SQUARED};
     
     /** Flag to represent how epsilon varies with "time". */
-    enum EPSILON_TYPE {EPSILON_CONSTANT, EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED};
+    enum EPSILON_TYPE {EPSILON_CONSTANT, EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED, EPSILON_ONE_OVER_T_ROOTED};
     
     /** Flag to represent whether the controller is event-based or timed. */
     enum CONTROLLER_TYPE {EVENT, TIMED};
@@ -82,7 +82,7 @@ namespace mdm_library
                 if ( curr_decision_ep == 0 )
                     updated_epsilon = 1;
                 else
-                    updated_epsilon = 1.0 / ( ( float ) curr_decision_ep / 100 );
+                    updated_epsilon = 1.0 / ( ( float ) curr_decision_ep );
                 
                 break;
                 
@@ -95,11 +95,22 @@ namespace mdm_library
                 
                 break;
                 
+            case EPSILON_ONE_OVER_T_ROOTED:
+                
+                if ( curr_decision_ep == 0 )
+                    updated_epsilon = 1;
+                else
+                    updated_epsilon = 1.0 / ( ( float ) pow ( curr_decision_ep, ( double ) 1 / 4 ) );
+                
+                break;
+                
             default:
                 ROS_FATAL ( "Invalid provided epsilon value. The epsilon value must be between 0 and 1." );
                 ros::shutdown();
                 break;
         }
+        
+        cout << "New Epsilon is " << updated_epsilon << endl;
         
         return updated_epsilon;
     }

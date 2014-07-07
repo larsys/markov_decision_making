@@ -160,8 +160,14 @@ protected:
     /** Flag to represent whether the policy is epsilon greedy or deterministic. */
     bool eps_greedy_;
     
+    /** Flag to represent whether the rewards are represented by a matrix or a vector. */
+    string reward_type_;
+    
 private:
     ros::ServiceServer republish_service_;
+    
+    /** ROS private Nodehandle to use the parameter server. */
+    ros::NodeHandle private_nh_;
     
     bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
 };

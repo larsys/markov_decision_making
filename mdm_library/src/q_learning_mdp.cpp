@@ -108,9 +108,10 @@ QLearningMDP ( float gamma,
                const std::string& learning_policy_file_path,
                const std::string& policy_file_path,
                const std::string& reward_file_path,
+               const std::string& q_values_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
-                        policy_file_path, initial_status ),
+                        q_values_path, initial_status ),
     state_ ( 0 ),
     action_ ( 0 )
 {
@@ -167,7 +168,8 @@ QLearningMDP ( float gamma,
     state_sub_ = nh_.subscribe ( "state", 1, &QLearningMDP::stateSymbolCallback, this );
     policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
     
-    initializeQValues ();
+    if ( !loadQValues() )
+        initializeQValues ();
 }
 
 
@@ -233,6 +235,7 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
     {
         updatePolicy ();
         publishPolicy ();
+        saveQValues ();
     }
 }
 

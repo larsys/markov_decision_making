@@ -10,7 +10,7 @@ int main ( int argc, char** argv )
 {
     init ( argc, argv, "control_layer" );
 
-    if ( argc < 3 )
+    if ( argc < 4 )
     {
         ROS_ERROR ( "Usage: rosrun mdm_example demo_control_layer <path to policy file>" );
         abort();
@@ -18,6 +18,7 @@ int main ( int argc, char** argv )
 
     string policy_path = argv[1];
     string reward_path = argv[2];
+    string q_values_path = argv[3];
 
     //ControllerEventMDP cl ( policy_path );
 
@@ -32,7 +33,7 @@ int main ( int argc, char** argv )
     uint32_t num_states = 8;
     uint32_t num_actions = 4;
 
-    SarsaLearningMDP sarsa ( alpha, epsilon, controller, num_states, num_actions, policy_path, reward_path );
+    SarsaLearningMDP sarsa ( alpha, epsilon, controller, num_states, num_actions, policy_path, reward_path, q_values_path );
 
     std::cout << "Spinning..." << std::endl;
 

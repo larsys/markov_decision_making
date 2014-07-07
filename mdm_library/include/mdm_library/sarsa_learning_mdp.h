@@ -55,6 +55,7 @@ public:
                        uint32_t num_actions,
                        const std::string& policy_file_path,
                        const std::string& reward_file_path,
+                       const std::string& q_values_path,
                        const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
     
 private:

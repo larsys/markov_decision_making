@@ -164,13 +164,7 @@ protected:
     virtual uint32_t getAction ( uint32_t index )
     {
         // Probability to choose a random action (range: 0 - 1)
-        double r = (double) rand ();
-        double p = ( r / ( RAND_MAX ) );
-        //double p = ( ( double ) rand () / ( RAND_MAX ) );
-        
-        cout << "Random number for epsilon is " << r << endl;
-        cout << "Probability is " << p << endl;
-        cout << "Epsilon is " << epsilon_ << endl;
+        double p = ( ( double ) rand () / ( RAND_MAX ) );
         
         if ( epsilon_type_ != EPSILON_CONSTANT )
             epsilon_ = updateEpsilon ( epsilon_type_, curr_decision_ep_ );
@@ -179,18 +173,12 @@ protected:
         if ( p <= epsilon_ )
         {
             // Choose a random index to select a random action
-            //srand ( time ( NULL ) );
-            int r1 = rand ();
-            uint32_t random_index = r1 % num_actions_;
-            //uint32_t random_index = rand() % num_actions_;
-            
-            cout << "Random number for action is " << r1 << endl;
+            uint32_t random_index = rand() % num_actions_;
             
             cout << "Choosing random action. Action chosen is " << random_index << endl;
             
             try
             {
-                //return ( *policy_vec_ptr_ ) [random_index];
                 return random_index;
             }
             catch ( exception& e )
@@ -248,24 +236,11 @@ private:
     
     
     void savePolicy ()
-    {
-//         string save_path;
-//         
-//         if ( private_nh_.hasParam ( "policy_save_path" ) )
-//             private_nh_.getParam ( "policy_save_path", save_path );
-//         else
-//         {
-//             save_path = "learnt_policy";
-//             cout << "Param policy_save_path not set; writting the learnt policy to the cwd." << endl;
-//             cout << "If no file is being created, make sure to use 'cwd=\"node\"' in your launch file when launching the";
-//             cout << " control layer node." << endl;
-//         }
-            
+    {       
         try
         {
             ofstream fp;
             
-            //fp.open ( save_path.c_str(), ios::out );
             fp.open ( file_path_.c_str(), ios::out );
 
             fp << ( *policy_vec_ptr_ );
