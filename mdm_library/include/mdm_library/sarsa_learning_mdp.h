@@ -86,8 +86,14 @@ private:
     /** Implementation of the pure virtual function publishPolicy from LearningLayerBase */
     void publishPolicy ();
     
-    /** Implementation of the pure virtual function stateSymbolCallback from OnlineLearningMDP */
+    /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
+    
+    /** Implementation of the pure virtual function republish_callback from LearningLayerBase */
+    bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
+    
+    /** Implementation of the pure virtual function to reason over new decision episodes */
+    void newDecisionEpisode ( uint32_t state );
 };
 }
 

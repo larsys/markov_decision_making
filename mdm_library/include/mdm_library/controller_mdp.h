@@ -118,6 +118,9 @@ public:
     
     /** Returns the last published reward */
     float getReward ();
+    
+    /** Returns the last state */
+    uint32_t getLastState ();
 
 protected:
     /** Publishes an action. */
@@ -169,7 +172,7 @@ private:
     /** ROS private Nodehandle to use the parameter server. */
     ros::NodeHandle private_nh_;
     
-    bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
+//     bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response );
 };
 }
 

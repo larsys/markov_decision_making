@@ -173,3 +173,12 @@ incrementDecisionEpisode ()
     
     return ++decision_episode_;
 }
+
+
+
+uint32_t
+ControlLayerBase::
+decrementDecisionEpisode ()
+{    
+    return --decision_episode_;
+}

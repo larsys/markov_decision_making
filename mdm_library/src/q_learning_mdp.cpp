@@ -168,6 +168,8 @@ QLearningMDP ( float gamma,
     state_sub_ = nh_.subscribe ( "state", 1, &QLearningMDP::stateSymbolCallback, this );
     policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
     
+    republish_service_ = nh_.advertiseService ( "publish_new_action", &QLearningMDP::republish_callback, this );
+    
     if ( !loadQValues() )
         initializeQValues ();
 }
@@ -217,11 +219,33 @@ void
 QLearningMDP::
 stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
 {   
+    newDecisionEpisode ( msg -> world_symbol );
+}
+
+
+
+bool
+QLearningMDP::
+republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
+{
+    ( *controller_ ).act ( ( *controller_ ).getLastState () );
+    
+    newDecisionEpisode ( ( *controller_ ).getLastState () );
+    
+    return true;
+}
+
+
+
+void
+QLearningMDP::
+newDecisionEpisode ( uint32_t state )
+{
     curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
     reward_ = ( *controller_ ).getReward ();
     action_ = ( *controller_ ).getAction ();
     
-    state_ = msg -> world_symbol;
+    state_ = state;
     
     cout << "NEW EPISODE!!!!!!!!!!!!!!!!!!!!!!" << endl;
     cout << "\t\tDec Ep: " << curr_decision_ep_ << endl;

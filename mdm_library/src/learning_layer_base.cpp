@@ -131,7 +131,7 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
                   ) :
     alpha_type_ ( alpha_type ),
     curr_decision_ep_ ( 0 ),
-    private_nh_ ( "~" ),
+    //private_nh_ ( "~" ),
     num_states_ ( num_states ),
     num_actions_ ( num_actions ),
     q_values_path_ ( q_values_path )
@@ -232,7 +232,7 @@ loadQValues ()
 void
 LearningLayerBase::
 saveQValues ()
-{       
+{
     try
     {
         ofstream fp;
@@ -240,10 +240,10 @@ saveQValues ()
         fp.open ( q_values_path_.c_str(), ios::out );
 
         fp << q_values_;
-        
+
         fp.flush ();
         fp.close ();
-        
+
         cout << "Q-Values saved!" << endl;
     }
     catch ( exception& e )

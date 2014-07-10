@@ -116,6 +116,12 @@ protected:
     /** Pure virtual callback for actions coming from the State Layer, to be implemented in each specific method. */
     virtual void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg ) = 0;
     
+    /** Pure virtual function to reason over new decision episodes */
+    virtual void newDecisionEpisode ( uint32_t state ) = 0;
+    
+    /** Pure virtual function for the republish callback */
+    virtual bool republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response ) = 0;
+    
     /** Pure virtual publishing function for the "policy" topic, to be implemented in each specific method. */
     virtual void publishPolicy () = 0;
     
@@ -126,6 +132,9 @@ protected:
      * in which the state information will be received.
      */
     ros::Subscriber state_sub_;
+    
+    /** Service server for the republish callback */
+    ros::ServiceServer republish_service_;
     
 private:
     /** Path to the q_values file */

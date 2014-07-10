@@ -109,6 +109,8 @@ protected:
      */
     uint32_t incrementDecisionEpisode();
     
+    uint32_t decrementDecisionEpisode();
+    
     /**
      * Allows direct access to the status of this controller. This can be used to reimplement the
      * start / stop / reset functions by derived classes.

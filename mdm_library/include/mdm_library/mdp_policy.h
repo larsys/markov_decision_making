@@ -149,6 +149,7 @@ public:
         }
         
         cout << "Policy updated!" << endl;
+        ROS_WARN_STREAM ( "POLICY UPDATED FROM WITHIN THE EPSGREEDYPOLICY!" );
         
         savePolicy ();
     }
