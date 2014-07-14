@@ -136,7 +136,6 @@ public:
         for ( uint32_t state = 0; state < num_states_; state++ )
         {
             best_action = argMaxA ( q_values, state );
-            
             try
             {
                 ( *policy_vec_ptr_) ( state ) = best_action;
@@ -148,8 +147,7 @@ public:
             }
         }
         
-        cout << "Policy updated!" << endl;
-        ROS_WARN_STREAM ( "POLICY UPDATED FROM WITHIN THE EPSGREEDYPOLICY!" );
+        cout << "Policy updated." << endl;
         
         savePolicy ();
     }
@@ -249,7 +247,7 @@ private:
             fp.flush ();
             fp.close ();
             
-            cout << "Policy saved!" << endl;
+            cout << "Policy saved to file." << endl;
         }
         catch ( exception& e )
         {

@@ -115,32 +115,6 @@ QLearningMDP ( float gamma,
     state_ ( 0 ),
     action_ ( 0 )
 {
-    try
-    {
-        if ( learning_policy_ptr_ != 0 )
-            ROS_WARN_STREAM ( "The learning policy for this MDP had already been loaded! Overwriting." );
-
-        ifstream fp;
-        fp.open ( learning_policy_file_path.c_str() );
-        IndexVectorPtr policy_vec ( new IndexVector() );
-
-        fp >> ( *policy_vec );
-        
-        uint32_t number_of_states = num_states_;
-        uint32_t number_of_actions = num_actions_;
-        
-        learning_policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
-                                                                                                 number_of_states,
-                                                                                                 number_of_actions,
-                                                                                                 epsilon_type,
-                                                                                                 learning_policy_file_path ) );
-    }
-    catch ( exception& e )
-    {
-        ROS_ERROR_STREAM ( e.what() );
-        abort();
-    }
-    
     // Create the controller
     if ( controller_type == EVENT )
         controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerEventMDP ( policy_file_path,
@@ -170,8 +144,67 @@ QLearningMDP ( float gamma,
     
     republish_service_ = nh_.advertiseService ( "publish_new_action", &QLearningMDP::republish_callback, this );
     
-    if ( !loadQValues() )
+    if ( !loadQValues () )
         initializeQValues ();
+    
+    if ( !loadLearningPolicy ( learning_policy_file_path, epsilon_type ) )
+        initializeLearningPolicy ( learning_policy_file_path, epsilon_type );
+}
+
+
+
+bool
+QLearningMDP::
+loadLearningPolicy ( const std::string& learning_policy_file_path, EPSILON_TYPE epsilon_type )
+{
+    try
+    {
+        ifstream fp;
+        fp.open ( learning_policy_file_path.c_str() );
+        
+        if ( fp.peek() == std::ifstream::traits_type::eof() )
+            return false;
+        
+        IndexVectorPtr policy_vec ( new IndexVector() );
+        fp >> ( *policy_vec );
+        
+        cout << "Learning policy file is not empty. Loading the policy from the file." << endl;
+        
+        fp.close ();
+        
+        learning_policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                                                 num_states_,
+                                                                                                 num_actions_,
+                                                                                                 epsilon_type,
+                                                                                                 learning_policy_file_path ) );
+        
+        return true;
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
+}
+
+
+
+void
+QLearningMDP::
+initializeLearningPolicy ( const std::string& learning_policy_file_path, EPSILON_TYPE epsilon_type )
+{
+    IndexVectorPtr policy_vec ( new IndexVector ( num_states_ ) );
+    
+    for ( unsigned i = 0; i < num_states_; ++i )
+        ( *policy_vec ) ( i ) = 0;
+    
+    cout << "Learning policy initialized as zeros!" << endl;
+    
+    learning_policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPEpsilonGreedyPolicyVector ( policy_vec,
+                                                                                             num_states_,
+                                                                                             num_actions_,
+                                                                                             epsilon_type,
+                                                                                             learning_policy_file_path ) );
 }
 
 
@@ -206,65 +239,6 @@ updateQValues ()
 
 
 
-void
-QLearningMDP::
-updatePolicy ()
-{
-    learning_policy_ptr_ -> updatePolicy ( q_values_ );
-}
-
-
-
-void
-QLearningMDP::
-stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
-{   
-    newDecisionEpisode ( msg -> world_symbol );
-}
-
-
-
-bool
-QLearningMDP::
-republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
-{
-    ( *controller_ ).act ( ( *controller_ ).getLastState () );
-    
-    newDecisionEpisode ( ( *controller_ ).getLastState () );
-    
-    return true;
-}
-
-
-
-void
-QLearningMDP::
-newDecisionEpisode ( uint32_t state )
-{
-    curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
-    reward_ = ( *controller_ ).getReward ();
-    action_ = ( *controller_ ).getAction ();
-    
-    state_ = state;
-    
-    cout << "NEW EPISODE!!!!!!!!!!!!!!!!!!!!!!" << endl;
-    cout << "\t\tDec Ep: " << curr_decision_ep_ << endl;
-    cout << "\t\tReward: " << reward_ << endl;
-    cout << "\t\tState: " << state_ << endl;
-    cout << "\t\tAction: " << action_ << endl;
-    
-    updateQValues ();
-    
-    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
-    {
-        updatePolicy ();
-        publishPolicy ();
-        saveQValues ();
-    }
-}
-
-
-
 float
 QLearningMDP::
 maxOverA ()
@@ -286,6 +260,115 @@ maxOverA ()
 
 void
 QLearningMDP::
+updatePolicy ()
+{
+    learning_policy_ptr_ -> updatePolicy ( q_values_ );
+}
+
+
+
+void
+QLearningMDP::
+stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
+{   
+    ROS_ERROR_STREAM ( "RECEIVED STATE MESSAGE!!!!" );
+    cout << "State received is " << msg ->world_symbol << endl;
+    newDecisionEpisode ( msg -> world_symbol );
+}
+
+
+
+bool
+QLearningMDP::
+republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Response& response )
+{
+    ROS_ERROR_STREAM ( "REPUBLISH!!!!" );
+    cout << "State sent is " << (*controller_).getLastState() << endl;
+    
+    ( *controller_ ).act ( ( *controller_ ).getLastState () );
+    
+    newDecisionEpisode ( ( *controller_ ).getLastState () );
+    
+    return true;
+}
+
+
+
+void
+QLearningMDP::
+newDecisionEpisode ( uint32_t state )
+{
+    curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
+    
+    uint32_t obs_state = state;
+    uint32_t obs_action = ( *controller_ ).getAction ();
+    float obs_reward = ( *controller_ ).getReward ();
+    
+    if ( curr_decision_ep_ == 1 )
+    {
+        state_ = obs_state;
+        action_ = obs_action;
+        reward_ = obs_reward;
+        
+        cout << "Decision Episode #1:" << endl;
+        cout << "\tState:\t\t" << state_ << endl;
+        cout << "\tAction:\t\t" << action_ << endl;
+        cout << "\tReward:\t\t" << reward_ << endl;
+    }
+    else
+    {
+        next_state_ = obs_state;
+        
+        cout << "Decision Episode #" << curr_decision_ep_ << ". Updating the QValues with:" << endl;
+        cout << "\tState:\t\t" << state_ << endl;
+        cout << "\tAction:\t\t" << action_ << endl;
+        cout << "\tReward:\t\t" << reward_ << endl;
+        cout << "\tNext State:\t" << next_state_ << endl;
+        
+        updateQValues ();
+        
+        state_ = next_state_;
+        action_ = obs_action;
+        reward_ = obs_reward;
+        
+//         uint32_t obs_state = state;
+//         uint32_t obs_action = ( *controller_ ).getAction ();
+//         float obs_reward = ( *controller_ ).getReward ();
+//         
+//         action_ = obs_action;
+//         reward_ = obs_reward;
+//         next_state_ = obs_state;
+//         
+//         cout << "Decision Episode #" << curr_decision_ep_ << ". Updating the QValues with:" << endl;
+//         cout << "\tState:\t\t" << state_ << endl;
+//         cout << "\tAction:\t\t" << action_ << endl;
+//         cout << "\tReward:\t\t" << reward_ << endl;
+//         cout << "\tNext State:\t" << next_state_ << endl;
+//         
+//         updateQValues ();
+//         
+//         cout << "Q-Values updated!" << endl;
+//         
+//         state_ = next_state_;
+    }
+    
+    if ( curr_decision_ep_ == 1 )
+        publishPolicy ();
+    
+    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
+    {
+        updatePolicy ();
+        publishPolicy ();
+        saveQValues ();
+    }
+    
+    cout << "Decision episode finished." << endl;
+}
+
+
+
+void
+QLearningMDP::
 publishPolicy ()
 {
     Policy pol;
@@ -295,8 +378,11 @@ publishPolicy ()
     
     pol.number_of_states = ( *controller_ ).getNumberOfStates ();
     
-    for ( int i = 0; i < v.size(); i++ )
-        pol.policy[i] = v[i];
+    std::vector<uint32_t> p ( pol.number_of_states );
+    pol.policy = p;
+    
+    for ( int i = 0; i < ( *controller_ ).getNumberOfStates (); i++ )
+        pol.policy[i] = v [i];
     
     policy_pub_.publish ( pol );
 }

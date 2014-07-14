@@ -264,6 +264,7 @@ newDecisionEpisode ( uint32_t state )
         saveQValues ();
     }
 
+    cout << "Decision episode finished." << endl;
 }
 
 

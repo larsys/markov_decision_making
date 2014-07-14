@@ -76,6 +76,12 @@ private:
     /** The policy to be learned */
     boost::shared_ptr<MDPPolicy> learning_policy_ptr_;
     
+    /** Check whether the learning polciy file is empty or not */
+    bool loadLearningPolicy ( const std::string& learning_policy_file_path, EPSILON_TYPE epsilon_type );
+    
+    /** Initialize the learning policy to zeroes */
+    void initializeLearningPolicy ( const std::string& learning_policy_file_path, EPSILON_TYPE epsilon_type );
+    
     /** Initialize the Q Values Table to zeroes */
     void initializeQValues ();
     
