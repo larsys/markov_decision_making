@@ -315,14 +315,14 @@ act ( const uint32_t state )
             abort();
         }
     }
-
+    
     publishAction ( action );
     publishReward ( state, action );
 
     incrementDecisionEpisode();
     
     if ( eps_greedy_ )
-        policy_ptr_ -> setCurrDecisionEp( getDecisionEpisode () );
+        policy_ptr_ -> setCurrDecisionEp ( getDecisionEpisode () );
 }
 
 

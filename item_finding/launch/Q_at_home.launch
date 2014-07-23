@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+    <param name="/mdm_visualizer/state_topic" value="/agent/100/state"/>
+    <param name="/mdm_visualizer/action_topic" value="/agent/100/action"/>
+    <param name="/mdm_visualizer/reward_topic" value="/agent/100/reward"/>
+    <param name="/mdm_visualizer/policy_topic" value="/agent/100/policy"/>
+
+    <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py" output="screen"/-->
+    <node pkg="mdm_library" name="MDMLogger" type="logger.py"/>
+
+    <node pkg="item_finding" name="EnvironmentSimulator" type="sim.py" output="screen"/>
+
+    <node pkg="stage_ros" type="stageros" name="stageros" args="$(find item_finding)/config/at_home.world">
+        <remap from="odom" to="agent/100/odom" />
+        <remap from="base_scan" to="agent/100/scan" />
+        <remap from="base_pose_ground_truth" to="agent/100/base_pose_ground_truth" />
+        <remap from="cmd_vel" to="agent/100/cmd_vel" />
+    </node>
+    
+    <param name="use_sim_time" type="bool" value="true" />
+    
+    <!-- Run the map server -->
+    <node name="map_server" pkg="map_server" type="map_server" args="$(find item_finding)/config/at_home_testbed.yaml">
+        <param name="frame_id" value="/map" />
+    </node>
+
+    <!-- A second map server just for Rviz (that way we can show a nicer version of the map) -->
+    <node name="rviz_map_server" pkg="map_server" type="map_server" args="$(find item_finding)/config/at_home_testbed.yaml">
+        <param name="frame_id" value="/map" />
+        <remap from="/map" to="/rviz_map" />
+        <remap from="/map_metadata" to="/rviz_map_metadata"/>
+    </node>
+
+    <group ns="agent/100">
+        <param name="pm_id" value="0" />
+	<param name="gamma" value="0.9" />
+	<param name="policy_update_frequency" value="5" />
+	<param name="reward_type" value="matrix" />
+
+        <include file="$(find item_finding)/launch/navigation.launch"/>
+        
+        <node pkg="rviz" type="rviz" name="rviz"
+              args="-d $(find item_finding)/config/at_home.rviz"/>
+        
+        <rosparam file="$(find item_finding)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
+
+        <node pkg="topological_tools" name="pose_labeler" type="pose_labeler_node" 
+              args="$(find item_finding)/maps/at_home_label_map.png amcl_pose" respawn="true"/>
+
+        <node pkg="item_finding" name="predicates" type="if_predicates" respawn="true"/>
+
+        <node pkg="item_finding" name="state_layer" type="if_state_layer" respawn="true" output="screen"/>
+
+        <node pkg="item_finding" name="control_layer" type="if_control_q_layer" 
+              args="$(find item_finding)/config/MDP_policy $(find item_finding)/config/learning_policy $(find item_finding)/config/MDP_reward $(find item_finding)/config/Q_values" respawn="false" output="screen"/>
+        
+        <node pkg="item_finding" name="action_layer" type="if_action_layer" 
+              args="$(find item_finding)/config/topological_map.xml" respawn="true" output="screen"/>
+        
+        <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
+              args="pub -1 /agent/100/initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: 0, y: 0, z: 0}, orientation: { w: 1, z: 0, x: 0, y: 0 } } } }'"/>
+              
+    </group>
+
+</launch>

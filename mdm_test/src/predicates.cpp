@@ -34,9 +34,8 @@ int main ( int argc, char** argv )
     TopologicalPredicate isInDiningArea ( label_target, "IsInDiningArea" );
     TopologicalPredicate isInTVArea ( label_target, "IsInTVArea" );
     TopologicalPredicate isInKitchenArea ( label_target, "IsInKitchenArea" );
-    TopologicalPredicate isInTable ( label_target, "IsInTable" );
 
-    ///Registering predicates in the PM
+    ///Registering predicates in the PM                                                                                                                        
     pm.addPredicate ( isInBedroom );
     pm.addPredicate ( isInBathroom );
     pm.addPredicate ( isInInsideHallway );
@@ -44,7 +43,6 @@ int main ( int argc, char** argv )
     pm.addPredicate ( isInDiningArea );
     pm.addPredicate ( isInTVArea );
     pm.addPredicate ( isInKitchenArea );
-    pm.addPredicate ( isInTable );
 
     ///Starting PM
     pm.spin();

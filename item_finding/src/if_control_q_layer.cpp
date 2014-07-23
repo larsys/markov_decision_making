@@ -1,5 +1,6 @@
+
 #include <ros/ros.h>
-//#include <mdm_library/controller_event_mdp.h>
+#include <mdm_library/controller_event_mdp.h>
 #include <mdm_library/sarsa_learning_mdp.h>
 #include <mdm_library/q_learning_mdp.h>
 
@@ -26,8 +27,8 @@ int main ( int argc, char** argv )
     EPSILON_TYPE epsilon = EPSILON_ONE_OVER_T_ROOTED;
     CONTROLLER_TYPE controller = EVENT;
 
-    uint32_t num_states = 7;
-    uint32_t num_actions = 4;
+    uint32_t num_states = 126;
+    uint32_t num_actions = 6;
 
     QLearningMDP ql (0.9, alpha, epsilon, controller, num_states, num_actions, learning_policy_path, policy_path, reward_path, q_values_path );
 

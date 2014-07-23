@@ -17,8 +17,7 @@ int main ( int argc, char** argv )
                                   .add ( "IsInOutsideHallway" )
                                   .add ( "IsInDiningArea" )
                                   .add ( "IsInTVArea" ) 
-			          .add ( "IsInKitchenArea" )
-			          .add ( "IsInTable" ) );
+			          .add ( "IsInKitchenArea" ) );
 
     spin();
 

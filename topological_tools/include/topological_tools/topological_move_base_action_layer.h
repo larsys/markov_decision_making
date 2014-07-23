@@ -54,6 +54,8 @@ public:
     TopologicalMoveBaseActionLayer ( TopologicalMap& tm );
 
     void addAction ( const std::string& action_name );
+    
+    mdm_library::ActionLayer getActionLayer ();
 
     void spin();
 protected:

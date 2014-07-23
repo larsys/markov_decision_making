@@ -78,6 +78,16 @@ addAction ( const std::string& action_name )
                     action_name );
 }
 
+
+
+mdm_library::ActionLayer
+TopologicalMoveBaseActionLayer::
+getActionLayer ()
+{
+    return al_;
+}
+
+
 void
 TopologicalMoveBaseActionLayer::
 moveToLabel ( const string& connection_label )
@@ -96,7 +106,11 @@ moveToLabel ( const string& connection_label )
             
             cout << "Action impossible to realize. Generating new action." << endl;
             
+            move_base_client_.cancelAllGoals();
+            
             client_.call ( request );
+            
+            return;
         }
     }
     
@@ -105,8 +119,8 @@ moveToLabel ( const string& connection_label )
 
     move_base_msgs::MoveBaseGoal traverse_goal;
     traverse_goal.target_pose = goal_pose;
-
-    move_base_client_.cancelAllGoals();
+    
+    //move_base_client_.cancelAllGoals();
     move_base_client_.sendGoal ( traverse_goal,
                                  boost::bind ( &TopologicalMoveBaseActionLayer::moveBaseDoneCB, this, _1, _2 ),
                                  boost::bind ( &TopologicalMoveBaseActionLayer::moveBaseActiveCB, this ),
