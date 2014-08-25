@@ -28,6 +28,7 @@
 #define MDM_DEFAULT_POLICY_UPDATE_FREQ 5
 #define MDM_DEFAULT_GAMMA 0.9
 #define MDM_DEFAULT_ALPHA 0.1
+#define MDM_DEFAULT_LAMBDA 0
 
 
 #include <mdm_library/control_layer_base.h>
@@ -82,6 +83,9 @@ protected:
     /** Q-table */
     Matrix q_values_;
     
+    /** Eligibility Traces matrix */
+    Matrix et_;
+    
     /** The gamma parameter */
     float gamma_;
     
@@ -90,6 +94,9 @@ protected:
     
     /** The alpha parameter */
     float alpha_;
+    
+    /** The lambda parameter */
+    float lambda_;
     
     /** Policy update frequency */
     uint32_t policy_update_frequency_;
@@ -124,6 +131,9 @@ protected:
     
     /** Pure virtual publishing function for the "policy" topic, to be implemented in each specific method. */
     virtual void publishPolicy () = 0;
+    
+    /** Initialize the eligibility traces as zeros */
+    void initializeEligibilityTraces ();
     
     /** ROS Nodehandle for the learning layer. */
     ros::NodeHandle nh_;

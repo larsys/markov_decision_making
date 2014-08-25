@@ -159,8 +159,25 @@ updateQValues ()
     if ( alpha_type_ != ALPHA_CONSTANT )
         alpha_ = updateAlpha ( alpha_type_, curr_decision_ep_ );
     
-    q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
-                                    q_values_ ( next_state_, next_action_ ) - q_values_ ( state_, action_ ) );
+    if ( lambda_ == 0 )
+        q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
+                                        q_values_ ( next_state_, next_action_ ) - q_values_ ( state_, action_ ) );
+    else
+    {
+        double delta = reward_ + gamma_ * q_values_ ( next_state_, next_action_ ) - q_values_ ( state_, action_ );
+        
+        et_ ( state_, action_ ) = et_ ( state_, action_ ) + 1;
+        
+        // For all (s,a) pair
+        for ( unsigned state = 0; state < num_states_; ++state )
+        {
+            for ( unsigned action = 0; action < num_actions_; ++action )
+            {
+                q_values_ ( state, action ) = q_values_ ( state, action ) + alpha_ * delta * et_ ( state, action );
+                et_ ( state, action ) = gamma_ * lambda_ * et_ ( state, action );
+            }
+        }
+    }
 }
 
 
@@ -180,6 +197,7 @@ stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg )
 {
     ROS_ERROR_STREAM ( "RECEIVED STATE MESSAGE!!!!" );
     cout << "State received is " << msg ->world_symbol << endl;
+    
     newDecisionEpisode ( msg -> world_symbol );
 }
 

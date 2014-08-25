@@ -38,7 +38,7 @@ namespace mdm_library
     enum ALPHA_TYPE {ALPHA_CONSTANT, ALPHA_ONE_OVER_T, ALPHA_ONE_OVER_T_SQUARED};
     
     /** Flag to represent how epsilon varies with "time". */
-    enum EPSILON_TYPE {EPSILON_CONSTANT, EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED, EPSILON_ONE_OVER_T_ROOTED};
+    enum EPSILON_TYPE {EPSILON_CONSTANT, EPSILON_ONE_OVER_T, EPSILON_ONE_OVER_T_SQUARED, EPSILON_ONE_OVER_T_ROOTED, EPSILON_EXP};
     
     /** Flag to represent whether the controller is event-based or timed. */
     enum CONTROLLER_TYPE {EVENT, TIMED};
@@ -100,7 +100,16 @@ namespace mdm_library
                 if ( curr_decision_ep == 0 )
                     updated_epsilon = 1;
                 else
-                    updated_epsilon = 1.0 / ( ( float ) pow ( curr_decision_ep, ( double ) 1 / 4 ) );
+                    updated_epsilon = 1.0 / ( ( float ) pow ( curr_decision_ep, ( double ) 1.0 / 2.0 ) );
+                
+                break;
+                
+            case EPSILON_EXP:
+                
+                if ( curr_decision_ep == 0 )
+                    updated_epsilon = 1;
+                else
+                    updated_epsilon = exp ( - ( double ) ( 1.0 / 50.0 ) * ( double ) curr_decision_ep );
                 
                 break;
                 

@@ -30,7 +30,7 @@ int main ( int argc, char** argv )
     uint32_t num_states = 126;
     uint32_t num_actions = 6;
 
-    QLearningMDP ql (0.9, alpha, epsilon, controller, num_states, num_actions, learning_policy_path, policy_path, reward_path, q_values_path );
+    QLearningMDP ql (alpha, epsilon, controller, num_states, num_actions, learning_policy_path, policy_path, reward_path, q_values_path );
 
     spin();
 

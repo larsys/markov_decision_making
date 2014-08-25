@@ -136,6 +136,7 @@ public:
         for ( uint32_t state = 0; state < num_states_; state++ )
         {
             best_action = argMaxA ( q_values, state );
+            
             try
             {
                 ( *policy_vec_ptr_) ( state ) = best_action;

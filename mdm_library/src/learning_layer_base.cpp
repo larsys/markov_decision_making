@@ -150,6 +150,7 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
         cout << "Using a default value for policy update frequency of 5 decision episodes." << endl;
     }
     
+    
     // Gather the gamma value from the parameters
     double gamma;
     
@@ -170,6 +171,7 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
         gamma_ = MDM_DEFAULT_GAMMA;
         cout << "Using a default value for gamma of 0.9." << endl;
     }
+    
     
     // Gather the alpha value from the parameters if alpha type is set as constant
     double alpha;
@@ -194,6 +196,31 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
             cout << "Using a default value for alpha of 0.1." << endl;
         }
     }
+    
+    
+    // Gather the lambda value from the parameters
+    double lambda;
+    
+    if ( private_nh_.hasParam ( "lambda" ) )
+    {
+        private_nh_.getParam ( "lambda", lambda );
+        
+        if ( lambda < 0 || lambda > 1 )
+        {
+            ROS_FATAL ( "Invalid provided lambda value. The lambda value must be between 0 and 1." );
+            ros::shutdown();
+        }
+        else
+            lambda_ = ( float ) lambda;
+    }
+    else
+    {
+        lambda_ = MDM_DEFAULT_LAMBDA;
+        cout << "Using a default value for lambda of 0." << endl;
+    }
+    
+    if ( lambda_ != 0 )
+        initializeEligibilityTraces ();
 }
 
 
@@ -251,4 +278,18 @@ saveQValues ()
         ROS_ERROR_STREAM ( e.what() );
         abort();
     }
+}
+
+
+
+void
+LearningLayerBase::
+initializeEligibilityTraces ()
+{
+    et_ = Matrix ( num_states_, num_actions_ );
+    
+    // Initialize the Q values as 0
+    for ( unsigned i = 0; i < et_.size1(); ++i )
+        for ( unsigned j = 0; j < et_.size2(); ++j )
+            et_ ( i, j ) = 0;
 }

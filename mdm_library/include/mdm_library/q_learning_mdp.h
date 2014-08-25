@@ -48,8 +48,7 @@ public:
                    const ControlLayerBase::CONTROLLER_STATUS initial_status = ControlLayerBase::STARTED );
 #endif
     
-    QLearningMDP ( float gamma,
-                   ALPHA_TYPE alpha_type,
+    QLearningMDP ( ALPHA_TYPE alpha_type,
                    EPSILON_TYPE epsilon_type,
                    CONTROLLER_TYPE controller_type,
                    uint32_t num_states,
@@ -72,6 +71,9 @@ private:
     
     /** Next state backup */
     uint32_t next_state_;
+    
+    /** Next action backup */
+    uint32_t next_action_;
     
     /** The policy to be learned */
     boost::shared_ptr<MDPPolicy> learning_policy_ptr_;
@@ -97,6 +99,9 @@ private:
     /** Function to get the maximum of Q(s, a) over a */
     float maxOverA ();
     
+    /** Function to get the argument that corresponds to the maximum of Q(s, a) over a */
+    uint32_t argMaxA ();
+    
     /** Implementation of the pure virtual function stateSymbolCallback from LearningLayerBase */
     void stateSymbolCallback ( const mdm_library::WorldSymbolConstPtr& msg );
     
@@ -105,6 +110,12 @@ private:
     
     /** Implementation of the pure virtual function to reason over new decision episodes */
     void newDecisionEpisode ( uint32_t state );
+    
+    /** Perform backup without Eligibility Traces */
+    void backupWithoutET ( uint32_t state );
+    
+    /** Perform backup with Eligibility Traces */
+    void backupWithET ( uint32_t state );
 };
 }
 

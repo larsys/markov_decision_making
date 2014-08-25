@@ -99,8 +99,7 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
 
 
 QLearningMDP::
-QLearningMDP ( float gamma,
-               ALPHA_TYPE alpha_type,
+QLearningMDP ( ALPHA_TYPE alpha_type,
                EPSILON_TYPE epsilon_type,
                CONTROLLER_TYPE controller_type,
                uint32_t num_states,
@@ -233,8 +232,31 @@ updateQValues ()
     if ( alpha_type_ != ALPHA_CONSTANT )
         alpha_ = updateAlpha ( alpha_type_, curr_decision_ep_ );
     
-    q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
-                                    maxOverA() - q_values_ ( state_, action_ ) );
+    if ( lambda_ == 0 )
+        q_values_ ( state_, action_ ) = q_values_ ( state_, action_ ) + alpha_ * ( reward_ + gamma_ *
+                                        maxOverA() - q_values_ ( state_, action_ ) );
+    else
+    {
+        uint32_t optimal_action = argMaxA();
+        
+        double delta = reward_ + gamma_ * q_values_ ( next_state_, optimal_action ) - q_values_ ( state_, action_ );
+        
+        et_ ( state_, action_ ) = et_ ( state_, action_ ) + 1;
+        
+        // For all (s,a) pair
+        for ( unsigned state = 0; state < num_states_; ++state )
+        {
+            for ( unsigned action = 0; action < num_actions_; ++action )
+            {
+                q_values_ ( state, action ) = q_values_ ( state, action ) + alpha_ * delta * et_ ( state, action );
+                
+                if ( next_action_ == optimal_action )
+                    et_ ( state, action ) = gamma_ * lambda_ * et_ ( state, action );
+                else
+                    et_ ( state, action ) = 0;
+            }
+        }
+    }
 }
 
 
@@ -247,13 +269,36 @@ maxOverA ()
     double curr_max = std::numeric_limits<double>::infinity() * -1;
     
     // Find the action that leads to the highest Q value
-    for (unsigned j = 0; j < q_values_.size2(); j++ )
+    for (unsigned j = 0; j < num_actions_; j++ )
     {
-        if ( q_values_ (next_state_, j) > curr_max )
-            curr_max = q_values_ (next_state_, j);
+        if ( q_values_ ( next_state_, j ) > curr_max )
+            curr_max = q_values_ ( next_state_, j );
     }
     
     return curr_max;
+}
+
+
+
+uint32_t
+QLearningMDP::
+argMaxA ()
+{
+    // Initialize the current maximum as negative infinity
+    double curr_max = std::numeric_limits<double>::infinity() * -1;
+    uint32_t index;
+    
+    // Find the action that leads to the highest Q value
+    for (unsigned j = 0; j < num_actions_; j++ )
+    {
+        if ( q_values_ ( next_state_, j ) > curr_max )
+        {
+            curr_max = q_values_ ( next_state_, j );
+            index = j;
+        }
+    }
+    
+    return index;
 }
 
 
@@ -300,6 +345,30 @@ newDecisionEpisode ( uint32_t state )
 {
     curr_decision_ep_ = ( *controller_ ).getDecisionEpisode ();
     
+    if ( lambda_ == 0 )
+        backupWithoutET ( state );
+    else
+        backupWithET ( state );
+    
+    if ( curr_decision_ep_ == 1 )
+        publishPolicy ();
+    
+    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
+    {
+        updatePolicy ();
+        publishPolicy ();
+        saveQValues ();
+    }
+    
+    cout << "Decision episode finished." << endl;
+}
+
+
+
+void
+QLearningMDP::
+backupWithoutET ( uint32_t state )
+{
     uint32_t obs_state = state;
     uint32_t obs_action = ( *controller_ ).getAction ();
     float obs_reward = ( *controller_ ).getReward ();
@@ -330,39 +399,62 @@ newDecisionEpisode ( uint32_t state )
         state_ = next_state_;
         action_ = obs_action;
         reward_ = obs_reward;
-        
-//         uint32_t obs_state = state;
-//         uint32_t obs_action = ( *controller_ ).getAction ();
-//         float obs_reward = ( *controller_ ).getReward ();
-//         
-//         action_ = obs_action;
-//         reward_ = obs_reward;
-//         next_state_ = obs_state;
-//         
-//         cout << "Decision Episode #" << curr_decision_ep_ << ". Updating the QValues with:" << endl;
-//         cout << "\tState:\t\t" << state_ << endl;
-//         cout << "\tAction:\t\t" << action_ << endl;
-//         cout << "\tReward:\t\t" << reward_ << endl;
-//         cout << "\tNext State:\t" << next_state_ << endl;
-//         
-//         updateQValues ();
-//         
-//         cout << "Q-Values updated!" << endl;
-//         
-//         state_ = next_state_;
     }
+}
+
+
+
+void
+QLearningMDP::
+backupWithET ( uint32_t state )
+{
+    cout << "BACKUP WITH ET" << endl;
     
     if ( curr_decision_ep_ == 1 )
-        publishPolicy ();
-    
-    if ( curr_decision_ep_ % policy_update_frequency_ == 0 )
     {
-        updatePolicy ();
-        publishPolicy ();
-        saveQValues ();
+        uint32_t obs_state = state;
+        
+        state_ = obs_state;
+        
+        cout << "Decision Episode #1:" << endl;
+        cout << "\tState:\t\t" << state_ << endl;
     }
-    
-    cout << "Decision episode finished." << endl;
+    else
+    {
+        uint32_t obs_state = state;
+        uint32_t obs_action = ( *controller_ ).getAction ();
+        float obs_reward = ( *controller_ ).getReward ();
+        
+        if ( curr_decision_ep_ == 2 )
+        {
+            action_ = obs_action;
+            reward_ = obs_reward;
+            next_state_ = obs_state;
+            
+            cout << "Decision Episode #2:" << endl;
+            cout << "\tAction:\t\t" << action_ << endl;
+            cout << "\tReward:\t\t" << reward_ << endl;
+            cout << "\tNext State:\t\t" << next_state_ << endl;
+        }
+        else
+        {
+            next_action_ = obs_action;
+            next_state_ = obs_state;
+            
+            updateQValues ();
+            
+            cout << "Decision Episode #" << curr_decision_ep_ << ". Updating the QValues with:" << endl;
+            cout << "\tState:\t\t" << state_ << endl;
+            cout << "\tAction:\t\t" << action_ << endl;
+            cout << "\tReward:\t\t" << reward_ << endl;
+            cout << "\tNext State:\t\t" << next_state_ << endl;
+            cout << "\tNext Action:\t\t" << next_action_ << endl;
+            
+            state_ = next_state_;
+            action_ = next_action_;
+            reward_ = obs_reward;
+        }
+    }
 }
 
 
