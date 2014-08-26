@@ -25,9 +25,9 @@ int main ( int argc, char** argv )
                                   .add ( "IsObjectFoundWithLowConfidence" )
                                   .add ( "IsObjectNotFound" ) );
     
-    sl.addStateFactor ( StateDep().add ( "IsPersonFoundWithHighConfidence" )
-                                  .add ( "IsPersonFoundWithLowConfidence" )
-                                  .add ( "IsPersonNotFound" ) );
+    //sl.addStateFactor ( StateDep().add ( "IsPersonFoundWithHighConfidence" )
+    //                              .add ( "IsPersonFoundWithLowConfidence" )
+    //                              .add ( "IsPersonNotFound" ) );
     
     spin();
 

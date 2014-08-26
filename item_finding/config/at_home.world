@@ -26,7 +26,7 @@ define pioneer3at position
   localization "odom"
   odom_error [ 0.00 0.00 0 0.0 ]              # Odometry error or slip in X, Y and Theta
 
-  sick (pose [ 0.200 0.000 0.000 0.000 ])
+  sick (pose [ 0.100 0.000 0.000 0.000 ])
 )
 
 define floorplan model

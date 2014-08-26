@@ -183,8 +183,12 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
         
         ROS_WARN_STREAM ( "depois do segundo if" );
         
+        //for( std::vector<size_t>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
+        //    std::cout << *i << ' ';
         
         
+        
+        /*
         if ( local_action_names_.empty() )
         {
             cout << "dentro do segundo if -> mdm_agent_index_ e " << mdm_agent_index_ << " e local_action e " << local_action << endl;
@@ -195,6 +199,7 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
             cout << "dentro do segundo else -> mdm_agent_index_ e " << mdm_agent_index_ << " e local_action e " << local_action << " e local_action_names_[local_action] e " << local_action_names_[local_action] << endl;
             ROS_INFO_STREAM ( "ActionLayer:: Agent " << mdm_agent_index_ << " executing action " << local_action << " (" << local_action_names_[local_action] << ")" );
         }
+        */
         
         ROS_WARN_STREAM ( "depois do terceiro if" );
         

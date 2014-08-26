@@ -24,41 +24,33 @@ class Simulator ():
         self.sub_robot_location  = rospy.Subscriber ( "/agent/100/pose_label", PoseLabel, self.callback_location )
         
         # ROS Publishers
-        self.pub_person_confidence = rospy.Publisher ( '/agent/100/person_confidence', Int32 )
+        #self.pub_person_confidence = rospy.Publisher ( '/agent/100/person_confidence', Int32 )
         self.pub_object_confidence = rospy.Publisher ( '/agent/100/object_confidence', Int32 )
         self.pub_object_possession = rospy.Publisher ( '/agent/100/object_possession', Bool )
         
         # Variables
-        self.person_location = 0
+        #self.person_location = 0
         self.object_location = 0
         self.robot_location = 0
         
-        self.person_confidence = 0
+        #self.person_confidence = 0
         self.object_confidence = 0
         self.object_possession = False
         
-        self.generate_variable ( self.person_location )
+        #self.generate_variable ( self.person_location )
         self.generate_variable ( self.object_location )
 
 
 
     def generate_variable ( self, var ):
-        var = random.randint (0, 6)
+        r = random.random ()
         
-        if var == 0:
-            self.person_location = "Bedroom"
-        elif var == 1:
-            self.person_location = "Bathroom"
-        elif var == 2:
-            self.person_location = "InsideHallway"
-        elif var == 3:
-            self.person_location = "OutsideHallway"
-        elif var == 4:
-            self.person_location = "DiningArea"
-        elif var == 5:
-            self.person_location = "TVArea"
-        elif var == 6:
-            self.person_location = "KitchenArea"
+        if r < 0.7:
+            var = "Bedroom"
+        elif r < 0.8:
+            var = "DiningArea"
+        else:
+            var = "TVArea"
 
 
 
@@ -113,7 +105,7 @@ class Simulator ():
             self.robot_location = "KitchenArea"
             
         self.generate_confidence_levels ( self.object_location, self.object_confidence, self.pub_object_confidence )
-        self.generate_confidence_levels ( self.person_location, self.person_confidence, self.pub_person_confidence )
+        #self.generate_confidence_levels ( self.person_location, self.person_confidence, self.pub_person_confidence )
 
 
 

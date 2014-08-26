@@ -30,16 +30,16 @@ public:
         client_.sendGoal ( goal );
     }
     
-    void releaseObject ()
-    {
-        client_.waitForServer ();
-        
-        item_finding::HandleObjectGoal goal;
-        
-        goal.grab_or_release = 0;
-
-        client_.sendGoal ( goal );
-    }
+//     void releaseObject ()
+//     {
+//         client_.waitForServer ();
+//         
+//         item_finding::HandleObjectGoal goal;
+//         
+//         goal.grab_or_release = 0;
+// 
+//         client_.sendGoal ( goal );
+//     }
     
 private:
     NodeHandle nh_;
@@ -69,7 +69,7 @@ int main ( int argc, char** argv )
     al.addAction ( "Right" );
     
     al.getActionLayer().addAction ( boost::bind ( &Actions::graspObject, &am ), "GraspObject" );
-    al.getActionLayer().addAction ( boost::bind ( &Actions::releaseObject, &am ), "ReleaseObject" );
+    //al.getActionLayer().addAction ( boost::bind ( &Actions::releaseObject, &am ), "ReleaseObject" );
 
     al.spin();
 

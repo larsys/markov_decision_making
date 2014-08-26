@@ -183,47 +183,47 @@ private:
 };
 
 
-
+/*
 class IsPersonFoundWithHighConfidence : public Predicate
 {
 public:
-    IsPersonFoundWithHighConfidence() :
-        Predicate ( "IsPersonFoundWithHighConfidence" ),
-        person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithHighConfidence::personFoundCallback, this ) ),
-        is_person_found_with_high_confidence_ ( false )
-    {}
+   IsPersonFoundWithHighConfidence() :
+       Predicate ( "IsPersonFoundWithHighConfidence" ),
+       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithHighConfidence::personFoundCallback, this ) ),
+       is_person_found_with_high_confidence_ ( false )
+   {}
 
-    void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
-    {
-        uint32_t val = msg -> data;
-        
-        if ( val == 2 )
-        {
-            if ( !is_person_found_with_high_confidence_ )
-            {
-                is_person_found_with_high_confidence_ = true;
-                update ();
-            }
-        }
-        else
-        {
-            if ( is_person_found_with_high_confidence_ )
-            {
-                is_person_found_with_high_confidence_ = false;
-                update ();
-            }
-        }
-    }
+   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
+   {
+       uint32_t val = msg -> data;
+       
+       if ( val == 2 )
+       {
+           if ( !is_person_found_with_high_confidence_ )
+           {
+               is_person_found_with_high_confidence_ = true;
+               update ();
+           }
+       }
+       else
+       {
+           if ( is_person_found_with_high_confidence_ )
+           {
+               is_person_found_with_high_confidence_ = false;
+               update ();
+           }
+       }
+   }
 
-    void update ()
-    {
-        setValue ( is_person_found_with_high_confidence_ );
-    }
+   void update ()
+   {
+       setValue ( is_person_found_with_high_confidence_ );
+   }
 
 private:
-    NodeHandle nh_;
-    Subscriber person_found_sub_;
-    bool is_person_found_with_high_confidence_;
+   NodeHandle nh_;
+   Subscriber person_found_sub_;
+   bool is_person_found_with_high_confidence_;
 };
 
 
@@ -231,43 +231,43 @@ private:
 class IsPersonFoundWithLowConfidence : public Predicate
 {
 public:
-    IsPersonFoundWithLowConfidence() :
-        Predicate ( "IsPersonFoundWithLowConfidence" ),
-        person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithLowConfidence::personFoundCallback, this ) ),
-        is_person_found_with_low_confidence_ ( false )
-    {}
+   IsPersonFoundWithLowConfidence() :
+       Predicate ( "IsPersonFoundWithLowConfidence" ),
+       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithLowConfidence::personFoundCallback, this ) ),
+       is_person_found_with_low_confidence_ ( false )
+   {}
 
-    void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
-    {
-        uint32_t val = msg -> data;
-        
-        if ( val == 1 )
-        {
-            if ( !is_person_found_with_low_confidence_ )
-            {
-                is_person_found_with_low_confidence_ = true;
-                update ();
-            }
-        }
-        else
-        {
-            if ( is_person_found_with_low_confidence_ )
-            {
-                is_person_found_with_low_confidence_ = false;
-                update ();
-            }
-        }
-    }
+   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
+   {
+       uint32_t val = msg -> data;
+       
+       if ( val == 1 )
+       {
+           if ( !is_person_found_with_low_confidence_ )
+           {
+               is_person_found_with_low_confidence_ = true;
+               update ();
+           }
+       }
+       else
+       {
+           if ( is_person_found_with_low_confidence_ )
+           {
+               is_person_found_with_low_confidence_ = false;
+               update ();
+           }
+       }
+   }
 
-    void update ()
-    {
-        setValue ( is_person_found_with_low_confidence_ );
-    }
+   void update ()
+   {
+       setValue ( is_person_found_with_low_confidence_ );
+   }
 
 private:
-    NodeHandle nh_;
-    Subscriber person_found_sub_;
-    bool is_person_found_with_low_confidence_;
+   NodeHandle nh_;
+   Subscriber person_found_sub_;
+   bool is_person_found_with_low_confidence_;
 };
 
 
@@ -275,45 +275,45 @@ private:
 class IsPersonNotFound : public Predicate
 {
 public:
-    IsPersonNotFound() :
-        Predicate ( "IsPersonNotFound" ),
-        person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonNotFound::personFoundCallback, this ) ),
-        is_person_not_found_ ( true )
-    {}
+   IsPersonNotFound() :
+       Predicate ( "IsPersonNotFound" ),
+       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonNotFound::personFoundCallback, this ) ),
+       is_person_not_found_ ( true )
+   {}
 
-    void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
-    {
-        uint32_t val = msg -> data;
-        
-        if ( val == 0 )
-        {
-            if ( !is_person_not_found_ )
-            {
-                is_person_not_found_ = true;
-                update ();
-            }
-        }
-        else
-        {
-            if ( is_person_not_found_ )
-            {
-                is_person_not_found_ = false;
-                update ();
-            }
-        }
-    }
+   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
+   {
+       uint32_t val = msg -> data;
+       
+       if ( val == 0 )
+       {
+           if ( !is_person_not_found_ )
+           {
+               is_person_not_found_ = true;
+               update ();
+           }
+       }
+       else
+       {
+           if ( is_person_not_found_ )
+           {
+               is_person_not_found_ = false;
+               update ();
+           }
+       }
+   }
 
-    void update ()
-    {
-        setValue ( is_person_not_found_ );
-    }
+   void update ()
+   {
+       setValue ( is_person_not_found_ );
+   }
 
 private:
     NodeHandle nh_;
     Subscriber person_found_sub_;
     bool is_person_not_found_;
 };
-
+*/
 
 
 int main ( int argc, char** argv )
@@ -339,9 +339,9 @@ int main ( int argc, char** argv )
     IsObjectFoundWithLowConfidence isObjectFoundWithLowConfidence;
     IsObjectNotFound isObjectNotFound;
     
-    IsPersonFoundWithHighConfidence isPersonFoundWithHighConfidence;
-    IsPersonFoundWithLowConfidence isPersonFoundWithLowConfidence;
-    IsPersonNotFound isPersonNotFound;
+//     IsPersonFoundWithHighConfidence isPersonFoundWithHighConfidence;
+//     IsPersonFoundWithLowConfidence isPersonFoundWithLowConfidence;
+//     IsPersonNotFound isPersonNotFound;
     
 
     ///Registering predicates in the PM
@@ -359,9 +359,9 @@ int main ( int argc, char** argv )
     pm.addPredicate ( isObjectFoundWithLowConfidence );
     pm.addPredicate ( isObjectNotFound );
     
-    pm.addPredicate ( isPersonFoundWithHighConfidence );
-    pm.addPredicate ( isPersonFoundWithLowConfidence );
-    pm.addPredicate ( isPersonNotFound );
+//     pm.addPredicate ( isPersonFoundWithHighConfidence );
+//     pm.addPredicate ( isPersonFoundWithLowConfidence );
+//     pm.addPredicate ( isPersonNotFound );
 
     ///Starting PM
     pm.spin();
