@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 
 #include <topological_tools/topological_move_base_action_layer.h>
+#include <mdm_library/action_layer.h>
 #include <item_finding/HandleObjectAction.h>
 #include <actionlib/client/simple_action_client.h>
 #include <boost/concept_check.hpp>

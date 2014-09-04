@@ -8,7 +8,7 @@
 
     <param name="policy_save_path" value="~/Desktop"/>
 
-    <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py" output="screen"/-->
+    <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py"/-->
     <node pkg="mdm_library" name="MDMLogger" type="logger.py" output="screen"/>
 
     <node pkg="item_finding" name="EnvironmentSimulator" type="sim.py" output="screen"/>

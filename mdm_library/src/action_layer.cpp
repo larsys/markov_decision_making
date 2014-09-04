@@ -142,10 +142,12 @@ addAction ( boost::function<void () > callback, const string& action_name )
     
     cout << "\n" << endl;
     
-    cout << "\naction_ids_" << endl;
+    cout << "\nnamed_action_ids_" << endl;
+
+    typedef map<std::string, size_t>::const_iterator Iterator;
     
-    for( std::vector<size_t>::const_iterator i = action_ids_.begin(); i != action_ids_.end(); ++i)
-        std::cout << *i << ' ';
+    for(Iterator it = named_action_ids_.begin(); it != named_action_ids_.end(); ++it)
+        std::cout << it->first << " " << it->second << "\n";
     
     cout << "\n" << endl;
 }
@@ -156,6 +158,22 @@ void
 ActionLayer::
 actionSymbolCallback ( const ActionSymbolConstPtr& msg )
 {
+    cout << "\nlocal_action_names_" << endl;
+        
+    for( std::vector<string>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
+        std::cout << *i << ' ';
+    
+    cout << "\n" << endl;
+    
+    cout << "\nnamed_action_ids_" << endl;
+
+    typedef map<std::string, size_t>::const_iterator Iterator;
+    
+    for(Iterator it = named_action_ids_.begin(); it != named_action_ids_.end(); ++it)
+        std::cout << it->first << " " << it->second << "\n";
+    
+    cout << "\n" << endl;
+    
     try
     {
         if ( action_sizes_.empty() )
@@ -168,8 +186,6 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
                 action_ids_.push_back ( i );
             pending_action_ = boost::shared_ptr<const ActionSymbol> ( new ActionSymbol ( *msg ) );
         }
-        
-        ROS_WARN_STREAM ( "depois do primeiro if" );
 
         uint32_t local_action;
         if ( action_sizes_.size() > 1 )
@@ -180,28 +196,37 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
         {
             local_action = msg->action_symbol;
         }
+        cout << "executing action " << local_action << endl;
         
-        ROS_WARN_STREAM ( "depois do segundo if" );
+        cout << "\nlocal_action_names_" << endl;
         
-        //for( std::vector<size_t>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
-        //    std::cout << *i << ' ';
+        for( std::vector<string>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
+            std::cout << *i << ' ';
         
+        cout << "\n" << endl;
         
+        cout << "\naction_ids_" << endl;
         
-        /*
+        for( std::vector<size_t>::const_iterator i = action_ids_.begin(); i != action_ids_.end(); ++i)
+            std::cout << *i << ' ';
+        
+        cout << "\n" << endl;
+        
+        cout << "\naction_sizes_" << endl;
+        
+        for( std::vector<size_t>::const_iterator i = action_sizes_.begin(); i != action_sizes_.end(); ++i)
+            std::cout << *i << ' ';
+        
+        cout << "\n" << endl;
+        
         if ( local_action_names_.empty() )
         {
-            cout << "dentro do segundo if -> mdm_agent_index_ e " << mdm_agent_index_ << " e local_action e " << local_action << endl;
             ROS_INFO_STREAM ( "ActionLayer:: Agent " << mdm_agent_index_ << " executing action " << local_action );
         }
         else
         {
-            cout << "dentro do segundo else -> mdm_agent_index_ e " << mdm_agent_index_ << " e local_action e " << local_action << " e local_action_names_[local_action] e " << local_action_names_[local_action] << endl;
             ROS_INFO_STREAM ( "ActionLayer:: Agent " << mdm_agent_index_ << " executing action " << local_action << " (" << local_action_names_[local_action] << ")" );
         }
-        */
-        
-        ROS_WARN_STREAM ( "depois do terceiro if" );
         
         if ( action_ids_.size() > local_action && action_callbacks_.size() > action_ids_[local_action] )
         {
@@ -213,8 +238,6 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
             ROS_FATAL_STREAM ( "ActionLayer:: Callback for action " << local_action << " is unknown" );
             shutdown();
         }
-        
-        ROS_WARN_STREAM ( "depois do quarto if" );
     }
     catch ( exception & e )
     {
