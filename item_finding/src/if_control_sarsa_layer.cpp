@@ -23,7 +23,7 @@ int main ( int argc, char** argv )
     string q_values_path = argv[3];
 
     ALPHA_TYPE alpha = ALPHA_ONE_OVER_T;
-    EPSILON_TYPE epsilon = EPSILON_EXP;
+    EPSILON_TYPE epsilon = EPSILON_CONSTANT;
     CONTROLLER_TYPE controller = EVENT;
 
     uint32_t num_states = 42;

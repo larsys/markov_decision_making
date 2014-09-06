@@ -132,24 +132,6 @@ addAction ( boost::function<void () > callback, const string& action_name )
     }
 
     action_callbacks_.push_back ( callback );
-    
-    cout << "ADDING ACTION " << action_name << endl;
-    
-    cout << "\nlocal_action_names_" << endl;
-        
-    for( std::vector<string>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
-        std::cout << *i << ' ';
-    
-    cout << "\n" << endl;
-    
-    cout << "\nnamed_action_ids_" << endl;
-
-    typedef map<std::string, size_t>::const_iterator Iterator;
-    
-    for(Iterator it = named_action_ids_.begin(); it != named_action_ids_.end(); ++it)
-        std::cout << it->first << " " << it->second << "\n";
-    
-    cout << "\n" << endl;
 }
 
 
@@ -158,22 +140,6 @@ void
 ActionLayer::
 actionSymbolCallback ( const ActionSymbolConstPtr& msg )
 {
-    cout << "\nlocal_action_names_" << endl;
-        
-    for( std::vector<string>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
-        std::cout << *i << ' ';
-    
-    cout << "\n" << endl;
-    
-    cout << "\nnamed_action_ids_" << endl;
-
-    typedef map<std::string, size_t>::const_iterator Iterator;
-    
-    for(Iterator it = named_action_ids_.begin(); it != named_action_ids_.end(); ++it)
-        std::cout << it->first << " " << it->second << "\n";
-    
-    cout << "\n" << endl;
-    
     try
     {
         if ( action_sizes_.empty() )
@@ -196,28 +162,6 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
         {
             local_action = msg->action_symbol;
         }
-        cout << "executing action " << local_action << endl;
-        
-        cout << "\nlocal_action_names_" << endl;
-        
-        for( std::vector<string>::const_iterator i = local_action_names_.begin(); i != local_action_names_.end(); ++i)
-            std::cout << *i << ' ';
-        
-        cout << "\n" << endl;
-        
-        cout << "\naction_ids_" << endl;
-        
-        for( std::vector<size_t>::const_iterator i = action_ids_.begin(); i != action_ids_.end(); ++i)
-            std::cout << *i << ' ';
-        
-        cout << "\n" << endl;
-        
-        cout << "\naction_sizes_" << endl;
-        
-        for( std::vector<size_t>::const_iterator i = action_sizes_.begin(); i != action_sizes_.end(); ++i)
-            std::cout << *i << ' ';
-        
-        cout << "\n" << endl;
         
         if ( local_action_names_.empty() )
         {

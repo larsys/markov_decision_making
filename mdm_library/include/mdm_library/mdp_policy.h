@@ -97,7 +97,7 @@ public:
         num_actions_ ( num_actions ),
         epsilon_type_ ( epsilon_type ),
         file_path_ ( file_path ),
-        private_nh_ ( "~" ),
+        //private_nh_ ( "~" ),
         curr_decision_ep_ ( 0 )
     {
         srand ( time ( NULL ) );
@@ -117,7 +117,10 @@ public:
                     ros::shutdown();
                 }
                 else
+                {
+                    cout << "EPSILON PARAM IS " << epsilon << endl;
                     epsilon_ = ( float ) epsilon;
+                }
             }
             else
             {
@@ -168,6 +171,8 @@ protected:
         
         if ( epsilon_type_ != EPSILON_CONSTANT )
             epsilon_ = updateEpsilon ( epsilon_type_, curr_decision_ep_ );
+        
+        cout << "EPSILON IS " << epsilon_ << endl;
         
         // With probability epsilon choose a random action. Otherwise, follow the policy.
         if ( p <= epsilon_ )

@@ -11,13 +11,14 @@ from topological_tools.msg import PoseLabel
 from std_msgs.msg import Int32
 from std_msgs.msg import Bool
 from item_finding.msg import HandleObjectAction
+from std_srvs.srv import Empty
 
 
 
 class Simulator ():
     def __init__ ( self ):
         # ROS actionlib server
-        self.handle_object_server = actionlib.SimpleActionServer ( 'handle_object', HandleObjectAction, self.execute, False )
+        self.handle_object_server = actionlib.SimpleActionServer ( '/agent/100/handle_object', HandleObjectAction, self.execute, False )
         self.handle_object_server.start ()
         
         # ROS Subscribers
@@ -27,6 +28,10 @@ class Simulator ():
         #self.pub_person_confidence = rospy.Publisher ( '/agent/100/person_confidence', Int32 )
         self.pub_object_confidence = rospy.Publisher ( '/agent/100/object_confidence', Int32 )
         self.pub_object_possession = rospy.Publisher ( '/agent/100/object_possession', Bool )
+        
+        # ROS Services
+        self.republish_client = rospy.ServiceProxy ( '/agent/100/publish_new_action', Empty )
+        #rospy.wait_for_service( 'publish_new_action', 5 )
         
         # Variables
         #self.person_location = 0
@@ -38,19 +43,21 @@ class Simulator ():
         self.object_possession = False
         
         #self.generate_variable ( self.person_location )
-        self.generate_variable ( self.object_location )
+        self.generate_variable ()
 
 
 
-    def generate_variable ( self, var ):
+    def generate_variable ( self ):
         r = random.random ()
         
-        if r < 0.7:
-            var = "Bedroom"
+        if r < 0.6:
+            self.object_location = "Bedroom"
         elif r < 0.8:
-            var = "DiningArea"
+            self.object_location = "DiningArea"
         else:
-            var = "TVArea"
+            self.object_location = "TVArea"
+            
+        print '\033[92m Object location is ' + str ( self.object_location )
 
 
 
@@ -66,23 +73,36 @@ class Simulator ():
             # Object/Person not found
             confidence_var = 0
     
+        print '\033[92m Publishing confidence var = ' + str ( confidence_var ) + '\033[0m'
+    
         pub.publish ( Int32 ( confidence_var ) )
     
     
 
     def execute ( self, goal ):
+        print '\033[92m Received grasp command \033[0m'
+        
         if goal.grab_or_release == 0:
             # Release
             if self.object_possession == True:
                 self.object_possession = False
         else:
             # Grab
-            if self.object_possession == False:
-                self.object_possession = True
+            if self.robot_location == self.object_location:
+                if self.object_possession == False:
+                    self.object_possession = True
+            else:
+                request = Empty ()
+                rospy.wait_for_service( '/agent/100/publish_new_action', 5 )
+                self.republish_client ()
+        
+        print '\033[92m Publishing object possession = ' + str ( self.object_possession ) + '\033[0m'
         
         self.pub_object_possession.publish ( Bool ( self.object_possession ) )
         
-        self.server.set_succeeded ()
+        self.handle_object_server.set_succeeded ()
+        
+        print '\033[92m Execution done. Set succeeded. \033[0m'
 
 
 
@@ -106,6 +126,8 @@ class Simulator ():
             
         self.generate_confidence_levels ( self.object_location, self.object_confidence, self.pub_object_confidence )
         #self.generate_confidence_levels ( self.person_location, self.person_confidence, self.pub_person_confidence )
+        
+        print '\033[92m Robot location is ' + str ( self.robot_location ) + '\033[0m'
 
 
 

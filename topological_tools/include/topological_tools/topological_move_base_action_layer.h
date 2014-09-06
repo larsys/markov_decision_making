@@ -55,7 +55,7 @@ public:
 
     void addAction ( const std::string& action_name );
     
-    mdm_library::ActionLayer getActionLayer ();
+    boost::shared_ptr<mdm_library::ActionLayer> getActionLayer ();
 
     void spin();
 protected:
@@ -73,7 +73,7 @@ private:
     ros::CallbackQueue actions_cb_queue_;
     ros::CallbackQueue predicates_cb_queue_;
 
-    mdm_library::ActionLayer al_;
+    boost::shared_ptr<mdm_library::ActionLayer> al_;
     TopologicalActionManager tam_;
     MoveBaseClient move_base_client_;
 };

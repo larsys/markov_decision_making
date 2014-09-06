@@ -36,7 +36,7 @@ TopologicalMoveBaseActionLayer::
 TopologicalMoveBaseActionLayer ( TopologicalMap& tm ) :
     actions_cb_queue_(),
     predicates_cb_queue_(),
-    al_ ( &actions_cb_queue_ ),
+    al_ ( new ActionLayer ( &actions_cb_queue_ ) ),
     tam_ ( tm, &predicates_cb_queue_ ),
     move_base_client_ ( "move_base", true ), ///auto spin is true
     client_ ( nh_.serviceClient<std_srvs::Empty> ( "publish_new_action" ) )
@@ -55,7 +55,7 @@ TopologicalMoveBaseActionLayer::
 TopologicalMoveBaseActionLayer ( const std::string& map_file ) :
     actions_cb_queue_(),
     predicates_cb_queue_(),
-    al_ ( &actions_cb_queue_ ),
+    al_ ( new ActionLayer ( &actions_cb_queue_ ) ),
     tam_ ( map_file, &predicates_cb_queue_ ),
     move_base_client_ ( "move_base", true ), ///auto spin is true
     client_ ( nh_.serviceClient<std_srvs::Empty> ( "publish_new_action" ) )
@@ -74,13 +74,13 @@ void
 TopologicalMoveBaseActionLayer::
 addAction ( const std::string& action_name )
 {
-    al_.addAction ( boost::bind ( &TopologicalMoveBaseActionLayer::moveToLabel, this, action_name ),
-                    action_name );
+    al_ -> addAction ( boost::bind ( &TopologicalMoveBaseActionLayer::moveToLabel, this, action_name ),
+                       action_name );
 }
 
 
 
-mdm_library::ActionLayer
+boost::shared_ptr<ActionLayer>
 TopologicalMoveBaseActionLayer::
 getActionLayer ()
 {

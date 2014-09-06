@@ -22,12 +22,14 @@ public:
     
     void graspObject ()
     {
+        bool status = client_.isServerConnected ();
+        
         client_.waitForServer ();
         
         item_finding::HandleObjectGoal goal;
         
         goal.grab_or_release = 1;
-
+        
         client_.sendGoal ( goal );
     }
     
@@ -69,8 +71,10 @@ int main ( int argc, char** argv )
     al.addAction ( "Left" );
     al.addAction ( "Right" );
     
-    al.getActionLayer().addAction ( boost::bind ( &Actions::graspObject, &am ), "GraspObject" );
+    al.getActionLayer() -> addAction ( boost::bind ( &Actions::graspObject, &am ), "GraspObject" );
     //al.getActionLayer().addAction ( boost::bind ( &Actions::releaseObject, &am ), "ReleaseObject" );
+    
+    std::cout << "ALL DONE " << std::endl;
 
     al.spin();
 

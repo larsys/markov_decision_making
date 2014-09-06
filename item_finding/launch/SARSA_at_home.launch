@@ -10,7 +10,6 @@
 
     <!--node pkg="mdm_library" name="visualizer" type="VisGUI.py"/-->
     <node pkg="mdm_library" name="MDMLogger" type="logger.py" output="screen"/>
-
     <node pkg="item_finding" name="EnvironmentSimulator" type="sim.py" output="screen"/>
 
     <node pkg="stage_ros" type="stageros" name="stageros" args="$(find item_finding)/config/at_home.world">
@@ -36,7 +35,8 @@
     <group ns="agent/100">
         <param name="pm_id" value="0" />
 	<param name="gamma" value="0.9" />
-	<param name="lambda" value="0" />
+	<param name="lambda" value="0.9" />
+	<param name="epsilon" value="1" />
 	<param name="policy_update_frequency" value="1" />
 	<param name="reward_type" value="matrix" />
 
@@ -48,20 +48,22 @@
         <rosparam file="$(find item_finding)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
 
         <node pkg="topological_tools" name="pose_labeler" type="pose_labeler_node" 
-              args="$(find item_finding)/maps/at_home_label_map.png amcl_pose" respawn="true"/>
+              args="$(find item_finding)/maps/at_home_label_map.png amcl_pose" respawn="false"/>
 
-        <node pkg="item_finding" name="predicates" type="if_predicates" respawn="true"/>
+        <node pkg="item_finding" name="predicates" type="if_predicates" respawn="false"/>
 
-        <node pkg="item_finding" name="state_layer" type="if_state_layer" respawn="true" output="screen"/>
+        <node pkg="item_finding" name="state_layer" type="if_state_layer" respawn="false" output="screen"/>
 
         <node pkg="item_finding" name="control_layer" type="if_control_sarsa_layer" 
               args="$(find item_finding)/config/MDP_policy $(find item_finding)/config/MDP_reward $(find item_finding)/config/Q_values" respawn="false" output="screen" cwd="node"/>
         
-        <node pkg="item_finding" name="action_layer" type="if_action_layer" 
-              args="$(find item_finding)/config/topological_map.xml" respawn="true" output="screen"/>
+	<node pkg="item_finding" name="action_layer" type="if_action_layer" 
+              args="$(find item_finding)/config/topological_map.xml" respawn="false" output="screen"/>
         
         <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
               args="pub -1 /agent/100/initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: 0, y: 0, z: 0}, orientation: { w: 1, z: 0, x: 0, y: 0 } } } }'"/>
+
+	<node pkg="item_finding" name="Killer" type="killer.py" output="screen"/>
               
     </group>
 
