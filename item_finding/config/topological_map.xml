@@ -11,22 +11,15 @@
             <Connection label="Down">IsInInsideHallway</Connection>
         </Connections>
     </Node>
-    <Node name="IsInOutsideHallway">
-        <Goal>2.63 3.25 0</Goal>
-        <Connections>
-            <Connection label="Down">IsInInsideHallway</Connection>
-        </Connections>
-    </Node>
     <Node name="IsInInsideHallway">
         <Goal>1.65 1.28 0</Goal>
         <Connections>
             <Connection label="Down">IsInTVArea</Connection>
-            <Connection label="Right">IsInOutsideHallway</Connection>
 	    <Connection label="Up">IsInBathroom</Connection>
         </Connections>
     </Node>
     <Node name="IsInTVArea">
-        <Goal>-1.96 -1.47 0</Goal>
+        <Goal>-1.91 -1.55 0</Goal>
         <Connections>
             <Connection label="Down">IsInDiningArea</Connection>
             <Connection label="Left">IsInBedroom</Connection>
@@ -35,14 +28,14 @@
         </Connections>
     </Node>
     <Node name="IsInDiningArea">
-        <Goal>1.58 -3.47 0</Goal>
+        <Goal>1.35 -3.81 0</Goal>
         <Connections>
 	    <Connection label="Left">IsInTVArea</Connection>
 	    <Connection label="Up">IsInKitchenArea</Connection>
         </Connections>
     </Node>
     <Node name="IsInKitchenArea">
-        <Goal>1.53 -0.42 0</Goal>
+        <Goal>2 -0.3 0</Goal>
         <Connections>
             <Connection label="Left">IsInTVArea</Connection>
 	    <Connection label="Down">IsInDiningArea</Connection>

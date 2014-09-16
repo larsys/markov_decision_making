@@ -1,7 +1,6 @@
 IsInBedroom: 255
 IsInBathroom: 46335
 IsInInsideHallway: 2031360
-IsInOutsideHallway: 60159
 IsInDiningArea: 16757760
 IsInTVArea: 13434986
-IsInKitchenArea: 10289081
+IsInKitchenArea: 60159

@@ -14,7 +14,6 @@ int main ( int argc, char** argv )
     sl.addStateFactor ( StateDep().add ( "IsInBedroom" )
                                   .add ( "IsInBathroom" )
                                   .add ( "IsInInsideHallway" )
-                                  .add ( "IsInOutsideHallway" )
                                   .add ( "IsInDiningArea" )
                                   .add ( "IsInTVArea" )
                                   .add ( "IsInKitchenArea" ) );
@@ -25,9 +24,7 @@ int main ( int argc, char** argv )
                                   .add ( "IsObjectFoundWithLowConfidence" )
                                   .add ( "IsObjectNotFound" ) );
     
-    //sl.addStateFactor ( StateDep().add ( "IsPersonFoundWithHighConfidence" )
-    //                              .add ( "IsPersonFoundWithLowConfidence" )
-    //                              .add ( "IsPersonNotFound" ) );
+    sl.addStateFactor ( StateDep().add ( "IsPersonFound" ) );
     
     spin();
 

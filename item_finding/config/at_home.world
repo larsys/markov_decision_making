@@ -24,6 +24,7 @@ define pioneer3at position
   
   drive "diff"
   localization "odom"
+  #localization "gps"
   odom_error [ 0.00 0.00 0 0.0 ]              # Odometry error or slip in X, Y and Theta
 
   sick (pose [ 0.100 0.000 0.000 0.000 ])
@@ -72,4 +73,4 @@ floorplan
 )
 
 # throw in a robot
-pioneer3at( pose [ 0.000 0.000 0.000 0 ] name "pioneer0" color "red")
+pioneer3at( pose [ -2.000 -1.000 0.000 0 ] name "pioneer0" color "red")

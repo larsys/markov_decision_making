@@ -127,6 +127,7 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
                     uint32_t num_states,
                     uint32_t num_actions,
                     const string& q_values_path,
+                    const string& eligibility_traces_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status
                   ) :
     alpha_type_ ( alpha_type ),
@@ -134,7 +135,9 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     //private_nh_ ( "~" ),
     num_states_ ( num_states ),
     num_actions_ ( num_actions ),
-    q_values_path_ ( q_values_path )
+    q_values_path_ ( q_values_path ),
+    eligibility_traces_path_ ( eligibility_traces_path ),
+    republish_ ( false )
 {
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
@@ -219,6 +222,22 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
         cout << "Using a default value for lambda of 0." << endl;
     }
     
+    
+    // Gather the policy update frequency value from the parameters
+    int impossible_action_reward;
+    
+    if ( private_nh_.hasParam ( "impossible_action_reward" ) )
+    {
+        private_nh_.getParam ( "impossible_action_reward", impossible_action_reward );
+        impossible_action_reward_ = ( float ) impossible_action_reward;
+    }
+    else
+    {
+        impossible_action_reward_ = MDM_DEFAULT_IMPOSSIBLE_ACTION_REWARD;
+        cout << "Using a default value for impossible action reward of -1." << endl;
+    }
+    
+    
     if ( lambda_ != 0 )
         initializeEligibilityTraces ();
 }
@@ -292,4 +311,61 @@ initializeEligibilityTraces ()
     for ( unsigned i = 0; i < et_.size1(); ++i )
         for ( unsigned j = 0; j < et_.size2(); ++j )
             et_ ( i, j ) = 0;
+}
+
+
+
+bool
+LearningLayerBase::
+loadEligibilityTraces ()
+{
+    try
+    {
+        ifstream fp;
+        fp.open ( eligibility_traces_path_.c_str() );
+        
+        if ( fp.peek() == std::ifstream::traits_type::eof() )
+            return false;
+        
+        et_ = Matrix ( num_states_, num_actions_ );
+        
+        fp >> et_;
+        
+        cout << "Eligibility Traces file is not empty. Loading the Eligibility Traces from the file." << endl;
+        
+        fp.close ();
+        
+        return true;
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
+}
+
+
+
+void
+LearningLayerBase::
+saveEligibilityTraces ()
+{
+    try
+    {
+        ofstream fp;
+
+        fp.open ( eligibility_traces_path_.c_str(), ios::out );
+
+        fp << et_;
+
+        fp.flush ();
+        fp.close ();
+
+        cout << "Eligibility Traces saved!" << endl;
+    }
+    catch ( exception& e )
+    {
+        ROS_ERROR_STREAM ( e.what() );
+        abort();
+    }
 }

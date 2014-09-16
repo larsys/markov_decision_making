@@ -18,35 +18,40 @@ class Actions
 {
 public:
     Actions () :
-        client_ ( "handle_object", true ) {}
+        client_grasp_ ( "handle_object_grasp", true ),
+        client_release_ ( "handle_object_release", true )
+        {}
     
     void graspObject ()
     {
-        bool status = client_.isServerConnected ();
-        
-        client_.waitForServer ();
+        client_grasp_.waitForServer ();
         
         item_finding::HandleObjectGoal goal;
         
         goal.grab_or_release = 1;
         
-        client_.sendGoal ( goal );
+        client_grasp_.sendGoal ( goal );
+        
+        client_grasp_.waitForResult(ros::Duration(5.0));
     }
     
-//     void releaseObject ()
-//     {
-//         client_.waitForServer ();
-//         
-//         item_finding::HandleObjectGoal goal;
-//         
-//         goal.grab_or_release = 0;
-// 
-//         client_.sendGoal ( goal );
-//     }
+    void releaseObject ()
+    {
+        client_release_.waitForServer ();
+        
+        item_finding::HandleObjectGoal goal;
+        
+        goal.grab_or_release = 0;
+
+        client_release_.sendGoal ( goal );
+        
+        client_release_.waitForResult(ros::Duration(5.0));
+    }
     
 private:
     NodeHandle nh_;
-    Client client_;
+    Client client_grasp_;
+    Client client_release_;
 };
 
 
@@ -72,9 +77,7 @@ int main ( int argc, char** argv )
     al.addAction ( "Right" );
     
     al.getActionLayer() -> addAction ( boost::bind ( &Actions::graspObject, &am ), "GraspObject" );
-    //al.getActionLayer().addAction ( boost::bind ( &Actions::releaseObject, &am ), "ReleaseObject" );
-    
-    std::cout << "ALL DONE " << std::endl;
+    al.getActionLayer() -> addAction ( boost::bind ( &Actions::releaseObject, &am ), "ReleaseObject" );
 
     al.spin();
 

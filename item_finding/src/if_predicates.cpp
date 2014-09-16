@@ -183,33 +183,33 @@ private:
 };
 
 
-/*
-class IsPersonFoundWithHighConfidence : public Predicate
+
+class IsPersonFound : public Predicate
 {
 public:
-   IsPersonFoundWithHighConfidence() :
-       Predicate ( "IsPersonFoundWithHighConfidence" ),
-       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithHighConfidence::personFoundCallback, this ) ),
-       is_person_found_with_high_confidence_ ( false )
+   IsPersonFound() :
+       Predicate ( "IsPersonFound" ),
+       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_found", 10, &IsPersonFound::personFoundCallback, this ) ),
+       is_person_found_ ( false )
    {}
 
-   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
+   void personFoundCallback ( const std_msgs::BoolConstPtr& msg )
    {
-       uint32_t val = msg -> data;
+       bool val = msg -> data;
        
-       if ( val == 2 )
+       if ( val )
        {
-           if ( !is_person_found_with_high_confidence_ )
+           if ( !is_person_found_ )
            {
-               is_person_found_with_high_confidence_ = true;
+               is_person_found_ = true;
                update ();
            }
        }
        else
        {
-           if ( is_person_found_with_high_confidence_ )
+           if ( is_person_found_ )
            {
-               is_person_found_with_high_confidence_ = false;
+               is_person_found_ = false;
                update ();
            }
        }
@@ -217,103 +217,15 @@ public:
 
    void update ()
    {
-       setValue ( is_person_found_with_high_confidence_ );
-   }
-
-private:
-   NodeHandle nh_;
-   Subscriber person_found_sub_;
-   bool is_person_found_with_high_confidence_;
-};
-
-
-
-class IsPersonFoundWithLowConfidence : public Predicate
-{
-public:
-   IsPersonFoundWithLowConfidence() :
-       Predicate ( "IsPersonFoundWithLowConfidence" ),
-       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonFoundWithLowConfidence::personFoundCallback, this ) ),
-       is_person_found_with_low_confidence_ ( false )
-   {}
-
-   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
-   {
-       uint32_t val = msg -> data;
-       
-       if ( val == 1 )
-       {
-           if ( !is_person_found_with_low_confidence_ )
-           {
-               is_person_found_with_low_confidence_ = true;
-               update ();
-           }
-       }
-       else
-       {
-           if ( is_person_found_with_low_confidence_ )
-           {
-               is_person_found_with_low_confidence_ = false;
-               update ();
-           }
-       }
-   }
-
-   void update ()
-   {
-       setValue ( is_person_found_with_low_confidence_ );
-   }
-
-private:
-   NodeHandle nh_;
-   Subscriber person_found_sub_;
-   bool is_person_found_with_low_confidence_;
-};
-
-
-
-class IsPersonNotFound : public Predicate
-{
-public:
-   IsPersonNotFound() :
-       Predicate ( "IsPersonNotFound" ),
-       person_found_sub_ ( nh_.subscribe ( "/agent/100/person_confidence", 10, &IsPersonNotFound::personFoundCallback, this ) ),
-       is_person_not_found_ ( true )
-   {}
-
-   void personFoundCallback ( const std_msgs::Int32ConstPtr& msg )
-   {
-       uint32_t val = msg -> data;
-       
-       if ( val == 0 )
-       {
-           if ( !is_person_not_found_ )
-           {
-               is_person_not_found_ = true;
-               update ();
-           }
-       }
-       else
-       {
-           if ( is_person_not_found_ )
-           {
-               is_person_not_found_ = false;
-               update ();
-           }
-       }
-   }
-
-   void update ()
-   {
-       setValue ( is_person_not_found_ );
+       setValue ( is_person_found_ );
    }
 
 private:
     NodeHandle nh_;
     Subscriber person_found_sub_;
-    bool is_person_not_found_;
+    bool is_person_found_;
 };
-*/
+
 
 
 int main ( int argc, char** argv )
@@ -328,7 +240,6 @@ int main ( int argc, char** argv )
     TopologicalPredicate isInBedroom ( label_target, "IsInBedroom" );
     TopologicalPredicate isInBathroom ( label_target, "IsInBathroom" );
     TopologicalPredicate isInInsideHallway ( label_target, "IsInInsideHallway" );
-    TopologicalPredicate isInOutsideHallway ( label_target, "IsInOutsideHallway" );
     TopologicalPredicate isInDiningArea ( label_target, "IsInDiningArea" );
     TopologicalPredicate isInTVArea ( label_target, "IsInTVArea" );
     TopologicalPredicate isInKitchenArea ( label_target, "IsInKitchenArea" );
@@ -339,16 +250,13 @@ int main ( int argc, char** argv )
     IsObjectFoundWithLowConfidence isObjectFoundWithLowConfidence;
     IsObjectNotFound isObjectNotFound;
     
-//     IsPersonFoundWithHighConfidence isPersonFoundWithHighConfidence;
-//     IsPersonFoundWithLowConfidence isPersonFoundWithLowConfidence;
-//     IsPersonNotFound isPersonNotFound;
+    IsPersonFound isPersonFound;
     
 
     ///Registering predicates in the PM
     pm.addPredicate ( isInBedroom );
     pm.addPredicate ( isInBathroom );
     pm.addPredicate ( isInInsideHallway );
-    pm.addPredicate ( isInOutsideHallway );
     pm.addPredicate ( isInDiningArea );
     pm.addPredicate ( isInTVArea );
     pm.addPredicate ( isInKitchenArea );
@@ -359,9 +267,7 @@ int main ( int argc, char** argv )
     pm.addPredicate ( isObjectFoundWithLowConfidence );
     pm.addPredicate ( isObjectNotFound );
     
-//     pm.addPredicate ( isPersonFoundWithHighConfidence );
-//     pm.addPredicate ( isPersonFoundWithLowConfidence );
-//     pm.addPredicate ( isPersonNotFound );
+    pm.addPredicate ( isPersonFound );
 
     ///Starting PM
     pm.spin();

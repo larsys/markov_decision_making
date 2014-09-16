@@ -108,9 +108,10 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
                const std::string& policy_file_path,
                const std::string& reward_file_path,
                const std::string& q_values_path,
+               const string& eligibility_traces_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
-                        q_values_path, initial_status ),
+                        q_values_path, eligibility_traces_path, initial_status ),
     state_ ( 0 ),
     action_ ( 0 )
 {
@@ -145,6 +146,9 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
     
     if ( !loadQValues () )
         initializeQValues ();
+    
+    if ( !loadEligibilityTraces() )
+        initializeEligibilityTraces ();
     
     if ( !loadLearningPolicy ( learning_policy_file_path, epsilon_type ) )
         initializeLearningPolicy ( learning_policy_file_path, epsilon_type );
@@ -332,6 +336,8 @@ republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Respons
     
     ( *controller_ ).act ( ( *controller_ ).getLastState () );
     
+    republish_ = true;
+    
     newDecisionEpisode ( ( *controller_ ).getLastState () );
     
     return true;
@@ -358,6 +364,7 @@ newDecisionEpisode ( uint32_t state )
         updatePolicy ();
         publishPolicy ();
         saveQValues ();
+        saveEligibilityTraces();
     }
     
     cout << "Decision episode finished." << endl;
@@ -372,6 +379,12 @@ backupWithoutET ( uint32_t state )
     uint32_t obs_state = state;
     uint32_t obs_action = ( *controller_ ).getAction ();
     float obs_reward = ( *controller_ ).getReward ();
+    
+    if ( republish_ )
+    {
+        reward_ = impossible_action_reward_;
+        republish_ = false;
+    }
     
     if ( curr_decision_ep_ == 1 )
     {
@@ -423,7 +436,15 @@ backupWithET ( uint32_t state )
     {
         uint32_t obs_state = state;
         uint32_t obs_action = ( *controller_ ).getAction ();
-        float obs_reward = ( *controller_ ).getReward ();
+        float obs_reward = 0;
+        
+        if ( republish_ )
+        {
+            obs_reward = impossible_action_reward_;
+            republish_ = false;
+        }
+        else
+            obs_reward = ( *controller_ ).getReward ();
         
         if ( curr_decision_ep_ == 2 )
         {

@@ -316,6 +316,8 @@ act ( const uint32_t state )
         }
     }
     
+    ROS_ERROR_STREAM ( "STATE: " << state );
+    
     publishAction ( action );
     publishReward ( state, action );
 

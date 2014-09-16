@@ -29,6 +29,7 @@
 #define MDM_DEFAULT_GAMMA 0.9
 #define MDM_DEFAULT_ALPHA 0.1
 #define MDM_DEFAULT_LAMBDA 0
+#define MDM_DEFAULT_IMPOSSIBLE_ACTION_REWARD -1
 
 
 #include <mdm_library/control_layer_base.h>
@@ -68,6 +69,7 @@ public:
                         uint32_t num_states,
                         uint32_t num_actions,
                         const string& q_values_path,
+                        const string& eligibility_traces_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status );
     
 protected:
@@ -104,6 +106,12 @@ protected:
     /** The current decision episode */
     uint32_t curr_decision_ep_;
     
+    /** Reward for performing an impossible action */
+    float impossible_action_reward_;
+    
+    /** Flag to signify whether a republish was performed */
+    bool republish_;
+    
     /** The publisher for the "policy" topic in the local (public) namespace,
      * in which the policy information will be advertised. */
     ros::Publisher policy_pub_;
@@ -113,6 +121,12 @@ protected:
     
     /** Load the Q-Values table from file. Returns false if the file is empty. */
     bool loadQValues ();
+    
+    /** Save the eligibility traces table to file */
+    void saveEligibilityTraces ();
+    
+    /** Load the eligibility traces table from file. Returns false if the file is empty. */
+    bool loadEligibilityTraces ();
     
     /** Pure virtual function for updating the Q values. To be implemented in each specific method. */
     virtual void updateQValues () = 0;
@@ -149,6 +163,9 @@ protected:
 private:
     /** Path to the q_values file */
     const std::string& q_values_path_;
+    
+    /** Path to the eligibility_traces file */
+    const std::string& eligibility_traces_path_;
     
     /** ROS private Nodehandle to use the parameter server. */
     ros::NodeHandle private_nh_;

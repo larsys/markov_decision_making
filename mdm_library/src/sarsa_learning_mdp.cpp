@@ -92,9 +92,10 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
                    const std::string& policy_file_path,
                    const std::string& reward_file_path,
                    const std::string& q_values_path,
+                   const std::string& eligibility_traces_path,
                    const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
-                        q_values_path, initial_status ),
+                        q_values_path, eligibility_traces_path, initial_status ),
     state_ ( 0 ),
     action_ ( 0 ),
     next_state_ ( 0 ),
@@ -133,6 +134,12 @@ SarsaLearningMDP ( ALPHA_TYPE alpha_type,
     {
         cout << "Q-Values file is empty. Initializing the values at zero." << endl;
         initializeQValues ();
+    }
+    
+    if ( !loadEligibilityTraces() )
+    {
+        cout << "Eligibility Traces file is empty. Initializing the values at zero." << endl;
+        initializeEligibilityTraces ();
     }
 }
 
@@ -212,6 +219,8 @@ republish_callback ( std_srvs::Empty::Request& request, std_srvs::Empty::Respons
     
     ( *controller_ ).act ( ( *controller_ ).getLastState () );
     
+    republish_ = true;
+    
     newDecisionEpisode ( ( *controller_ ).getLastState () );
     
     return true;
@@ -240,6 +249,13 @@ newDecisionEpisode ( uint32_t state )
         uint32_t obs_action = ( *controller_ ).getAction ();
         float obs_reward = ( *controller_ ).getReward ();
         
+        if ( republish_ )
+        {
+            reward_ = impossible_action_reward_;
+            republish_ = false;
+            cout << "Giving punishing reward!" << endl;
+        }
+        
         if ( curr_decision_ep_ == 2 )
         {
             action_ = obs_action;
@@ -254,7 +270,9 @@ newDecisionEpisode ( uint32_t state )
         else
         {
             next_action_ = obs_action;
-            next_state_ = obs_state;
+            
+            if ( curr_decision_ep_ != 3 )
+                next_state_ = obs_state;
             
             updateQValues ();
             
@@ -268,7 +286,6 @@ newDecisionEpisode ( uint32_t state )
             state_ = next_state_;
             action_ = next_action_;
             reward_ = obs_reward;
-//             next_state_ = obs_state;
         }
     }
     
@@ -280,6 +297,7 @@ newDecisionEpisode ( uint32_t state )
         updatePolicy ();
         publishPolicy ();
         saveQValues ();
+        saveEligibilityTraces();
     }
 
     cout << "Decision episode finished." << endl;

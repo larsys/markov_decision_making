@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS mdm_library
 
 find_package( SDL )
 find_package( SDL_image )
+find_package( libstage )
 
 if ( NOT_SDLIMAGE_FOUND )
   message(FATAL_ERROR, "SDL_image must be installed in order to run the demo (and topological_tools must be compiled accordingly).")
@@ -52,3 +53,16 @@ add_executable(if_control_sarsa_layer src/if_control_sarsa_layer.cpp)
 target_link_libraries(if_control_sarsa_layer ${catkin_LIBRARIES})
 
 set_target_properties(if_control_sarsa_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+add_executable(if_control_layer src/if_control_layer.cpp)
+
+target_link_libraries(if_control_layer ${catkin_LIBRARIES})
+
+set_target_properties(if_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+
+
+
+add_executable(reset src/reset.cpp)
+
+target_link_libraries(reset ${catkin_LIBRARIES})
