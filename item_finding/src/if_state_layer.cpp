@@ -20,9 +20,9 @@ int main ( int argc, char** argv )
 
     sl.addStateFactor ( StateDep().add ( "IsObjectGrasped" ) );
     
-    sl.addStateFactor ( StateDep().add ( "IsObjectFoundWithHighConfidence" )
+    sl.addStateFactor ( StateDep().add ( "IsObjectNotFound" )
                                   .add ( "IsObjectFoundWithLowConfidence" )
-                                  .add ( "IsObjectNotFound" ) );
+                                  .add ( "IsObjectFoundWithHighConfidence" ) );
     
     sl.addStateFactor ( StateDep().add ( "IsPersonFound" ) );
     

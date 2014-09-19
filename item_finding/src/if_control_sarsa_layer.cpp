@@ -23,7 +23,7 @@ int main ( int argc, char** argv )
     string q_values_path = argv[3];
     string eligibility_traces_path = argv[4];
 
-    ALPHA_TYPE alpha = ALPHA_ONE_OVER_T;
+    ALPHA_TYPE alpha = ALPHA_CONSTANT;
     EPSILON_TYPE epsilon = EPSILON_CONSTANT;
     CONTROLLER_TYPE controller = EVENT;
 

@@ -36,7 +36,8 @@
         <param name="pm_id" value="0" />
 	<param name="gamma" value="0.9" />
 	<param name="lambda" value="0.9" />
-	<param name="epsilon" value="0.1" />
+	<param name="epsilon" value="0.9" />
+	<param name="alpha" value="0.9" />
 	<param name="policy_update_frequency" value="1" />
 	<param name="impossible_action_reward" value="-1" />
 	<param name="reward_type" value="matrix" />

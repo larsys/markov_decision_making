@@ -9,11 +9,11 @@ TrajectoryPlannerROS:
   path_distance_bias: 0.8
   goal_distance_bias: 0.7
   vtheta_samples: 50
-  occdist_scale: 0.01
+  occdist_scale: 0.1
   acc_lim_th: 3.2
   acc_lim_x: 2.5
-  acc_lim_y: 0
+  acc_lim_y: 2.5
 
-  holonomic_robot: false
+  holonomic_robot: true
 
   

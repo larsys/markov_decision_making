@@ -246,9 +246,9 @@ int main ( int argc, char** argv )
     
     IsObjectGrasped isObjectGrasped;
     
-    IsObjectFoundWithHighConfidence isObjectFoundWithHighConfidence;
-    IsObjectFoundWithLowConfidence isObjectFoundWithLowConfidence;
     IsObjectNotFound isObjectNotFound;
+    IsObjectFoundWithLowConfidence isObjectFoundWithLowConfidence;
+    IsObjectFoundWithHighConfidence isObjectFoundWithHighConfidence;
     
     IsPersonFound isPersonFound;
     

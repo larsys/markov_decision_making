@@ -1,7 +1,7 @@
 inflation_radius: 0.5
 
 #---(in meters)---
-footprint: [ [0.125, 0.125], [-0.125, 0.125], [-0.125, -0.125], [0.125, -0.125] ]
+footprint: [ [0.075, 0.075], [-0.075, 0.075], [-0.075, -0.075], [0.075, -0.075] ]
 
 transform_tolerance: 2.0
 map_type: costmap

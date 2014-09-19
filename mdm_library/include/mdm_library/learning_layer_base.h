@@ -44,6 +44,8 @@
 #include <boost/iterator/iterator_concepts.hpp>
 
 
+
+
 namespace mdm_library
 {   
 /**
@@ -160,6 +162,11 @@ protected:
     /** Service server for the republish callback */
     ros::ServiceServer republish_service_;
     
+    
+    
+    
+    void alpha_callback ( const std_msgs::Float32::ConstPtr& msg );
+    
 private:
     /** Path to the q_values file */
     const std::string& q_values_path_;
@@ -179,6 +186,10 @@ private:
      * in which the reward information will be received.
      */
     ros::Subscriber reward_sub_;
+    
+    
+    
+    ros::Subscriber alpha_server_;
 };
 }
 

@@ -137,8 +137,23 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     num_actions_ ( num_actions ),
     q_values_path_ ( q_values_path ),
     eligibility_traces_path_ ( eligibility_traces_path ),
-    republish_ ( false )
+    republish_ ( false ),
+    alpha_server_ ( private_nh_.subscribe ( "alpha_server", 1, &LearningLayerBase::alpha_callback, this ) )
 {
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
     
@@ -241,6 +256,29 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     if ( lambda_ != 0 )
         initializeEligibilityTraces ();
 }
+
+
+
+
+
+
+
+
+void
+LearningLayerBase::
+alpha_callback ( const std_msgs::Float32::ConstPtr& msg )
+{
+    alpha_ = ( float ) msg.get()->data;
+}
+
+
+
+
+
+
+
+
+
 
 
 

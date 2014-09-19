@@ -10,6 +10,7 @@ import random
 from topological_tools.msg import PoseLabel
 from std_msgs.msg import Int32
 from std_msgs.msg import Bool
+from geometry_msgs.msg import PoseWithCovarianceStamped
 from item_finding.msg import HandleObjectAction
 from std_srvs.srv import Empty
 
@@ -26,6 +27,7 @@ class Simulator ():
         
         # ROS Subscribers
         self.sub_robot_location  = rospy.Subscriber ( "/agent/100/pose_label", PoseLabel, self.callback_location )
+        self.sub_reset  = rospy.Subscriber ( "/agent/100/reset_all", Int32, self.callback_reset )
         
         # ROS Publishers
         self.pub_person_found = rospy.Publisher ( '/agent/100/person_found', Bool )
@@ -46,43 +48,68 @@ class Simulator ():
         self.object_possession = False
         self.object_previously_possessed = False
         
-        self.generate_confidence_levels ( self.object_location, self.object_confidence, self.pub_object_confidence )
+        self.pub_object_possession.publish ( Bool ( False ) )
+        self.pub_person_found.publish ( Bool ( False ) )
         
         self.generate_variable ()
+        self.generate_confidence_levels ()
+        
+        
+
+
+    def callback_reset ( self, data ):
+        
+        self.person_location = "DiningArea"
+        #self.person_location = "Bedroom"
+        self.object_location = 0
+        self.robot_location = "TVArea"
+        
+        self.person_found = False
+        self.object_confidence = 0
+        self.object_possession = False
+        self.object_previously_possessed = False
+        
+        self.pub_object_possession.publish ( Bool ( False ) )
+        self.pub_person_found.publish ( Bool ( False ) )
+        
+        self.generate_variable ()
+        self.generate_confidence_levels ()
 
 
 
     def generate_variable ( self ):
         r = random.random ()
         
-        #if r < 0.7:
-            #self.object_location = "Bedroom"
-        #else:
-            #self.object_location = "TVArea"
+        if r < 0.6:
+            self.object_location = "Bedroom"
+        else:
+            self.object_location = "TVArea"
         
-        self.object_location = "TVArea"
+        #self.object_location = "TVArea"
         #self.object_location = "Bedroom"
         
         print '\033[92m Object location is ' + str ( self.object_location )
 
 
 
-    def generate_confidence_levels ( self, var, confidence_var, pub ):
+    def generate_confidence_levels ( self ):
         r = random.random ()
         
-        if var == self.robot_location:
-            #confidence_var = 1
-            if r < 0.75:
-                confidence_var = 2
+        if self.object_location == self.robot_location:
+            if r < 0.5:
+                self.object_confidence = 2
             else:
-                confidence_var = 1
+                self.object_confidence = 1
+                
+            #self.object_confidence = 1
+            #self.object_confidence = 2
         else:
             # Object/Person not found
-            confidence_var = 0
+            self.object_confidence = 0
     
-        print '\033[92m Publishing confidence var = ' + str ( confidence_var ) + '\033[0m'
+        print '\033[92m Publishing confidence var = ' + str ( self.object_confidence ) + '\033[0m'
     
-        pub.publish ( Int32 ( confidence_var ) )
+        self.pub_object_confidence.publish ( Int32 ( self.object_confidence ) )
     
     
     
@@ -179,7 +206,7 @@ class Simulator ():
         elif location == 13434986:
             self.robot_location = "TVArea"
             
-        self.generate_confidence_levels ( self.object_location, self.object_confidence, self.pub_object_confidence )
+        self.generate_confidence_levels ()
         self.is_person_found_checker ()
         
         print '\033[92m Robot location is ' + str ( self.robot_location ) + '\033[0m'
