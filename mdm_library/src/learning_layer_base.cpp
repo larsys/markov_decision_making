@@ -127,7 +127,6 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
                     uint32_t num_states,
                     uint32_t num_actions,
                     const string& q_values_path,
-                    const string& eligibility_traces_path,
                     const ControlLayerBase::CONTROLLER_STATUS initial_status
                   ) :
     alpha_type_ ( alpha_type ),
@@ -136,24 +135,10 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
     num_states_ ( num_states ),
     num_actions_ ( num_actions ),
     q_values_path_ ( q_values_path ),
-    eligibility_traces_path_ ( eligibility_traces_path ),
+    eligibility_traces_path_ ( "null" ),
     republish_ ( false ),
     alpha_server_ ( private_nh_.subscribe ( "alpha_server", 1, &LearningLayerBase::alpha_callback, this ) )
 {
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     // Gather the policy update frequency value from the parameters
     int policy_update_frequency;
     
@@ -251,16 +236,128 @@ LearningLayerBase ( ALPHA_TYPE alpha_type,
         impossible_action_reward_ = MDM_DEFAULT_IMPOSSIBLE_ACTION_REWARD;
         cout << "Using a default value for impossible action reward of -1." << endl;
     }
-    
-    
-    if ( lambda_ != 0 )
-        initializeEligibilityTraces ();
 }
 
 
 
-
-
+LearningLayerBase::
+LearningLayerBase ( ALPHA_TYPE alpha_type,
+                    EPSILON_TYPE epsilon_type,
+                    CONTROLLER_TYPE controller_type,
+                    uint32_t num_states,
+                    uint32_t num_actions,
+                    const string& q_values_path,
+                    const string& eligibility_traces_path,
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status
+                  ) :
+    alpha_type_ ( alpha_type ),
+    curr_decision_ep_ ( 0 ),
+    //private_nh_ ( "~" ),
+    num_states_ ( num_states ),
+    num_actions_ ( num_actions ),
+    q_values_path_ ( q_values_path ),
+    eligibility_traces_path_ ( eligibility_traces_path ),
+    republish_ ( false ),
+    alpha_server_ ( private_nh_.subscribe ( "alpha_server", 1, &LearningLayerBase::alpha_callback, this ) )
+{
+    // Gather the policy update frequency value from the parameters
+    int policy_update_frequency;
+    
+    if ( private_nh_.hasParam ( "policy_update_frequency" ) )
+    {
+        private_nh_.getParam ( "policy_update_frequency", policy_update_frequency );
+        policy_update_frequency_ = ( uint32_t ) policy_update_frequency;
+    }
+    else
+    {
+        policy_update_frequency_ = MDM_DEFAULT_POLICY_UPDATE_FREQ;
+        cout << "Using a default value for policy update frequency of 5 decision episodes." << endl;
+    }
+    
+    
+    // Gather the gamma value from the parameters
+    double gamma;
+    
+    if ( private_nh_.hasParam ( "gamma" ) )
+    {
+        private_nh_.getParam ( "gamma", gamma );
+        
+        if ( gamma < 0 || gamma > 1 )
+        {
+            ROS_FATAL ( "Invalid provided gamma value. The gamma value must be between 0 and 1." );
+            ros::shutdown();
+        }
+        else
+            gamma_ = ( float ) gamma;
+    }
+    else
+    {
+        gamma_ = MDM_DEFAULT_GAMMA;
+        cout << "Using a default value for gamma of 0.9." << endl;
+    }
+    
+    
+    // Gather the alpha value from the parameters if alpha type is set as constant
+    double alpha;
+    
+    if ( alpha_type_ == ALPHA_CONSTANT )
+    {
+        if ( private_nh_.hasParam ( "alpha" ) )
+        {
+            private_nh_.getParam ( "alpha", alpha );
+            
+            if ( alpha < 0 || alpha > 1 )
+            {
+                ROS_FATAL ( "Invalid provided alpha value. The alpha value must be between 0 and 1." );
+                ros::shutdown();
+            }
+            else
+                alpha_ = ( float ) alpha;
+        }
+        else
+        {
+            alpha_ = MDM_DEFAULT_ALPHA;
+            cout << "Using a default value for alpha of 0.1." << endl;
+        }
+    }
+    
+    
+    // Gather the lambda value from the parameters
+    double lambda;
+    
+    if ( private_nh_.hasParam ( "lambda" ) )
+    {
+        private_nh_.getParam ( "lambda", lambda );
+        
+        if ( lambda < 0 || lambda > 1 )
+        {
+            ROS_FATAL ( "Invalid provided lambda value. The lambda value must be between 0 and 1." );
+            ros::shutdown();
+        }
+        else
+            lambda_ = ( float ) lambda;
+    }
+    else
+    {
+        lambda_ = MDM_DEFAULT_LAMBDA;
+        cout << "Using a default value for lambda of 0." << endl;
+    }
+    
+    
+    // Gather the policy update frequency value from the parameters
+    int impossible_action_reward;
+    
+    if ( private_nh_.hasParam ( "impossible_action_reward" ) )
+    {
+        private_nh_.getParam ( "impossible_action_reward", impossible_action_reward );
+        impossible_action_reward_ = ( float ) impossible_action_reward;
+    }
+    else
+    {
+        impossible_action_reward_ = MDM_DEFAULT_IMPOSSIBLE_ACTION_REWARD;
+        cout << "Using a default value for impossible action reward of -1." << endl;
+    }
+}
 
 
 
@@ -270,15 +367,6 @@ alpha_callback ( const std_msgs::Float32::ConstPtr& msg )
 {
     alpha_ = ( float ) msg.get()->data;
 }
-
-
-
-
-
-
-
-
-
 
 
 

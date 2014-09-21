@@ -108,6 +108,63 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
                const std::string& policy_file_path,
                const std::string& reward_file_path,
                const std::string& q_values_path,
+               const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
+    LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
+                        q_values_path, initial_status ),
+    state_ ( 0 ),
+    action_ ( 0 )
+{
+    // Create the controller
+    if ( controller_type == EVENT )
+        controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerEventMDP ( policy_file_path,
+                                                                                    epsilon_type,
+                                                                                    num_states,
+                                                                                    num_actions,
+                                                                                    initial_status );
+    else
+    {
+        if ( controller_type == TIMED )
+            controller_ = ( boost::shared_ptr<ControllerMDP> ) new ControllerTimedMDP ( policy_file_path,
+                                                                                        epsilon_type,
+                                                                                        num_states,
+                                                                                        num_actions,
+                                                                                        initial_status );
+        else
+        {
+            ROS_FATAL ( "LearningLayer:: invalid controller type. Valid controller types are EVENT and TIMED." );
+            ros::shutdown();
+        }
+    }
+    
+    ( *controller_ ).loadRewardMatrix ( reward_file_path );
+    
+    state_sub_ = nh_.subscribe ( "state", 1, &QLearningMDP::stateSymbolCallback, this );
+    policy_pub_ = nh_.advertise<Policy> ( "policy", 0, true );
+    
+    republish_service_ = nh_.advertiseService ( "publish_new_action", &QLearningMDP::republish_callback, this );
+    
+    if ( !loadQValues () )
+        initializeQValues ();
+    
+    if ( lambda_ != 0)
+        initializeEligibilityTraces ();
+    
+    if ( !loadLearningPolicy ( learning_policy_file_path, epsilon_type ) )
+        initializeLearningPolicy ( learning_policy_file_path, epsilon_type );
+}
+
+
+
+QLearningMDP::
+QLearningMDP ( ALPHA_TYPE alpha_type,
+               EPSILON_TYPE epsilon_type,
+               CONTROLLER_TYPE controller_type,
+               uint32_t num_states,
+               uint32_t num_actions,
+               const std::string& learning_policy_file_path,
+               const std::string& policy_file_path,
+               const std::string& reward_file_path,
+               const std::string& q_values_path,
                const string& eligibility_traces_path,
                const ControlLayerBase::CONTROLLER_STATUS initial_status ) :
     LearningLayerBase ( alpha_type, epsilon_type, controller_type, num_states, num_actions,
@@ -147,8 +204,11 @@ QLearningMDP ( ALPHA_TYPE alpha_type,
     if ( !loadQValues () )
         initializeQValues ();
     
-    if ( !loadEligibilityTraces() )
-        initializeEligibilityTraces ();
+    if ( lambda_ != 0)
+    {
+        if ( !loadEligibilityTraces() )
+            initializeEligibilityTraces ();
+    }
     
     if ( !loadLearningPolicy ( learning_policy_file_path, epsilon_type ) )
         initializeLearningPolicy ( learning_policy_file_path, epsilon_type );

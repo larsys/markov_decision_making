@@ -71,8 +71,16 @@ public:
                         uint32_t num_states,
                         uint32_t num_actions,
                         const string& q_values_path,
-                        const string& eligibility_traces_path,
                         const ControlLayerBase::CONTROLLER_STATUS initial_status );
+
+    LearningLayerBase ( ALPHA_TYPE alpha_type,
+                    EPSILON_TYPE epsilon_type,
+                    CONTROLLER_TYPE controller_type,
+                    uint32_t num_states,
+                    uint32_t num_actions,
+                    const string& q_values_path,
+                    const string& eligibility_traces_path,
+                    const ControlLayerBase::CONTROLLER_STATUS initial_status );
     
 protected:
     /** MDP Controller */
@@ -161,9 +169,6 @@ protected:
     
     /** Service server for the republish callback */
     ros::ServiceServer republish_service_;
-    
-    
-    
     
     void alpha_callback ( const std_msgs::Float32::ConstPtr& msg );
     

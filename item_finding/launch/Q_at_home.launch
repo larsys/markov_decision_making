@@ -35,14 +35,17 @@
     <group ns="agent/100">
         <param name="pm_id" value="0" />
 	<param name="gamma" value="0.9" />
+	<param name="epsilon" value="0.5" />
+	<param name="alpha" value="0.5" />
+	<param name="impossible_action_reward" value ="-1" />
 	<param name="lambda" value="0" />
 	<param name="policy_update_frequency" value="1" />
 	<param name="reward_type" value="matrix" />
 
         <include file="$(find item_finding)/launch/navigation.launch"/>
         
-        <node pkg="rviz" type="rviz" name="rviz"
-              args="-d $(find item_finding)/config/at_home.rviz"/>
+        <!--node pkg="rviz" type="rviz" name="rviz"
+              args="-d $(find item_finding)/config/at_home.rviz"/-->
         
         <rosparam file="$(find item_finding)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
 
@@ -54,13 +57,15 @@
         <node pkg="item_finding" name="state_layer" type="if_state_layer" respawn="true" output="screen"/>
 
         <node pkg="item_finding" name="control_layer" type="if_control_q_layer" 
-              args="$(find item_finding)/config/MDP_policy $(find item_finding)/config/learning_policy $(find item_finding)/config/MDP_reward $(find item_finding)/config/Q_values" respawn="false" output="screen"/>
+              args="$(find item_finding)/config/learning_policy $(find item_finding)/config/MDP_policy $(find item_finding)/config/MDP_reward $(find item_finding)/config/Q_values $(find item_finding)/config/eligibility_traces" respawn="false" output="screen"/>
         
         <node pkg="item_finding" name="action_layer" type="if_action_layer" 
               args="$(find item_finding)/config/topological_map.xml" respawn="true" output="screen"/>
         
         <node pkg="rostopic" type="rostopic" name="rostopic_pub"        
               args="pub -1 /agent/100/initialpose geometry_msgs/PoseWithCovarianceStamped '{pose: {pose: {position: {x: 0, y: 0, z: 0}, orientation: { w: 1, z: 0, x: 0, y: 0 } } } }'"/>
+
+	<node pkg="item_finding" name="Killer" type="killer.py" output="screen" />
               
     </group>
 

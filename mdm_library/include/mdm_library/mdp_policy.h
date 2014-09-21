@@ -34,10 +34,6 @@
 #include <fstream>
 
 #include <ros/ros.h>
-
-
-
-
 #include <std_msgs/Float32.h>
 
 
@@ -108,14 +104,6 @@ public:
         curr_decision_ep_ ( 0 ),
         eps_server_ ( private_nh_.subscribe ( "eps_server", 1, &MDPEpsilonGreedyPolicyVector::eps_callback, this ) )
     {
-        
-        
-        
-        
-        
-        
-        
-        
         srand ( time ( NULL ) );
         
         // Gather the alpha value from the parameters if alpha type is set as constant
@@ -151,31 +139,9 @@ public:
     void eps_callback ( const std_msgs::Float32::ConstPtr& msg )
     {
         epsilon_ = ( float ) msg.get()->data;
-        
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
-        cout << "NEW EPSILON IS " << epsilon_ << endl;
     }
     
     
-    
-    
-
-
     virtual void updatePolicy ( Matrix q_values )
     {
         uint32_t best_action;
