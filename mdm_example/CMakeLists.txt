@@ -8,10 +8,8 @@ find_package(catkin REQUIRED COMPONENTS mdm_library
 find_package( SDL )
 find_package( SDL_image )
 
-if ( NOT_SDLIMAGE_FOUND )
-  message(FATAL_ERROR, "SDL_image must be installed in order to run the demo (and topological_tools must be compiled accordingly).")
-endif ( NOT_SDLIMAGE_FOUND )
-
+if ( SDLIMAGE_FOUND )
+  
 catkin_package(
   CATKIN_DEPENDS mdm_library
                  predicate_manager
@@ -37,3 +35,10 @@ add_executable(demo_control_layer src/demo_control_layer.cpp)
 target_link_libraries(demo_control_layer ${catkin_LIBRARIES})
 
 set_target_properties(demo_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
+
+else ( SDLIMAGE_FOUND )
+
+message(FATAL_ERROR, "SDL_image must be installed in order to run the demo (and topological_tools must be compiled accordingly).")
+
+endif ( SDLIMAGE_FOUND )
+
