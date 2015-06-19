@@ -52,11 +52,10 @@ public:
     /** Preferred constructor. When using this form, the reward function of the MDP model
      * is known to the controller, and so reward can be logged in real-time. Furthermore,
      * the metadata of the model is parsed automatically and passed to the Action Layer.
+     * @param policy_file_path A file describing the (possibly stochastic) policy, in boost::io
+     * standard format. If the policy is deterministic, it should be a length |S| vector. Otherwise,
+     * it should be a |A|x|S| matrix where each column is a probability distribution over |A| for a given state.
      * @param problem_file A file defining the MDP, in any MADP-compatible format.
-     * @param q_value_function_file The path to a file defining the Q-value function of this MDP, as a
-     * whitespace-separated |S|x|A| matrix of floating point numbers.
-     * If you have an explicit policy instead, convert it to a matrix where the only non-zero entries
-     * exist in the specified (s,a) pairs.
      * @param initial_status (optional) The initial status of this controller.
      */
     ControllerMDP ( const std::string& policy_file_path,

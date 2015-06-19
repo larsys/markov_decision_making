@@ -99,11 +99,39 @@ loadPolicyVector ( const string& policy_vector_path )
 
         ifstream fp;
         fp.open ( policy_vector_path.c_str() );
-        IndexVectorPtr policy_vec ( new IndexVector() );
 
-        fp >> ( *policy_vec );
+        ///We need to look at the size of the policy to figure out if it is deterministic or stochastic
+        char c;
+        int dim_count = 1;
+        
+        while(c !=']')
+        {
+            fp.get(c);
+            if(c==',')
+                dim_count++;
+        }
+        if(dim_count > 2)
+        {
+            ROS_ERROR_STREAM("The policy is incorrectly formatted. It must have at most two dimensions (|A|x|S|).");
+            abort();
+        }
 
-        policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPPolicyVector ( policy_vec ) );
+	fp.seekg (0, fp.beg);
+
+        if(dim_count == 1)
+        {
+            IndexVectorPtr policy_vec ( new IndexVector() );
+            fp >> ( *policy_vec );
+
+            policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPPolicyVector ( policy_vec ) );
+        }
+        else
+        {
+            MatrixPtr policy_mat ( new Matrix() );
+            fp >> ( *policy_mat );
+
+            policy_ptr_ = boost::shared_ptr<MDPPolicy> ( new MDPPolicyMatrix ( policy_mat ) );
+        }
     }
     catch ( exception& e )
     {

@@ -25,9 +25,10 @@
 #ifndef _MDP_POLICY_H_
 #define _MDP_POLICY_H_
 
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/discrete_distribution.hpp>
+
 #include <mdm_library/common_defs.h>
-
-
 
 namespace mdm_library
 {
@@ -48,15 +49,37 @@ class MDPPolicyVector : public MDPPolicy
 {
 public:
     MDPPolicyVector ( IndexVectorPtr p_ptr ) :
-        policy_vec_ptr_ ( p_ptr ) {}
+        policy_vec_ptr_ ( p_ptr ){}
 
 protected:
     virtual uint32_t getAction ( uint32_t index )
     {
         return ( *policy_vec_ptr_ ) [index];
     }
+
 private:
     IndexVectorPtr policy_vec_ptr_;
+};
+
+class MDPPolicyMatrix : public MDPPolicy
+{
+public:
+    MDPPolicyMatrix ( MatrixPtr m_ptr ) :
+        policy_matrix_ptr_ ( m_ptr ),
+        gen_ ()
+    {}
+
+protected:
+    virtual uint32_t getAction ( uint32_t index )
+    {
+        boost::numeric::ublas::matrix_column<Matrix> mc( *policy_matrix_ptr_, index );
+        boost::random::discrete_distribution<> dist(mc);
+        return dist(gen_); 
+    }
+
+private:
+    MatrixPtr policy_matrix_ptr_;
+    boost::mt19937 gen_;
 };
 }
 
