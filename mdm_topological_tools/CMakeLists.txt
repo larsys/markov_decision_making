@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 
-project(topological_tools)
+project(mdm_topological_tools)
 
 find_package(catkin REQUIRED COMPONENTS
                              roscpp
@@ -20,7 +20,7 @@ generate_messages(DEPENDENCIES std_msgs)
 
 if ( SDLIMAGE_FOUND )
 
-add_library(topological_tools
+add_library(mdm_topological_tools
             src/topological_node.cpp
             src/topological_map.cpp
             src/topological_action_manager.cpp
@@ -30,7 +30,7 @@ add_library(topological_tools
 
 else ( SDLIMAGE_FOUND )
 
-add_library(topological_tools
+add_library(mdm_topological_tools
             src/topological_node.cpp
             src/topological_map.cpp
             src/topological_action_manager.cpp
@@ -43,27 +43,27 @@ endif ( SDLIMAGE_FOUND )
             
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES topological_tools
+  LIBRARIES mdm_topological_tools
   CATKIN_DEPENDS roscpp mdm_library predicate_manager actionlib actionlib_msgs
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
 
-add_dependencies(topological_tools ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(mdm_topological_tools ${PROJECT_NAME}_generate_messages_cpp)
 
 if ( SDLIMAGE_FOUND )
 
-target_link_libraries(topological_tools ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY})
+target_link_libraries(mdm_topological_tools ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY})
 
 add_executable(pose_labeler_node 
                src/pose_labeler_node.cpp)
 
 add_dependencies(pose_labeler_node ${PROJECT_NAME}_generate_messages_cpp)
 
-target_link_libraries(pose_labeler_node ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY} topological_tools)
+target_link_libraries(pose_labeler_node ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY} mdm_topological_tools)
 
 else ( SDLIMAGE_FOUND )
 
-target_link_libraries(topological_tools ${catkin_LIBRARIES})
+target_link_libraries(mdm_topological_tools ${catkin_LIBRARIES})
 
 endif ( SDLIMAGE_FOUND )

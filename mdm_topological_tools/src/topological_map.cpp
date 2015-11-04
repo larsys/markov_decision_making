@@ -23,7 +23,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <topological_tools/topological_map.h>
+#include <mdm_topological_tools/topological_map.h>
 
 #include <boost/bind.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -34,7 +34,7 @@
 
 
 using namespace std;
-using namespace topological_tools;
+using namespace mdm_topological_tools;
 using namespace geometry_msgs;
 
 

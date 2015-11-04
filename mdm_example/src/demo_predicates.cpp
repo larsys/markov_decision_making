@@ -9,12 +9,12 @@
 #include <predicate_manager/prop_pv.h>
 #include <predicate_manager/prop_not.h>
 
-#include <topological_tools/topological_predicate.h>
+#include <mdm_topological_tools/topological_predicate.h>
 
 using namespace std;
 using namespace ros;
 using namespace predicate_manager;
-using namespace topological_tools;
+using namespace mdm_topological_tools;
 
 
 class PatrolHalfwayThroughPred : public Predicate

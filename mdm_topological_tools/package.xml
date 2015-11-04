@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package>
-  <name>topological_tools</name>
+  <name>mdm_topological_tools</name>
   <version>0.1.2</version>
-  <description>The topological_tools package contains utilities to ease the deployment
+  <description>The mdm_topological_tools package contains utilities to ease the deployment
                of the MDM Library in topological navigation problems.</description>
 
   <maintainer email="jmessias@isr.ist.utl.pt">Joao Messias</maintainer>
 
   <license>LGPLv3</license>
-  <url>http://ros.org/wiki/topological_tools</url>
+  <url>http://ros.org/wiki/mdm_topological_tools</url>
   <author email="jmessias@isr.ist.utl.pt">Joao Messias</author>
 
   <build_depend>message_generation</build_depend>

@@ -28,7 +28,7 @@
               args="-d $(find mdm_example)/config/ISR_demo.rviz"/>
         
         <rosparam file="$(find mdm_example)/config/predicate_labels.yaml" command="load" ns="predicate_labels" />
-        <node pkg="topological_tools" name="pose_labeler" type="pose_labeler_node" 
+        <node pkg="mdm_topological_tools" name="pose_labeler" type="pose_labeler_node" 
               args="$(find mdm_example)/maps/ISR_label_map.png amcl_pose" respawn="true"/>
         <node pkg="mdm_example" name="predicates" type="demo_predicates" respawn="true"/>
 

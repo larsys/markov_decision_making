@@ -1,4 +1,4 @@
-/**\file topological_node.h
+/**\file topological_map.h
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -23,35 +23,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _TOPOLOGICAL_NODE_H_
-#define _TOPOLOGICAL_NODE_H_
+#ifndef _TOPOLOGICAL_MAP_H_
+#define _TOPOLOGICAL_MAP_H_
 
-#include <ros/ros.h>
-#include <geometry_msgs/Pose.h>
-
-#include <boost/shared_ptr.hpp>
+#include <mdm_topological_tools/topological_node.h>
 
 
 
-namespace topological_tools
+namespace mdm_topological_tools
 {
-class TopologicalNode
+class TopologicalMap
 {
 public:
-    TopologicalNode ( const geometry_msgs::Pose& goal, const std::string& name );
+    TopologicalMap ( const std::string& map_file );
 
-    void connect ( boost::shared_ptr<TopologicalNode> tpn, const std::string& connection_label );
-    boost::shared_ptr<TopologicalNode> getConnection ( const std::string& connection_label );
+    bool hasNode ( const std::string& node_name );
 
-    bool hasConnection ( const std::string& connection_label );
-    const geometry_msgs::Pose& getGoalPose();
-    const std::string& getName();
+    boost::shared_ptr<TopologicalNode> getNodeByName ( const std::string& node_name );
 
-private:
-    geometry_msgs::Pose goal_;
-    std::string name_;
+    void addNode ( geometry_msgs::Pose goal, const std::string& node_name );
 
-    std::map<std::string, boost::shared_ptr<TopologicalNode> > connections_;
+private :
+
+    std::map<std::string, boost::shared_ptr<TopologicalNode> > node_map_;
 };
 }
 

@@ -3,7 +3,7 @@ project(mdm_example)
 
 find_package(catkin REQUIRED COMPONENTS mdm_library
                                         predicate_manager
-                                        topological_tools)
+                                        mdm_topological_tools)
 
 find_package( SDL )
 find_package( SDL_image )
@@ -13,7 +13,7 @@ if ( SDLIMAGE_FOUND )
 catkin_package(
   CATKIN_DEPENDS mdm_library
                  predicate_manager
-                 topological_tools
+                 mdm_topological_tools
 )
 
 include_directories(include ${catkin_INCLUDE_DIRS})
@@ -38,7 +38,7 @@ set_target_properties(demo_control_layer PROPERTIES COMPILE_FLAGS "-std=c++0x")
 
 else ( SDLIMAGE_FOUND )
 
-message(FATAL_ERROR, "SDL_image must be installed in order to run the demo (and topological_tools must be compiled accordingly).")
+message(FATAL_ERROR, "SDL_image must be installed in order to run the demo (and mdm_topological_tools must be compiled accordingly).")
 
 endif ( SDLIMAGE_FOUND )
 

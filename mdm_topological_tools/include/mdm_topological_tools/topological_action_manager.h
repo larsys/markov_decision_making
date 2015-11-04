@@ -32,11 +32,11 @@
 
 #include <predicate_manager/PredicateInfoMap.h>
 #include <predicate_manager/PredicateUpdate.h>
-#include <topological_tools/topological_map.h>
+#include <mdm_topological_tools/topological_map.h>
 
 
 
-namespace topological_tools
+namespace mdm_topological_tools
 {
 class TopologicalActionManager
 {

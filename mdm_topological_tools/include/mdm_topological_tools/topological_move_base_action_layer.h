@@ -35,11 +35,11 @@
 #include <move_base_msgs/MoveBaseAction.h>
 #include <move_base_msgs/MoveBaseFeedback.h>
 
-#include <topological_tools/topological_action_manager.h>
+#include <mdm_topological_tools/topological_action_manager.h>
 #include <mdm_library/action_layer.h>
 
 
-namespace topological_tools
+namespace mdm_topological_tools
 {
 /**
  * Assumes that the map frame id is at /map (TODO: configurable)

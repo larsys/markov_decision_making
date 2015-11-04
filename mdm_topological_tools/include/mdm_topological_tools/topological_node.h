@@ -1,4 +1,4 @@
-/**\file pose_labeler.h
+/**\file topological_node.h
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -23,49 +23,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef _TOPOLOGICAL_NODE_H_
+#define _TOPOLOGICAL_NODE_H_
 
-#ifndef _POSE_LABELER_H_
-#define _POSE_LABELER_H_
-
-#include <string>
+#include <ros/ros.h>
+#include <geometry_msgs/Pose.h>
 
 #include <boost/shared_ptr.hpp>
 
-#include <ros/ros.h>
-
-#include <nav_msgs/MapMetaData.h>
-#include <geometry_msgs/PoseWithCovarianceStamped.h>
-
-#include <stdlib.h>
-
-#include <SDL/SDL_image.h>
-#include <topological_tools/PoseLabel.h>
 
 
-
-
-namespace topological_tools
+namespace mdm_topological_tools
 {
-class PoseLabeler
+class TopologicalNode
 {
 public:
-    PoseLabeler ( const std::string& label_map_filename );
+    TopologicalNode ( const geometry_msgs::Pose& goal, const std::string& name );
 
-    ~PoseLabeler();
-    PoseLabel getPoseLabel ( geometry_msgs::PoseWithCovarianceStamped msg );
-    uint32_t getPixelValue ( boost::shared_ptr<SDL_Surface> surface, int x, int y );
+    void connect ( boost::shared_ptr<TopologicalNode> tpn, const std::string& connection_label );
+    boost::shared_ptr<TopologicalNode> getConnection ( const std::string& connection_label );
 
-    void setMapMetaData ( const nav_msgs::MapMetaDataConstPtr& mdata );
-
-    void setMapMetaData ( nav_msgs::MapMetaData mdata );
+    bool hasConnection ( const std::string& connection_label );
+    const geometry_msgs::Pose& getGoalPose();
+    const std::string& getName();
 
 private:
+    geometry_msgs::Pose goal_;
+    std::string name_;
 
-    boost::shared_ptr<SDL_Surface> label_map_;
-
-    bool map_loaded_;
-
-    nav_msgs::MapMetaData map_metadata_;
+    std::map<std::string, boost::shared_ptr<TopologicalNode> > connections_;
 };
 }
 

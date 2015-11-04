@@ -28,9 +28,9 @@
 
 #include <ros/ros.h>
 #include <predicate_manager/predicate.h>
-#include <topological_tools/PoseLabel.h>
+#include <mdm_topological_tools/PoseLabel.h>
 
-namespace topological_tools
+namespace mdm_topological_tools
 {
 class TopologicalPredicate : public predicate_manager::Predicate
 {
@@ -43,7 +43,7 @@ public:
                            const uint32_t target_label );
 
 
-    void labelCallback ( const topological_tools::PoseLabelConstPtr& msg );
+    void labelCallback ( const mdm_topological_tools::PoseLabelConstPtr& msg );
 
     void update();
 

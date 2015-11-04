@@ -1,4 +1,4 @@
-/**\file topological_predicate.cpp
+/**\file topological_node.cpp
  *
  * Author:
  * Joao Messias <jmessias@isr.ist.utl.pt>
@@ -23,39 +23,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <topological_tools/topological_predicate.h>
+
+#include <mdm_topological_tools/topological_node.h>
+
 
 
 using namespace std;
 using namespace ros;
-using namespace predicate_manager;
-using namespace topological_tools;
+using namespace mdm_topological_tools;
 
 
-TopologicalPredicate::
-TopologicalPredicate ( const string& label_topic,
-                       const string& name ) :
-    Predicate ( name ),
-    label_subs_ ( nh_.subscribe ( label_topic, 1, &TopologicalPredicate::labelCallback, this ) )
-{
-    nh_.getParam ( "predicate_labels/" + getName(), ( int& ) target_label_ );
-}
 
-TopologicalPredicate::TopologicalPredicate ( const string& label_topic,
-        const string& name,
-        const uint32_t target_label ) :
-    Predicate ( name ),
-    label_subs_ ( nh_.subscribe ( label_topic, 1, &TopologicalPredicate::labelCallback, this ) ),
-    target_label_ ( target_label )
+TopologicalNode::TopologicalNode ( const geometry_msgs::Pose& goal, const string& name ) :
+    goal_ ( goal ),
+    name_ ( name )
 {}
 
-void TopologicalPredicate::labelCallback ( const PoseLabelConstPtr& msg )
+
+
+void TopologicalNode::connect ( boost::shared_ptr<TopologicalNode> tpn, const string& connection_label )
 {
-    received_label_ = msg->label;
-    update();
+    connections_[connection_label] = tpn;
 }
 
-void TopologicalPredicate::update()
+
+
+boost::shared_ptr<TopologicalNode> TopologicalNode::getConnection ( const string& connection_label )
 {
-    setValue ( received_label_ == target_label_ );
+    if ( !connections_.count ( connection_label ) )
+    {
+        ROS_ERROR_STREAM ( "TopologicalNode:: Node " << name_ << " has no connection '" << connection_label << "'." );
+        abort();
+    }
+
+    return connections_[connection_label];
+}
+
+
+
+bool TopologicalNode::hasConnection ( const string& connection_label )
+{
+    return connections_.count ( connection_label );
+}
+
+
+
+const geometry_msgs::Pose& TopologicalNode::getGoalPose()
+{
+    return goal_;
+}
+
+
+
+const string& TopologicalNode::getName()
+{
+    return name_;
 }
