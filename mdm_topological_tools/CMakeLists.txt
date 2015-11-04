@@ -55,12 +55,12 @@ if ( SDLIMAGE_FOUND )
 
 target_link_libraries(mdm_topological_tools ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY})
 
-add_executable(pose_labeler_node 
+add_executable(mdm_pose_labeler_node 
                src/pose_labeler_node.cpp)
 
-add_dependencies(pose_labeler_node ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(mdm_pose_labeler_node ${PROJECT_NAME}_generate_messages_cpp)
 
-target_link_libraries(pose_labeler_node ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY} mdm_topological_tools)
+target_link_libraries(mdm_pose_labeler_node ${catkin_LIBRARIES} ${SDLIMAGE_LIBRARY} mdm_topological_tools)
 
 else ( SDLIMAGE_FOUND )
 
