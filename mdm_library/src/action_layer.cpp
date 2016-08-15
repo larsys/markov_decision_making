@@ -140,6 +140,8 @@ void
 ActionLayer::
 actionSymbolCallback ( const ActionSymbolConstPtr& msg )
 {
+    mtx_.lock();
+
     try
     {
         if ( action_sizes_.empty() )
@@ -170,6 +172,7 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
         {
             ROS_INFO_STREAM ( "ActionLayer:: Agent " << mdm_agent_index_ << " executing action " << local_action << " (" << local_action_names_[local_action] << ")" );
         }
+
         if ( action_ids_.size() > local_action && action_callbacks_.size() > action_ids_[local_action] )
         {
             size_t id = action_ids_[local_action];
@@ -186,6 +189,8 @@ actionSymbolCallback ( const ActionSymbolConstPtr& msg )
         ROS_FATAL_STREAM ( e.what() );
         shutdown();
     }
+
+    mtx_.unlock();
 }
 
 
@@ -194,10 +199,7 @@ void
 ActionLayer::
 actionMetadataCallback ( const FactoredSymbolMetadataConstPtr& msg )
 {
-    if ( action_ids_.size() < action_callbacks_.size() )
-    {
-        action_ids_.reserve ( action_callbacks_.size() );
-    }
+    mtx_.lock();
 
     uint32_t declared_values = action_callbacks_.size();
 
@@ -222,12 +224,14 @@ actionMetadataCallback ( const FactoredSymbolMetadataConstPtr& msg )
     for ( size_t i = 0; i < msg->factors.size(); i++ )
     {
         action_sizes_.push_back ( msg->factors[i].number_of_symbols );
+        bool init_action_ids = action_ids_.empty();
         if ( ! using_named_actions_ && i == mdm_agent_index_ )
         {
-            for ( size_t j = 0; j < msg->factors[j].symbol_names.size(); j++ )
+            for ( size_t j = 0; j < msg->factors[i].symbol_names.size(); j++ )
             {
                 local_action_names_.push_back ( msg->factors[i].symbol_names[j] );
-                action_ids_[j] = j; ///if not using named actions, the ID of each action is its position.
+                if(init_action_ids)
+                    action_ids_.push_back(j);
             }
         }
     }
@@ -252,11 +256,13 @@ actionMetadataCallback ( const FactoredSymbolMetadataConstPtr& msg )
         }
     }
 
+    mtx_.unlock();
     if ( pending_action_ != 0 )
     {
         actionSymbolCallback ( pending_action_ );
         pending_action_.reset();
     }
+
 }
 
 

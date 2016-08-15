@@ -30,6 +30,7 @@
 #include <map>
 
 #include <boost/function.hpp>
+#include <boost/thread.hpp>
 
 #include <ros/ros.h>
 #include <ros/callback_queue_interface.h>
@@ -142,6 +143,8 @@ private:
     int mdm_agent_index_;
 
     bool using_named_actions_;
+
+    boost::mutex mtx_;
 };
 }
 
