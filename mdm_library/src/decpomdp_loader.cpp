@@ -224,7 +224,7 @@ publishInitialStateDistribution ( boost::shared_ptr<DecPOMDPDiscrete> d )
     BeliefStateInfo b;
     b.belief = isd;
     fdist.factors.push_back ( b );
-    initial_state_distribution_pub_.publish ( b );
+    initial_state_distribution_pub_.publish ( fdist );
 }
 
 
